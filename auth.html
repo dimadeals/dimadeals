@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EMM — Sign In</title>
+
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/app.js" defer></script>
+</head>
+
+<body>
+
+<header class="site-header">
+  <div class="header-left">
+    <span class="brand-name"><a href="index.html">EMM</a></span>
+  </div>
+</header>
+
+<main class="container">
+
+<section class="auth-box">
+  <h2 id="auth-title">Sign In</h2>
+
+  <!-- LOGIN -->
+  <form id="login-form">
+    <input type="email" id="login-email" placeholder="Email" required />
+    <input type="password" id="login-password" placeholder="Password" required />
+    <button type="submit">Sign In</button>
+
+    <p class="auth-switch">
+      Don’t have an account?
+      <a href="#" id="go-register">Register</a>
+    </p>
+
+    <p class="auth-switch">
+      <a href="#" id="go-forgot">Forgot password?</a>
+    </p>
+  </form>
+
+  <!-- REGISTER -->
+  <form id="register-form" hidden>
+    <input type="text" id="register-name" placeholder="Name" required />
+    <input type="email" id="register-email" placeholder="Email" required />
+    <input type="password" id="register-password" placeholder="Password" required />
+    <button type="submit">Register</button>
+
+    <p class="auth-switch">
+      Already have an account?
+      <a href="#" id="go-login-from-register">Sign in</a>
+    </p>
+  </form>
+
+  <!-- FORGOT -->
+  <form id="forgot-form" hidden>
+    <input type="email" id="forgot-email" placeholder="Your email" required />
+    <button type="submit">Send reset code</button>
+
+    <p class="auth-switch">
+      <a href="#" id="go-login-from-forgot">Back to sign in</a>
+    </p>
+  </form>
+
+  <!-- RESET -->
+  <form id="reset-form" hidden>
+    <input type="text" id="reset-code" placeholder="Reset code" required />
+    <input type="password" id="reset-password" placeholder="New password" required />
+    <button type="submit">Set new password</button>
+
+    <p class="auth-switch">
+      <a href="#" id="go-login-from-reset">Back to sign in</a>
+    </p>
+  </form>
+</section>
+
+</main>
+
+</body>
+</html>
