@@ -1,3 +1,7 @@
+const API_BASE = "https://shop-api.dimadeals0.workers.dev"
+
+
+
 /* =========================================================
    CONFIG
 ========================================================= */
@@ -173,13 +177,13 @@ function notify(text) {
 ========================================================= */
 
 async function getSessionUser() {
-  const res = await fetch("/api/me", { credentials: "include" })
+  const res = await fetch(`${API_BASE}/api/me`, { credentials: "include" })
   if (!res.ok) return null
   return res.json()
 }
 
 async function handleLogout() {
-  await fetch("/api/auth/logout", { method: "POST", credentials: "include" })
+  await fetch(`${API_BASE}/api/auth/logout`, { method: "POST", credentials: "include" })
   location.href = "index.html"
 }
 
@@ -255,7 +259,7 @@ document.getElementById("login-form")?.addEventListener("submit", async e => {
   const password = document.getElementById("login-password").value
 
 
-  const res = await fetch("/api/auth/login", {
+  const res = await fetch(`${API_BASE}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -274,7 +278,7 @@ document.getElementById("login-form")?.addEventListener("submit", async e => {
 document.getElementById("register-form")?.addEventListener("submit", async e => {
   e.preventDefault()
 
-  const res = await fetch("/api/auth/register", {
+  const res = await fetch(`${API_BASE}/api/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -299,7 +303,7 @@ document.getElementById("register-form")?.addEventListener("submit", async e => 
 document.getElementById("forgot-form")?.addEventListener("submit", async e => {
   e.preventDefault()
 
-  const res = await fetch("/api/auth/forgot", {
+  const res = await fetch(`${API_BASE}/api/auth/forgot`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -318,7 +322,7 @@ document.getElementById("forgot-form")?.addEventListener("submit", async e => {
 document.getElementById("reset-form")?.addEventListener("submit", async e => {
   e.preventDefault()
 
-  const res = await fetch("/api/auth/reset", {
+  const res = await fetch(`${API_BASE}/api/auth/reset`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -348,7 +352,7 @@ async function handleCheckout() {
   const cart = getCart()
   if (!cart.length) return notify("Cart is empty")
 
-  const res = await fetch("/api/orders", {
+  const res = await fetch(`${API_BASE}/api/orders`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
