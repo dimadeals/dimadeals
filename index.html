@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DIMA Deals - Digital Subscriptions for Tunisia</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body>
+
+<!-- Header Navigation -->
+<header class="header">
+  <div class="header-container">
+    <div class="logo">
+      <a href="index.html" class="active"><img src="images/DimaDealsLogo.png" alt=""></a>
+    </div>
+    <nav class="nav-menu">
+      <ul class="nav-links">
+        <li class="nav-item">
+          <a href="#" class="nav-link">Subscriptions <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown">
+            <li><a href="subscriptions-netflix.html"><i class="fab fa-netflix"></i> Netflix</a></li>
+            <li><a href="subscriptions-spotify.html"><i class="fab fa-spotify"></i> Spotify</a></li>
+            <li><a href="subscriptions-prime.html"><i class="fas fa-tv"></i> Amazon Prime</a></li>
+            <li><a href="subscriptions-shahid.html"><i class="fas fa-film"></i> Shahid</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">Games <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown">
+            <li><a href="games.html?type=pc">PC Games</a></li>
+            <li><a href="games.html?type=console">Console Games</a></li>
+            <li><a href="games.html?type=mobile">Mobile Games</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">Courses <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown">
+            <li><a href="courses.html?type=programming">Programming</a></li>
+            <li><a href="courses.html?type=design">Design</a></li>
+            <li><a href="courses.html?type=marketing">Marketing</a></li>
+            <li><a href="courses.html?type=business">Business</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">Apps <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown">
+            <li><a href="apps.html?type=mobile">Mobile Apps</a></li>
+            <li><a href="apps.html?type=software">Software</a></li>
+            <li><a href="apps.html?type=productivity">Productivity</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+    <div class="nav-right">
+      <select class="language-select" id="language-select">
+        <option value="en">EN</option>
+        <option value="fr">FR</option>
+        <option value="ar">AR</option>
+      </select>
+      <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-content">
+    <h1>Premium Digital Subscriptions for Tunisia</h1>
+    <p>Netflix, Spotify, Games & Courses – Instant Delivery & Secure Payments</p>
+    <button class="cta-button" onclick="document.querySelector('.platforms').scrollIntoView({behavior: 'smooth'})">
+      <i class="fas fa-play-circle"></i> Browse Deals
+    </button>
+  </div>
+  <div class="hero-background">
+    <div class="gradient-1"></div>
+    <div class="gradient-2"></div>
+  </div>
+</section>
+
+<!-- Popular Platforms Section -->
+<section class="platforms" id="platforms">
+  <div class="section-container">
+    <h2>Popular Platforms</h2>
+    <p class="section-subtitle">Choose from the most popular streaming services</p>
+    <div class="platform-grid">
+      <a href="subscriptions-netflix.html" class="platform netflix">
+        <i class="fab fa-netflix"></i>
+        <span>Netflix</span>
+      </a>
+      <a href="subscriptions-spotify.html" class="platform spotify">
+        <i class="fab fa-spotify"></i>
+        <span>Spotify</span>
+      </a>
+      <a href="subscriptions-prime.html" class="platform prime">
+        <i class="fas fa-tv"></i>
+        <span>Amazon Prime</span>
+      </a>
+      <a href="subscriptions-shahid.html" class="platform shahid">
+        <i class="fas fa-film"></i>
+        <span>Shahid</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Most Popular Products Section -->
+<section class="products most-popular">
+  <div class="section-container">
+    <h2>Most Popular</h2>
+    <p class="section-subtitle">Top-selling subscriptions this month</p>
+    <div class="product-grid" id="most-popular-grid">
+      <!-- Products loaded by JavaScript -->
+    </div>
+  </div>
+</section>
+
+<!-- Recommended Products Section -->
+<section class="products recommended">
+  <div class="section-container">
+    <h2>We Recommend</h2>
+    <p class="section-subtitle">Curated picks tailored for you</p>
+    <div class="product-grid" id="recommended-grid">
+      <!-- Products loaded by JavaScript -->
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="features">
+  <div class="section-container">
+    <h2>Why Choose DIMA Deals?</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <i class="fas fa-bolt"></i>
+        <h3>Instant Delivery</h3>
+        <p>Get your subscription codes immediately via email after purchase</p>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-lock"></i>
+        <h3>Secure Payment</h3>
+        <p>Safe and encrypted transactions for your peace of mind</p>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-headset"></i>
+        <h3>24/7 Support</h3>
+        <p>Dedicated customer support team ready to help anytime</p>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-check-circle"></i>
+        <h3>100% Guarantee</h3>
+        <p>Satisfaction guaranteed or your money back</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-section">
+      <h4>DIMA Deals</h4>
+      <p>Your trusted source for digital subscriptions in Tunisia</p>
+    </div>
+    <div class="footer-section">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="subscriptions-netflix.html">Subscriptions</a></li>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h4>Follow Us</h4>
+      <div class="social-links">
+        <a href="#"><i class="fab fa-facebook"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-linkedin"></i></a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2026 DIMA Deals. All rights reserved. | Digital Subscriptions Made Easy</p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
