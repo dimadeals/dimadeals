@@ -339,6 +339,8 @@ const PRODUCTS_DATABASE = {
     { id: 509, name: 'Cyberpunk 2077 Steam Account', price: 50, images: ['images/Cyberpunk2077.png','images/Cyberpunk2077-2.png','images/Cyberpunk2077-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: false, recommended: false, inStock: true },
     { id: 510, name: 'ARC Raiders Steam CD Key', price: 120, images: ['images/arc-raiders.png','images/Arc_Raiders2.png','images/Arc_Raiders3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: true, recommended: false, inStock: true },
     { id: 511, name: 'Nioh 3 Steam CD Key', price: 190, images: ['images/nioh-3.png','images/nioh-3-2.png','images/nioh-3-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: false, recommended: false, inStock: true },
+    { id: 512, name: 'Minecraft Microsoft Account', price: 40, images: ['images/minecraft-java-and-bedrock-edition-pc-mac-cover.jpg','images/mc2.png','images/mc3.png'], description: 'Digital gift card for Steam games and software Mineraft', rating: 4.8, popular: true, recommended: false, inStock: true },
+  
   
   ]
 };
