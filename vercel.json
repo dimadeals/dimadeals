@@ -2,11 +2,6 @@
   "version": 2,
   "buildCommand": "echo 'Build complete'",
   "devCommand": "vercel dev",
-  "env": {
-    "VERCEL_KV_URL": "@vercel_kv_url",
-    "VERCEL_KV_REST_API_URL": "@vercel_kv_rest_api_url",
-    "VERCEL_KV_REST_API_TOKEN": "@vercel_kv_rest_api_token"
-  },
   "builds": [
     {
       "src": "api/**/*.js",
