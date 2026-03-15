@@ -1,3 +1,4 @@
+
 {
   "name": "dima-deals",
   "version": "1.0.0",
@@ -18,8 +19,7 @@
   "dependencies": {
     "@vercel/kv": "^0.2.4"
   },
-  "devDependencies": {},
   "engines": {
-    "node": ">=18.0.0"
+    "node": "20.x"
   }
 }
