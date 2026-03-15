@@ -328,7 +328,7 @@ const PRODUCTS_DATABASE = {
   ],
   pc: [
     { id: 500, name: 'ARC Raiders Steam Account', price: 95, images: ['images/arc-raiders.png','images/Arc_Raiders2.png','images/Arc_Raiders3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: true, recommended: true, inStock: true },
-    { id: 501, name: 'FC 26 Standard Edition Steam Account', price: 60, images: ['images/fc-26.png','images/fc-26s.png','images/fc-26-2.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: true, recommended: false, inStock: true },
+    { id: 501, name: 'FC 26 Standard Edition Steam Account', price: 45, images: ['images/fc-26.png','images/fc-26s.png','images/fc-26-2.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: true, recommended: false, inStock: true },
     { id: 502, name: 'GTA V Standard Edition Steam Account', price: 50, images: ['images/gta5.png','images/gta5-2.png','images/gta5-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: false, recommended: true, inStock: true },
     { id: 503, name: 'RUST Steam Account', price: 40, images: ['images/rust.png','images/rust-2.png','images/rust-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: true, recommended: true, inStock: true },
     { id: 504, name: 'Elden Ring Steam Account', price: 90, images: ['images/elden-ring.png','images/elden-ring-2.png','images/elden-ring-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: false, recommended: true, inStock: true },
