@@ -1,0 +1,64 @@
+{
+  "version": 2,
+  "buildCommand": "echo 'Build complete'",
+  "devCommand": "vercel dev",
+  "env": {
+    "VERCEL_KV_URL": "@vercel_kv_url",
+    "VERCEL_KV_REST_API_URL": "@vercel_kv_rest_api_url",
+    "VERCEL_KV_REST_API_TOKEN": "@vercel_kv_rest_api_token"
+  },
+  "builds": [
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/order",
+      "dest": "/api/order.js",
+      "methods": ["POST", "OPTIONS"]
+    },
+    {
+      "src": "/api/checkout",
+      "dest": "/api/checkout.js",
+      "methods": ["POST", "OPTIONS"]
+    },
+    {
+      "src": "/api/confirmation",
+      "dest": "/api/confirmation.js",
+      "methods": ["POST", "GET", "OPTIONS"]
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET,POST,PUT,DELETE,OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type"
+        }
+      ]
+    }
+  ]
+}

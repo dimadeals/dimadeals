@@ -1,0 +1,25 @@
+{
+  "name": "dima-deals",
+  "version": "1.0.0",
+  "description": "Premium digital subscriptions store for Tunisia - Complete e-commerce platform",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build needed'"
+  },
+  "keywords": [
+    "subscriptions",
+    "digital",
+    "streaming",
+    "ecommerce"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@vercel/kv": "^0.2.4"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

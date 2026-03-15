@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shopping Cart - DIMA Deals</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body>
+
+<!-- Header Navigation -->
+<header class="header">
+  <div class="header-container">
+    <div class="logo">
+      <a href="index.html" class="active"><img src="images/DimaDealsLogo.png" alt=""></a>
+    </div>
+    <nav class="nav-menu">
+      <ul class="nav-links">
+        <li class="nav-item">
+          <a href="#" class="nav-link">Subscriptions <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown">
+            <li><a href="browse.html?category=subscriptions&type=netflix"><img src="images/NetflixLogo.png" alt="" class="small-logo"> Netflix</a></li>
+            <li><a href="browse.html?category=subscriptions&type=spotify"><img src="images/spotify.png" alt="" class="small-logo">Spotify</a></li>
+            <li><a href="browse.html?category=subscriptions&type=canva"><img src="images/canva-icon.png" alt="" class="small-logo">Canva Pro</a></li>
+            <li><a href="browse.html?category=subscriptions&type=shahid"><img src="images/ShahidLogo.png" alt="" class="small-logo"> Shahid</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">Games <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown">
+            <li><a href="browse.html?category=games&type=pc">PC Games</a></li>  
+            <li><a href="browse.html?category=games&type=console">Console Games</a></li>
+            <li><a href="browse.html?category=games&type=mobile">Mobile Games</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">Courses <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown">
+            <li><a href="browse.html?category=courses&type=programming">Programming</a></li>
+            <li><a href="browse.html?category=courses&type=design">Design</a></li>
+            <li><a href="browse.html?category=courses&type=business">Business</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">Apps <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown">
+            <li><a href="browse.html?category=apps&type=mobile">Mobile Apps</a></li>
+            <li><a href="browse.html?category=apps&type=software">Software</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+    <div class="nav-right">
+      <a href="cart.html" class="cart-icon-link">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-count" id="cart-count">0</span>
+      </a>
+      <div class="search-container">
+        <input type="text" id="search-input" placeholder="Search products..." class="search-input">
+        <button id="search-button" class="search-button">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+      <select class="language-select" id="language-select">
+        <option value="en">EN</option>
+        <option value="fr">FR</option>
+        <option value="ar">AR</option>
+      </select>
+      <label class="theme-toggle-container" title="Toggle dark mode">
+        <input type="checkbox" id="theme-toggle" class="theme-toggle-input">
+        <span class="theme-toggle-slider"></span>
+      </label>
+      <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main>
+  <div class="cart-container">
+    <h1>Shopping Cart</h1>
+    
+    <div class="cart-content">
+      <!-- Cart Items Section -->
+      <div class="cart-items-section">
+        <div id="cart-items" class="cart-items">
+          <!-- Items will be dynamically loaded here -->
+        </div>
+        
+        <!-- Empty Cart Message -->
+        <div id="empty-cart" class="empty-cart" style="display: none;">
+          <i class="fas fa-shopping-cart"></i>
+          <h2>Your cart is empty</h2>
+          <p>Start shopping to add items to your cart!</p>
+          <a href="index.html" class="cta-button">Continue Shopping</a>
+        </div>
+      </div>
+
+      <!-- Cart Summary Section -->
+      <div class="cart-summary" id="cart-summary" style="display: none;">
+        <h2>Order Summary</h2>
+        <div class="summary-item">
+          <span>Subtotal:</span>
+          <span id="subtotal">0 TND</span>
+        </div>
+        <div class="summary-item">
+          <span>Tax (0%):</span>
+          <span id="tax">0 TND</span>
+        </div>
+        <div class="summary-item total">
+          <span>Total:</span>
+          <span id="total">0 TND</span>
+        </div>
+        <button class="checkout-button" onclick="goToCheckout()">
+          <i class="fas fa-lock"></i> Proceed to Checkout
+        </button>
+        <a href="index.html" class="continue-shopping-link">
+          <i class="fas fa-arrow-left"></i> Continue Shopping
+        </a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-content">
+    <p>&copy; 2024 DIMA Deals. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    displayCart();
+    initializeLanguage();
+  });
+</script>
+
+</body>
+</html>

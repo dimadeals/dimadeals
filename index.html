@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DIMA Deals - Digital Subscriptions for Tunisia</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body>
+
+<!-- Header Navigation -->
+<header class="header">
+  <div class="header-container">
+    <div class="logo">
+      <a href="index.html" class="active"><img src="images/DimaDealsLogo.png" alt=""></a>
+    </div>
+    <nav class="nav-menu">
+      <ul class="nav-links">
+        <li class="nav-item">
+          <a href="#" class="nav-link">Subscriptions <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown">
+            <li><a href="browse.html?category=subscriptions&type=netflix"><img src="images/NetflixLogo.png" alt="" class="small-logo"> Netflix</a></li>
+            <li><a href="browse.html?category=subscriptions&type=spotify"><img src="images/spotify.png" alt="" class="small-logo">Spotify</a></li>
+            <li><a href="browse.html?category=subscriptions&type=canva"><img src="images/canva-icon.png" alt="" class="small-logo">Canva Pro</a></li>
+            <li><a href="browse.html?category=subscriptions&type=shahid"><img src="images/ShahidLogo.png" alt="" class="small-logo"> Shahid</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">Games <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown">
+            <li><a href="browse.html?category=games&type=pc">PC Games</a></li>  
+            <li><a href="browse.html?category=games&type=console">Console Games</a></li>
+            <li><a href="browse.html?category=games&type=mobile">Mobile Games</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">Courses <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown">
+            <li><a href="browse.html?category=courses&type=programming">Programming</a></li>
+            <li><a href="browse.html?category=courses&type=design">Design</a></li>
+            <li><a href="browse.html?category=courses&type=business">Business</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">Apps <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown">
+            <li><a href="browse.html?category=apps&type=mobile">Mobile Apps</a></li>
+            <li><a href="browse.html?category=apps&type=software">Software</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+    <div class="nav-right">
+      <a href="cart.html" class="cart-icon-link">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-count" id="cart-count">0</span>
+      </a>
+      <div class="search-container">
+        <input type="text" id="search-input" placeholder="Search products..." class="search-input">
+        <button id="search-button" class="search-button">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+      <select class="language-select" id="language-select">
+        <option value="en">EN</option>
+        <option value="fr">FR</option>
+        <option value="ar">AR</option>
+      </select>
+      <label class="theme-toggle-container" title="Toggle dark mode">
+        <input type="checkbox" id="theme-toggle" class="theme-toggle-input">
+        <span class="theme-toggle-slider"></span>
+      </label>
+      <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-content">
+    <h1 data-i18n="hero-title">Premium Digital Subscriptions for Tunisia</h1>
+    <p data-i18n="hero-subtitle">Netflix, Spotify, Games & Courses – Instant Delivery & Secure Payments</p>
+    <button class="cta-button" onclick="document.querySelector('.platforms').scrollIntoView({behavior: 'smooth'})" data-i18n="browse-deals">
+      <i class="fas fa-play-circle"></i> Browse Deals
+    </button>
+  </div>
+  <div class="hero-background">
+    <div class="gradient-1"></div>
+    <div class="gradient-2"></div>
+    <div class="particles-container">
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Popular Platforms Section -->
+<section class="platforms" id="platforms">
+  <div class="section-container">
+    <h2 data-i18n="popular-platforms">Popular Platforms</h2>
+    <p class="section-subtitle" data-i18n="popular-platforms-subtitle">Choose from the most popular streaming services</p>
+    <div class="platform-grid">
+      <a href="browse.html?category=subscriptions&type=netflix" class="platform netflix">
+        <img src="images/NetflixLogo.png" alt="" class="med-logo">
+        <span>Netflix</span>
+      </a>
+      <a href="browse.html?category=subscriptions&type=spotify" class="platform spotify">
+        <img src="images/spotify.png" alt="" class="med-logo">
+        <span>Spotify</span>
+      </a>
+      <a href="browse.html?category=subscriptions&type=canva" class="platform prime">
+        <img src="images/canva-icon.png" alt="" class="med-logo">
+        <span>Canva Pro</span>
+      </a>
+      <a href="browse.html?category=subscriptions&type=shahid" class="platform shahid">
+        <img src="images/ShahidLogo.png" alt="" class="med-logo">
+        <span>Shahid</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Most Popular Products Section -->
+<section class="products most-popular">
+  <div class="section-container">
+    <h2 data-i18n="most-popular">Most Popular</h2>
+    <p class="section-subtitle" data-i18n="most-popular-subtitle">Top-selling subscriptions this month</p>
+    <div class="product-grid" id="most-popular-grid">
+      <!-- Products loaded by JavaScript -->
+    </div>
+  </div>
+</section>
+
+<!-- Recommended Products Section -->
+<section class="products recommended">
+  <div class="section-container">
+    <h2 data-i18n="recommended">We Recommend</h2>
+    <p class="section-subtitle" data-i18n="recommended-subtitle">Curated picks tailored for you</p>
+    <div class="product-grid" id="recommended-grid">
+      <!-- Products loaded by JavaScript -->
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="features">
+  <div class="section-container">
+    <h2 data-i18n="why-choose">Why Choose DIMA Deals?</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <i class="fas fa-bolt"></i>
+        <h3 data-i18n="instant-delivery">Instant Delivery</h3>
+        <p data-i18n="instant-delivery-desc">Get your subscription codes immediately via email after purchase</p>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-lock"></i>
+        <h3 data-i18n="secure-payment">Secure Payment</h3>
+        <p data-i18n="secure-payment-desc">Safe and encrypted transactions for your peace of mind</p>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-headset"></i>
+        <h3 data-i18n="24-7-support">24/7 Support</h3>
+        <p data-i18n="24-7-support-desc">Dedicated customer support team ready to help anytime</p>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-check-circle"></i>
+        <h3 data-i18n="100-guarantee">100% Guarantee</h3>
+        <p data-i18n="100-guarantee-desc">Satisfaction guaranteed or your money back</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-section">
+      <h4>DIMA Deals</h4>
+      <p>Your trusted source for digital subscriptions in Tunisia</p>
+    </div>
+    <div class="footer-section">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="browse.html?category=subscriptions&type=netflix">Subscriptions</a></li>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h4>Follow Us</h4>
+      <div class="social-links">
+        <a href="#"><i class="fab fa-facebook"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-linkedin"></i></a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2026 DIMA Deals. All rights reserved. | Digital Subscriptions Made Easy</p>
+  </div>
+</footer>
+
+  <script src="script.js?v=2.0"></script>
+</body>
+</html>

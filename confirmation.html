@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Confirmation - DIMA Deals</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body>
+
+<!-- Header Navigation -->
+<header class="header">
+  <div class="header-container">
+    <div class="logo">
+      <a href="index.html"><img src="images/DimaDealsLogo.png" alt="DIMA Deals Logo"></a>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main>
+  <div class="confirmation-container">
+    <div class="confirmation-content">
+      <!-- Success Icon -->
+      <div class="success-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+
+      <!-- Confirmation Message -->
+      <h1>Order Confirmed!</h1>
+      <p class="confirmation-subtitle">Thank you for your purchase. Your order has been received and processed.</p>
+
+      <!-- Order Details -->
+      <div class="confirmation-details">
+        <div id="confirmation-info" class="confirmation-info">
+          <!-- Order info will be loaded here -->
+        </div>
+      </div>
+
+      <!-- Order Items -->
+      <div class="confirmation-items">
+        <h2>Order Items</h2>
+        <div id="confirmation-items-list" class="items-list">
+          <!-- Items will be loaded here -->
+        </div>
+      </div>
+
+      <!-- Next Steps -->
+      <div class="next-steps">
+        <h2>What's Next?</h2>
+        <ul>
+          <li>
+            <i class="fas fa-envelope"></i>
+            <span>A confirmation email will be sent to your email address shortly</span>
+          </li>
+          <li>
+            <i class="fas fa-clock"></i>
+            <span>You will receive your subscription codes within 24 hours</span>
+          </li>
+          <li>
+            <i class="fas fa-headset"></i>
+            <span>If you have any questions, our support team is available 24/7</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="confirmation-actions">
+        <a href="index.html" class="cta-button">
+          <i class="fas fa-home"></i> Return to Home
+        </a>
+        <a href="browse.html" class="secondary-button">
+          <i class="fas fa-shopping-bag"></i> Continue Shopping
+        </a>
+      </div>
+
+      <!-- Support -->
+      <div class="support-info">
+        <p>Need help? Contact our support team at <strong>support@dimadeals.com</strong> or call <strong>+216 99 999 999</strong></p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-content">
+    <p>&copy; 2024 DIMA Deals. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    displayConfirmation();
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - DIMA Deals</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            
+            <div class="logo">
+                <a href="index.html" class="active"><img src="images/DimaDealsLogo.png" alt=""></a>
+            </div>
+
+            <nav class="nav-menu">
+      <ul class="nav-links">
+        <li class="nav-item">
+          <a href="#" class="nav-link">Subscriptions <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown">
+            <li><a href="browse.html?category=subscriptions&type=netflix"><img src="images/NetflixLogo.png" alt="" class="small-logo"> Netflix</a></li>
+            <li><a href="browse.html?category=subscriptions&type=spotify"><img src="images/spotify.png" alt="" class="small-logo">Spotify</a></li>
+            <li><a href="browse.html?category=subscriptions&type=canva"><img src="images/canva-icon.png" alt="" class="small-logo">Canva Pro</a></li>
+            <li><a href="browse.html?category=subscriptions&type=shahid"><img src="images/ShahidLogo.png" alt="" class="small-logo"> Shahid</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">Games <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown">
+            <li><a href="browse.html?category=games&type=pc">PC Games</a></li>
+            <li><a href="browse.html?category=games&type=console">Console Games</a></li>
+            <li><a href="browse.html?category=games&type=mobile">Mobile Games</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">Courses <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown">
+            <li><a href="browse.html?category=courses&type=programming">Programming</a></li>
+            <li><a href="browse.html?category=courses&type=design">Design</a></li>
+            <li><a href="browse.html?category=courses&type=business">Business</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">Apps <i class="fas fa-chevron-down"></i></a>
+          <ul class="dropdown">
+            <li><a href="browse.html?category=apps&type=mobile">Mobile Apps</a></li>
+            <li><a href="browse.html?category=apps&type=software">Software</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+
+            <div class="nav-right">
+                <a href="cart.html" class="cart-icon-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cart-count">0</span>
+                </a>
+                <div class="search-container">
+                    <input type="text" id="search-input" placeholder="Search products..." class="search-input">
+                    <button id="search-button" class="search-button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <select class="language-select" id="language-select">
+                    <option value="en">EN</option>
+                    <option value="fr">FR</option>
+                    <option value="ar">AR</option>
+                </select>
+                <label class="theme-toggle-container" title="Toggle dark mode">
+                    <input type="checkbox" id="theme-toggle" class="theme-toggle-input">
+                    <span class="theme-toggle-slider"></span>
+                </label>
+            </div>
+
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-label="Toggle menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Search Results Section -->
+    <main class="container">
+        <section class="search-results-section">
+            <div class="search-header">
+                <h1>Search Results</h1>
+                <div class="search-summary">
+                    <span id="search-query-display"></span>
+                    <span id="results-count"></span>
+                </div>
+            </div>
+
+            <div class="search-filters-container">
+                <div class="filter-group">
+                    <h3><i class="fas fa-filter"></i> Categories</h3>
+                    <div class="search-filters">
+                        <button class="filter-btn active" data-filter="all">All Products</button>
+                        <button class="filter-btn" data-filter="subscriptions">Subscriptions</button>
+                        <button class="filter-btn" data-filter="games">Games</button>
+                        <button class="filter-btn" data-filter="courses">Courses</button>
+                        <button class="filter-btn" data-filter="apps">Apps</button>
+                    </div>
+                </div>
+                <div class="sort-group">
+                    <h3><i class="fas fa-sort"></i> Sort By</h3>
+                    <select id="sort-select" class="sort-select">
+                        <option value="relevance">Relevance</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                        <option value="rating">Highest Rated</option>
+                        <option value="popular">Most Popular</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="search-results-grid" class="product-grid">
+                <!-- Search results will be populated here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4><i class="fas fa-store"></i> DIMA Deals</h4>
+                <p>Your trusted source for premium digital subscriptions at unbeatable prices.</p>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="Discord"><i class="fab fa-discord"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="browse.html?category=subscriptions&type=netflix">Subscriptions</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Contact Info</h4>
+                <p><i class="fas fa-envelope"></i> support@dimadeals.com</p>
+                <p><i class="fas fa-phone"></i> +216 XX XXX XXX</p>
+                <p><i class="fas fa-map-marker-alt"></i> Tunisia</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 DIMA Deals. All rights reserved. Made with <i class="fas fa-heart" style="color: var(--primary);"></i> in Tunisia</p>
+        </div>
+    </footer>
+
+    <script src="script.js?v=2.0"></script>
+</body>
+</html>

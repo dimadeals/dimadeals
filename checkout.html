@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout - DIMA Deals</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body>
+
+<!-- Header Navigation -->
+<header class="header">
+  <div class="header-container">
+    <div class="logo">
+      <a href="index.html"><img src="images/DimaDealsLogo.png" alt="DIMA Deals Logo"></a>
+    </div>
+    <div class="checkout-header-info">
+      <i class="fas fa-lock"></i> Secure Checkout
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main>
+  <div class="checkout-container">
+    <div class="checkout-wrapper">
+      <!-- Order Summary -->
+      <div class="checkout-summary">
+        <h2>Order Summary</h2>
+        <div id="order-items" class="order-items-list">
+          <!-- Items will be dynamically loaded here -->
+        </div>
+        <div class="summary-divider"></div>
+        <div class="checkout-total">
+          <span>Total:</span>
+          <span id="checkout-total">0 TND</span>
+        </div>
+      </div>
+
+      <!-- Checkout Form -->
+      <div class="checkout-form-section">
+        <h2>Billing Information</h2>
+        
+        <form id="checkout-form" class="checkout-form">
+          <!-- Email Field -->
+          <div class="form-group">
+            <label for="email">
+              <i class="fas fa-envelope"></i> Email Address *
+            </label>
+            <input 
+              type="email" 
+              id="email" 
+              name="email" 
+              placeholder="your.email@example.com" 
+              required
+              pattern="[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+            >
+            <span class="form-error" id="email-error"></span>
+          </div>
+
+          <!-- Phone Field -->
+          <div class="form-group">
+            <label for="phone">
+              <i class="fas fa-phone"></i> Phone Number *
+            </label>
+            <div class="phone-input-wrapper">
+              <span class="country-code">+216</span>
+              <input 
+                type="tel" 
+                id="phone" 
+                name="phone" 
+                placeholder="20123456"
+                maxlength="8"
+                pattern="[0-9]{8}"
+                required
+              >
+            </div>
+            <span class="form-error" id="phone-error"></span>
+            <small>Enter your 8-digit Tunisian phone number</small>
+          </div>
+
+          <!-- Full Name Field -->
+          <div class="form-group">
+            <label for="fullname">
+              <i class="fas fa-user"></i> Full Name *
+            </label>
+            <input 
+              type="text" 
+              id="fullname" 
+              name="fullname" 
+              placeholder="Your Full Name" 
+              required
+              minlength="3"
+            >
+            <span class="form-error" id="fullname-error"></span>
+          </div>
+
+          <!-- Country Field -->
+          <div class="form-group">
+            <label for="country">
+              <i class="fas fa-globe"></i> Country *
+            </label>
+            <select id="country" name="country" required>
+              <option value="">Select Country</option>
+              <option value="TN" selected>Tunisia</option>
+              <option value="DZ">Algeria</option>
+              <option value="MA">Morocco</option>
+              <option value="LY">Libya</option>
+              <option value="SD">Sudan</option>
+              <option value="EG">Egypt</option>
+              <option value="Other">Other</option>
+            </select>
+            <span class="form-error" id="country-error"></span>
+          </div>
+
+          <!-- Terms Checkbox -->
+          <div class="form-group checkbox-group">
+            <label for="terms">
+              <input 
+                type="checkbox" 
+                id="terms" 
+                name="terms" 
+                required
+              >
+              <span>I agree to the <a href="#" target="_blank">Terms of Service</a> and <a href="#" target="_blank">Privacy Policy</a> *</span>
+            </label>
+            <span class="form-error" id="terms-error"></span>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="submit-button" id="submit-btn">
+            <i class="fas fa-credit-card"></i> Complete Order
+          </button>
+
+          <p class="secure-info">
+            <i class="fas fa-lock"></i> Your payment information is secure and encrypted
+          </p>
+        </form>
+
+        <!-- Back to Cart Link -->
+        <a href="cart.html" class="back-to-cart">
+          <i class="fas fa-arrow-left"></i> Back to Cart
+        </a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-content">
+    <p>&copy; 2024 DIMA Deals. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    displayCheckoutSummary();
+    setupCheckoutForm();
+  });
+</script>
+
+</body>
+</html>
