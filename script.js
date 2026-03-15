@@ -243,7 +243,7 @@ const PRODUCTS_DATABASE = {
     { id: 1, name: 'Basic 720p', price: 22, images: ['images/NetflixBigLogo.png'], description: '1 user subscription of Netflix for 1 month', rating: 4.8, popular: true, recommended: false, inStock: true },
     { id: 2, name: 'Standard 1080p', price: 29, originalPrice: 34, images: ['images/NetflixBigLogo.png'], description: '2 users subscription of Netflix for 1 month', rating: 4.9, popular: true, recommended: true, inStock: true },
     { id: 3, name: 'premium 4K + HDR', price: 40, images: ['images/NetflixBigLogo.png'], description: '6 user subscription of Netflix for 1 month', rating: 4.9, popular: true, recommended: true, inStock: true },
-    { id: 4, name: 'part of premium (shared)', price: 14, images: ['images/NetflixBigLogo.png'], description: '1 user subscription of Netflix for 1 month (shared account)', rating: 4.9, popular: false, recommended: true, inStock: true }
+    { id: 4, name: 'part of premium (shared)', price: 15, images: ['images/NetflixBigLogo.png'], description: '1 user subscription of Netflix for 1 month (shared account)', rating: 4.9, popular: false, recommended: true, inStock: true }
   ],
   spotify: [
     { id: 10, name: 'Spotify Étudiants', price: 17, images: ['images/spotify-1.png'], description: '1 user subscription of Spotify for 1 month', rating: 4.7, popular: true, recommended: false, inStock: true },
