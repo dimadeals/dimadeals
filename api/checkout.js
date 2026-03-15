@@ -86,15 +86,7 @@ export default async function handler(req, res) {
       console.log(`📊 Items: ${items.length}, Total: ${orderRecord.total} TND`);
 
       // Save to Vercel KV if available
-      let savedToDatabase = false;
-      if (process.env.REDIS_URL) {
-        try {
-          // Save main order record
-          await kv.set(
-            `order:${orderId}`,
-            JSON.stringify(orderRecord),
-            { ex: 7776000 } // 90 days
-          );
+      await kv.set(`order:${orderId}`, JSON.stringify(orderRecord), { ex: 7776000 });
 
           // Save customer record
           await kv.set(
