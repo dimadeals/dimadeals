@@ -240,7 +240,7 @@ function initializeSearchFilters(allResults) {
 // This is where you can easily add, remove, or edit products
 const PRODUCTS_DATABASE = {
   netflix: [
-    { id: 1, name: 'Basic 720p', price: 22,originalPrice: 10, images: ['images/NetflixBigLogo.png'], description: '1 user subscription of Netflix for 1 month', rating: 4.8, popular: true, recommended: false, inStock: true },
+    { id: 1, name: 'Basic 720p', price: 22, originalPrice: 10, images: ['images/NetflixBigLogo.png'], description: '1 user subscription of Netflix for 1 month', rating: 4.8, popular: true, recommended: false, inStock: true },
     { id: 2, name: 'Standard 1080p', price: 29, originalPrice: 34, images: ['images/NetflixBigLogo.png'], description: '2 users subscription of Netflix for 1 month', rating: 4.9, popular: true, recommended: true, inStock: true },
     { id: 3, name: 'premium 4K + HDR', price: 40, images: ['images/NetflixBigLogo.png'], description: '6 user subscription of Netflix for 1 month', rating: 4.9, popular: true, recommended: true, inStock: true },
     { id: 4, name: 'part of premium (shared)', price: 15, images: ['images/NetflixBigLogo.png'], description: '1 user subscription of Netflix for 1 month (shared account)', rating: 4.9, popular: false, recommended: true, inStock: true }
