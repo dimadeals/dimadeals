@@ -741,6 +741,8 @@ async function apiFetch(url, opts={}){
 }
 
 // ── Login / Logout ──────────────────────────
+
+
 async function login(){
   const key = document.getElementById('key-input').value.trim();
   if (!key) return;
@@ -748,7 +750,13 @@ async function login(){
   btn.innerHTML = '<span class="spinner" style="width:14px;height:14px"></span> Verifying…';
   btn.disabled  = true;
   try {
-    const data = await apiFetch('/api/orders?limit=500', { headers:{ Authorization: key } });
+    const res = await fetch('/api/orders?limit=500', {
+      headers: {
+        Authorization: key
+      }
+    });
+    const data = await res.json();
+
     if (!data.success) throw new Error('bad key');
     adminKey = key;
     sessionStorage.setItem('ak', key);
