@@ -1,11 +1,24 @@
 import { createClient } from "redis";
 
-const redis = createClient({
-  url: process.env.REDIS_URL
-});
+let client = null;
 
-redis.on("error", (err) => console.error("Redis error:", err));
+/**
+ * Returns a connected Redis client, creating one if needed.
+ * Safe to call on every request (serverless-friendly singleton).
+ */
+export async function getRedis() {
+  if (client?.isReady) return client;
 
-await redis.connect();
+  client = createClient({ url: process.env.REDIS_URL });
 
-export default redis;
+  client.on("error", (err) => {
+    console.error("Redis Client Error:", err);
+    // Mark client as unusable so the next request reconnects cleanly
+    client = null;
+  });
+
+  await client.connect();
+  return client;
+}
+
+export default getRedis;

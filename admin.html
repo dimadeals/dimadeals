@@ -1,106 +1,1228 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-
-<title>DIMA Deals Admin</title>
-
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DIMA Deals — Admin Dashboard</title>
+<link rel="icon" type="image/png" href="images/brand.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
+:root {
+  --bg:            #0a0a0a;
+  --sidebar-bg:    #111111;
+  --card-bg:       #161616;
+  --card-border:   #242424;
+  --hover-bg:      #1e1e1e;
+  --primary:       #ff006e;
+  --primary-dim:   rgba(255,0,110,.18);
+  --primary-glow:  0 0 0 3px rgba(255,0,110,.22);
+  --cyan:          #08d9d6;
+  --green:         #00e676;
+  --yellow:        #ffd60a;
+  --red:           #ff4444;
+  --text:          #f0f0f0;
+  --text-muted:    #7a7a7a;
+  --text-dim:      #444;
+  --radius:        12px;
+  --radius-sm:     8px;
+  --radius-xs:     5px;
+  --shadow-card:   0 4px 24px rgba(0,0,0,.45);
+  --tr:            .18s ease;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
 
-body{
-font-family:Arial;
-background:#111;
-color:white;
-padding:40px;
+/* ─── LOGIN ─────────────────────────────── */
+#login-screen{
+  display:flex;align-items:center;justify-content:center;min-height:100vh;
+  background:radial-gradient(ellipse at 40% 50%,#1a0010 0%,var(--bg) 65%);
+}
+.login-card{
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:var(--radius);padding:44px 40px;width:100%;max-width:400px;
+  box-shadow:0 20px 60px rgba(255,0,110,.08);
+}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo img{height:44px;margin-bottom:12px}
+.login-logo h1{font-size:20px;font-weight:700;color:var(--text-muted)}
+.login-logo span{font-size:12px;color:var(--text-dim);display:block;margin-top:4px}
+.lbl{display:block;font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.6px;color:var(--text-muted);margin-bottom:7px}
+.field{
+  width:100%;padding:11px 14px;background:#0d0d0d;border:1px solid var(--card-border);
+  border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;
+  transition:border-color var(--tr);
+}
+.field:focus{border-color:var(--primary);box-shadow:var(--primary-glow)}
+.form-group{margin-bottom:18px}
+.btn{
+  display:inline-flex;align-items:center;gap:7px;padding:11px 20px;
+  border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;
+  cursor:pointer;transition:var(--tr);text-decoration:none;white-space:nowrap;
+}
+.btn-primary{background:var(--primary);color:#fff;justify-content:center;width:100%}
+.btn-primary:hover{background:#cc0057;box-shadow:0 4px 18px rgba(255,0,110,.35);transform:translateY(-1px)}
+.btn-secondary{background:#1e1e1e;color:var(--text);border:1px solid var(--card-border)}
+.btn-secondary:hover{background:var(--hover-bg);color:var(--text)}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#cc3333}
+.btn-success{background:var(--green);color:#000}
+.btn-sm{padding:6px 13px;font-size:12px}
+.btn-icon{padding:7px 10px;font-size:13px}
+.login-err{color:var(--red);font-size:12px;margin-top:10px;text-align:center;display:none}
+
+/* ─── DASHBOARD LAYOUT ───────────────────── */
+#dashboard{display:none;min-height:100vh}
+#dashboard.vis{display:flex}
+
+/* ─── SIDEBAR ───────────────────────────── */
+.sidebar{
+  width:220px;min-height:100vh;background:var(--sidebar-bg);
+  border-right:1px solid var(--card-border);display:flex;
+  flex-direction:column;position:fixed;top:0;left:0;z-index:200;
+}
+.sidebar-brand{
+  padding:20px 16px;border-bottom:1px solid var(--card-border);
+  display:flex;align-items:center;gap:10px;
+}
+.sidebar-brand img{height:30px;width:auto}
+.sidebar-brand span{font-size:14px;font-weight:700;color:var(--text)}
+.sidebar-brand a{text-decoration:none;display:flex;align-items:center;gap:10px}
+.s-nav{flex:1;padding:14px 10px;list-style:none}
+.s-nav li a{
+  display:flex;align-items:center;gap:9px;padding:9px 12px;color:var(--text-muted);
+  text-decoration:none;border-radius:var(--radius-sm);font-size:13px;font-weight:500;
+  transition:var(--tr);cursor:pointer;
+}
+.s-nav li a:hover{background:var(--hover-bg);color:var(--text)}
+.s-nav li a.active{background:var(--primary-dim);color:var(--primary)}
+.s-nav li a i{width:15px;text-align:center;font-size:14px}
+.s-sep{height:1px;background:var(--card-border);margin:8px 12px}
+.s-section-label{padding:6px 12px 2px;font-size:10px;text-transform:uppercase;
+  letter-spacing:.7px;color:var(--text-dim);font-weight:600}
+.sidebar-footer{padding:12px 10px;border-top:1px solid var(--card-border)}
+.sidebar-footer button{
+  display:flex;align-items:center;gap:9px;width:100%;padding:9px 12px;
+  background:none;border:none;color:var(--text-muted);cursor:pointer;
+  border-radius:var(--radius-sm);font-size:13px;transition:var(--tr);
+}
+.sidebar-footer button:hover{background:var(--hover-bg);color:var(--red)}
+
+/* ─── MAIN CONTENT ─────────────────────── */
+.main-wrap{flex:1;margin-left:220px;min-height:100vh;display:flex;flex-direction:column}
+
+/* ─── TOPBAR ─────────────────────────────*/
+.topbar{
+  background:var(--sidebar-bg);border-bottom:1px solid var(--card-border);
+  padding:14px 26px;display:flex;justify-content:space-between;align-items:center;
+  position:sticky;top:0;z-index:100;
+}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.topbar-left h1{font-size:17px;font-weight:700}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.refresh-btn{
+  display:flex;align-items:center;gap:6px;padding:8px 14px;
+  background:transparent;border:1px solid var(--card-border);
+  border-radius:var(--radius-sm);color:var(--text-muted);cursor:pointer;
+  font-size:12px;font-weight:500;transition:var(--tr);
+}
+.refresh-btn:hover{background:var(--hover-bg);color:var(--text)}
+.refresh-btn.spin i{animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ─── SECTIONS ───────────────────────────*/
+.s-content{padding:24px 26px;display:none}
+.s-content.active{display:block}
+
+/* ─── KPI CARDS ──────────────────────────*/
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
+.kpi{
+  background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);
+  padding:20px;position:relative;overflow:hidden;transition:border-color var(--tr),transform var(--tr);
+}
+.kpi:hover{border-color:#303030;transform:translateY(-2px)}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--kpi-color,var(--primary))}
+.kpi-icon{
+  width:38px;height:38px;border-radius:9px;display:flex;align-items:center;
+  justify-content:center;font-size:16px;margin-bottom:12px;
+  background:var(--kpi-icon-bg,var(--primary-dim));color:var(--kpi-color,var(--primary));
+}
+.kpi-label{font-size:11px;text-transform:uppercase;letter-spacing:.6px;
+  color:var(--text-muted);margin-bottom:4px;font-weight:600}
+.kpi-value{font-size:28px;font-weight:800;line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:11px;color:var(--text-muted)}
+
+/* ─── CHARTS ─────────────────────────────*/
+.charts-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:22px}
+.chart-card{background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:var(--radius);padding:20px}
+.chart-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.chart-sub{font-size:11px;color:var(--text-muted);margin-bottom:16px}
+.chart-wrap{position:relative;height:210px}
+
+/* ─── TABLE CARD ─────────────────────────*/
+.tcard{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);overflow:hidden}
+.tcard-head{
+  padding:16px 20px;border-bottom:1px solid var(--card-border);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.tcard-head h3{font-size:14px;font-weight:700}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead tr{border-bottom:1px solid var(--card-border)}
+thead th{padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;
+  letter-spacing:.6px;color:var(--text-muted);font-weight:600;white-space:nowrap}
+tbody tr{border-bottom:1px solid #111;transition:background var(--tr);cursor:pointer}
+tbody tr:hover{background:var(--hover-bg)}
+tbody tr:last-child{border-bottom:none}
+tbody td{padding:12px 14px;vertical-align:middle}
+.oid{font-family:monospace;font-size:11px;color:var(--cyan)}
+.cname{font-weight:600;font-size:12px}
+.cemail{font-size:11px;color:var(--text-muted);margin-top:1px}
+
+/* ─── STATUS BADGES ──────────────────────*/
+.badge{
+  display:inline-flex;align-items:center;gap:4px;padding:3px 9px;
+  border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap;
+}
+.b-pending    {background:rgba(255,212,10,.1); color:var(--yellow);border:1px solid rgba(255,212,10,.2)}
+.b-processing {background:rgba(8,217,214,.1);  color:var(--cyan);  border:1px solid rgba(8,217,214,.2)}
+.b-completed  {background:rgba(0,230,118,.1);  color:var(--green); border:1px solid rgba(0,230,118,.2)}
+.b-delivered  {background:rgba(0,230,118,.15); color:#00ff99;      border:1px solid rgba(0,230,118,.3)}
+.b-cancelled  {background:rgba(255,68,68,.1);  color:var(--red);   border:1px solid rgba(255,68,68,.2)}
+
+/* ─── ORDERS TOOLBAR ─────────────────────*/
+.toolbar{display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+.search-wrap{flex:1;min-width:190px;position:relative}
+.search-wrap i{position:absolute;left:11px;top:50%;transform:translateY(-50%);
+  color:var(--text-muted);font-size:12px;pointer-events:none}
+.search-wrap input{
+  width:100%;padding:8px 10px 8px 32px;background:var(--card-bg);
+  border:1px solid var(--card-border);border-radius:var(--radius-sm);
+  color:var(--text);font-size:12px;outline:none;transition:border-color var(--tr);
+}
+.search-wrap input:focus{border-color:var(--primary)}
+.f-select{
+  padding:8px 10px;background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:var(--radius-sm);color:var(--text);font-size:12px;
+  outline:none;cursor:pointer;
 }
 
-input{
-padding:10px;
-font-size:16px;
-width:300px;
+/* ─── PAGINATION ─────────────────────────*/
+.pagination{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 20px;border-top:1px solid var(--card-border);font-size:12px;
+}
+.pg-info{color:var(--text-muted)}
+.pg-btns{display:flex;gap:6px}
+.pg-btn{
+  width:30px;height:30px;border:1px solid var(--card-border);border-radius:var(--radius-xs);
+  background:none;color:var(--text);cursor:pointer;font-size:12px;transition:var(--tr);
+  display:flex;align-items:center;justify-content:center;
+}
+.pg-btn:hover:not(:disabled){background:var(--hover-bg)}
+.pg-btn.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.pg-btn:disabled{opacity:.3;cursor:not-allowed}
+
+/* ─── MODAL ──────────────────────────────*/
+.modal-bg{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);
+  z-index:400;align-items:center;justify-content:center;backdrop-filter:blur(3px);
+}
+.modal-bg.open{display:flex}
+.modal{
+  background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);
+  width:100%;max-width:580px;max-height:90vh;overflow-y:auto;
+  box-shadow:0 24px 80px rgba(0,0,0,.9);
+}
+.mhead{
+  padding:18px 22px;border-bottom:1px solid var(--card-border);display:flex;
+  justify-content:space-between;align-items:center;position:sticky;
+  top:0;background:var(--card-bg);z-index:1;
+}
+.mhead h3{font-size:15px;font-weight:700}
+.mclose{
+  width:30px;height:30px;border:none;background:#1e1e1e;color:var(--text-muted);
+  border-radius:6px;cursor:pointer;font-size:15px;transition:var(--tr);
+  display:flex;align-items:center;justify-content:center;
+}
+.mclose:hover{background:var(--red);color:#fff}
+.mbody{padding:22px}
+.msec{margin-bottom:22px}
+.msec-title{font-size:10px;text-transform:uppercase;letter-spacing:.7px;
+  color:var(--text-muted);margin-bottom:10px;font-weight:700}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.info-box{background:#0d0d0d;border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:11px 13px}
+.info-box-label{font-size:10px;color:var(--text-muted);margin-bottom:3px}
+.info-box-val{font-size:13px;font-weight:600;word-break:break-all}
+.items-ul{list-style:none}
+.items-ul li{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:9px 13px;background:#0d0d0d;border-radius:var(--radius-xs);margin-bottom:5px;
+  font-size:12px;
+}
+.i-name{font-weight:500}
+.i-qty{color:var(--text-muted);margin-left:6px}
+.i-price{color:var(--cyan);font-weight:600}
+.mfooter{
+  padding:14px 22px;border-top:1px solid var(--card-border);display:flex;
+  gap:10px;justify-content:space-between;align-items:center;
+}
+.status-row{display:flex;gap:8px;align-items:center;flex:1}
+.status-row select{
+  flex:1;padding:8px 10px;background:#0d0d0d;border:1px solid var(--card-border);
+  border-radius:var(--radius-sm);color:var(--text);font-size:12px;outline:none;
 }
 
-button{
-padding:10px 20px;
-font-size:16px;
-cursor:pointer;
+/* ─── CONFIRM DIALOG ─────────────────────*/
+.confirm-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);
+  z-index:500;align-items:center;justify-content:center}
+.confirm-bg.open{display:flex}
+.confirm-box{
+  background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);
+  padding:28px 24px;max-width:360px;width:100%;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.8);
 }
+.confirm-box h4{font-size:16px;font-weight:700;margin-bottom:8px}
+.confirm-box p{font-size:13px;color:var(--text-muted);margin-bottom:22px}
+.confirm-btns{display:flex;gap:10px;justify-content:center}
 
-table{
-margin-top:30px;
-width:100%;
-border-collapse:collapse;
+/* ─── TOAST ──────────────────────────────*/
+#toasts{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast{
+  padding:11px 16px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;
+  display:flex;align-items:center;gap:9px;animation:tIn .25s ease;
+  min-width:200px;max-width:340px;box-shadow:0 4px 20px rgba(0,0,0,.5);
 }
+.t-ok  {background:#002a10;color:var(--green);border:1px solid rgba(0,230,118,.2)}
+.t-err {background:#2a0000;color:var(--red);  border:1px solid rgba(255,68,68,.2)}
+.t-inf {background:#002828;color:var(--cyan); border:1px solid rgba(8,217,214,.2)}
+@keyframes tIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
 
-td,th{
-border:1px solid #333;
-padding:10px;
+/* ─── MISC ───────────────────────────────*/
+.spinner{
+  display:inline-block;width:16px;height:16px;border:2px solid var(--card-border);
+  border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;
+  vertical-align:middle;margin-right:8px;
 }
-
+.empty{text-align:center;padding:50px 20px;color:var(--text-muted)}
+.empty i{font-size:40px;display:block;margin-bottom:12px;opacity:.25}
+.empty p{font-size:14px}
+.loading-cell{text-align:center;padding:36px;color:var(--text-muted)}
+@media(max-width:900px){
+  .sidebar{width:200px}
+  .main-wrap{margin-left:200px}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .charts-row{grid-template-columns:1fr}
+}
 </style>
-
 </head>
 <body>
 
-<h1>DIMA Deals Admin</h1>
+<!-- ── TOAST CONTAINER ─────────────────── -->
+<div id="toasts"></div>
 
-<input id="key" placeholder="Enter admin key">
-<button onclick="loadOrders()">Load Orders</button>
+<!-- ════════════════════════════════════════
+     LOGIN SCREEN
+═════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="images/DimaDealsLogo.png" alt="DIMA Deals" onerror="this.style.display='none'"/>
+      <h1>Admin Dashboard</h1>
+      <span>DIMA Deals Control Panel</span>
+    </div>
+    <div class="form-group">
+      <label class="lbl" for="key-input">Admin Key</label>
+      <input type="password" id="key-input" class="field" placeholder="Enter your admin key" autocomplete="current-password"/>
+    </div>
+    <button class="btn btn-primary" id="login-btn">
+      <i class="fas fa-sign-in-alt"></i> Sign In
+    </button>
+    <div id="login-err" class="login-err"></div>
+  </div>
+</div>
 
-<table id="ordersTable">
-<thead>
-<tr>
-<th>Order ID</th>
-<th>Email</th>
-<th>Total</th>
-<th>Date</th>
-</tr>
-</thead>
+<!-- ════════════════════════════════════════
+     DASHBOARD
+═════════════════════════════════════════ -->
+<div id="dashboard">
 
-<tbody></tbody>
+  <!-- ── SIDEBAR ─────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <a href="index.html" target="_blank">
+        <img src="images/DimaDealsLogo.png" alt="DIMA" onerror="this.style.display='none'"/>
+        <span>DIMA Deals</span>
+      </a>
+    </div>
+    <ul class="s-nav">
+      <li><a href="#" class="active" data-sec="overview"><i class="fas fa-chart-line"></i> Overview</a></li>
+      <li><a href="#" data-sec="orders"><i class="fas fa-shopping-bag"></i> Orders</a></li>
+      <li><a href="#" data-sec="products"><i class="fas fa-box"></i> Products</a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <button id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </aside>
 
-</table>
+  <!-- ── MAIN WRAP ───────────────────── -->
+  <div class="main-wrap">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1 id="page-title">Overview</h1>
+      </div>
+      <div class="topbar-right">
+        <button class="refresh-btn" id="refresh-btn">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- ── OVERVIEW SECTION ──────────── -->
+    <div class="s-content active" id="sec-overview">
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi" style="--kpi-color:var(--primary);--kpi-icon-bg:var(--primary-dim)">
+          <div class="kpi-icon"><i class="fas fa-shopping-cart"></i></div>
+          <div class="kpi-label">Total Orders</div>
+          <div class="kpi-value" id="k-total">—</div>
+          <div class="kpi-sub">All time</div>
+        </div>
+        <div class="kpi" style="--kpi-color:var(--cyan);--kpi-icon-bg:rgba(8,217,214,.12)">
+          <div class="kpi-icon"><i class="fas fa-coins"></i></div>
+          <div class="kpi-label">Total Revenue</div>
+          <div class="kpi-value" id="k-revenue">—</div>
+          <div class="kpi-sub">TND</div>
+        </div>
+        <div class="kpi" style="--kpi-color:var(--yellow);--kpi-icon-bg:rgba(255,212,10,.1)">
+          <div class="kpi-icon"><i class="fas fa-hourglass-half"></i></div>
+          <div class="kpi-label">Pending</div>
+          <div class="kpi-value" id="k-pending">—</div>
+          <div class="kpi-sub">Awaiting action</div>
+        </div>
+        <div class="kpi" style="--kpi-color:var(--green);--kpi-icon-bg:rgba(0,230,118,.1)">
+          <div class="kpi-icon"><i class="fas fa-calendar-day"></i></div>
+          <div class="kpi-label">Today</div>
+          <div class="kpi-value" id="k-today">—</div>
+          <div class="kpi-sub">New orders</div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-title">Revenue — Last 7 Days</div>
+          <div class="chart-sub">Daily revenue trend (TND)</div>
+          <div class="chart-wrap"><canvas id="chart-revenue"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Order Status</div>
+          <div class="chart-sub">Current distribution</div>
+          <div class="chart-wrap"><canvas id="chart-status"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Recent Orders -->
+      <div class="tcard">
+        <div class="tcard-head">
+          <h3>Recent Orders</h3>
+          <button class="btn btn-secondary btn-sm" onclick="switchSec('orders')">
+            View All <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Order ID</th><th>Customer</th><th>Items</th>
+              <th>Total</th><th>Status</th><th>Date</th>
+            </tr></thead>
+            <tbody id="recent-tbody">
+              <tr><td colspan="6" class="loading-cell"><span class="spinner"></span>Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /overview -->
+
+    <!-- ── ORDERS SECTION ────────────── -->
+    <div class="s-content" id="sec-orders">
+      <div class="toolbar">
+        <div class="search-wrap">
+          <i class="fas fa-search"></i>
+          <input type="text" id="order-search" placeholder="Search by ID, email, or name…"/>
+        </div>
+        <select class="f-select" id="status-filter">
+          <option value="all">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="processing">Processing</option>
+          <option value="completed">Completed</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <button class="btn btn-secondary btn-sm" id="export-btn">
+          <i class="fas fa-file-csv"></i> Export CSV
+        </button>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-head">
+          <h3>All Orders</h3>
+          <span id="orders-count" style="font-size:11px;color:var(--text-muted)"></span>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Order ID</th><th>Customer</th><th>Items</th>
+              <th>Total</th><th>Payment</th><th>Status</th><th>Date</th><th></th>
+            </tr></thead>
+            <tbody id="orders-tbody">
+              <tr><td colspan="8" class="loading-cell"><span class="spinner"></span>Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination" id="pg-bar">
+          <span class="pg-info" id="pg-info"></span>
+          <div class="pg-btns" id="pg-btns"></div>
+        </div>
+      </div>
+    </div><!-- /orders -->
+
+    <!-- ── PRODUCTS SECTION ─────────── -->
+    <div class="s-content" id="sec-products">
+      <div class="toolbar">
+        <div class="search-wrap">
+          <i class="fas fa-search"></i>
+          <input type="text" id="product-search" placeholder="Search products…"/>
+        </div>
+        <select class="f-select" id="category-filter">
+          <option value="all">All Categories</option>
+          <option value="netflix">Netflix</option>
+          <option value="spotify">Spotify</option>
+          <option value="canva">Canva</option>
+          <option value="shahid">Shahid</option>
+          <option value="capcut">CapCut</option>
+          <option value="steam">Steam</option>
+          <option value="epic_games">Epic Games</option>
+          <option value="ea_games">EA Games</option>
+          <option value="xbox_pc">Xbox GamePass</option>
+          <option value="pc">PC Games</option>
+          <option value="console">Console</option>
+          <option value="mobile">Mobile</option>
+          <option value="programming">Programming</option>
+          <option value="design">Design</option>
+          <option value="business">Business</option>
+          <option value="software">Software</option>
+        </select>
+        <button class="btn btn-primary btn-sm" id="add-product-btn">
+          <i class="fas fa-plus"></i> Add Product
+        </button>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-head">
+          <h3>All Products</h3>
+          <span id="products-count" style="font-size:11px;color:var(--text-muted)"></span>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>ID</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th></th>
+            </tr></thead>
+            <tbody id="products-tbody">
+              <tr><td colspan="6" class="loading-cell"><span class="spinner"></span>Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /products -->
+
+  </div><!-- /main-wrap -->
+</div><!-- /dashboard -->
+
+<!-- ── ORDER DETAIL MODAL ──────────────── -->
+<div class="modal-bg" id="order-modal">
+  <div class="modal">
+    <div class="mhead">
+      <h3>Order Details</h3>
+      <button class="mclose" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="mbody" id="modal-body"></div>
+    <div class="mfooter">
+      <div class="status-row">
+        <select id="modal-status">
+          <option value="pending">Pending</option>
+          <option value="processing">Processing</option>
+          <option value="completed">Completed</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <button class="btn btn-primary btn-sm" id="save-status-btn">
+          <i class="fas fa-check"></i> Save Status
+        </button>
+      </div>
+      <button class="btn btn-danger btn-sm" id="del-btn">
+        <i class="fas fa-trash"></i> Delete
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PRODUCT FORM MODAL ──────────── -->
+<div class="modal-bg" id="product-modal">
+  <div class="modal">
+    <div class="mhead">
+      <h3 id="product-modal-title">Add Product</h3>
+      <button class="mclose" onclick="closeProductModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="mbody">
+      <form id="product-form">
+        <div class="form-group">
+          <label class="lbl">Product ID</label>
+          <input type="number" id="prod-id" class="field" placeholder="Enter product ID" required/>
+        </div>
+        <div class="form-group">
+          <label class="lbl">Name</label>
+          <input type="text" id="prod-name" class="field" placeholder="Product name" required/>
+        </div>
+        <div class="form-group">
+          <label class="lbl">Category</label>
+          <select id="prod-category" class="field" required>
+            <option value="">Select Category</option>
+            <option value="netflix">Netflix</option>
+            <option value="spotify">Spotify</option>
+            <option value="canva">Canva</option>
+            <option value="shahid">Shahid</option>
+            <option value="capcut">CapCut</option>
+            <option value="steam">Steam</option>
+            <option value="epic_games">Epic Games</option>
+            <option value="ea_games">EA Games</option>
+            <option value="xbox_pc">Xbox GamePass</option>
+            <option value="pc">PC Games</option>
+            <option value="console">Console</option>
+            <option value="mobile">Mobile</option>
+            <option value="programming">Programming</option>
+            <option value="design">Design</option>
+            <option value="business">Business</option>
+            <option value="software">Software</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="lbl">Price (TND)</label>
+          <input type="number" id="prod-price" class="field" placeholder="0" step="0.01" required/>
+        </div>
+        <div class="form-group">
+          <label class="lbl">Original Price (optional)</label>
+          <input type="number" id="prod-original-price" class="field" placeholder="0" step="0.01"/>
+        </div>
+        <div class="form-group">
+          <label class="lbl">Description</label>
+          <textarea id="prod-description" class="field" placeholder="Product description" style="min-height:70px;resize:vertical" required></textarea>
+        </div>
+        <div class="form-group">
+          <label class="lbl">Rating (0-5)</label>
+          <input type="number" id="prod-rating" class="field" placeholder="4.5" min="0" max="5" step="0.1"/>
+        </div>
+        <div class="form-group" style="display:flex;gap:14px">
+          <label style="flex:1;display:flex;align-items:center;gap:7px">
+            <input type="checkbox" id="prod-popular"/>
+            <span class="lbl" style="margin:0">Popular</span>
+          </label>
+          <label style="flex:1;display:flex;align-items:center;gap:7px">
+            <input type="checkbox" id="prod-recommended"/>
+            <span class="lbl" style="margin:0">Recommended</span>
+          </label>
+          <label style="flex:1;display:flex;align-items:center;gap:7px">
+            <input type="checkbox" id="prod-in-stock" checked/>
+            <span class="lbl" style="margin:0">In Stock</span>
+          </label>
+        </div>
+      </form>
+    </div>
+    <div class="mfooter">
+      <button class="btn btn-secondary" onclick="closeProductModal()">Cancel</button>
+      <button class="btn btn-primary" id="save-product-btn">
+        <i class="fas fa-check"></i> Save Product
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CONFIRM DIALOG ─────────────────── -->
+<div class="confirm-bg" id="confirm-bg">
+  <div class="confirm-box">
+    <h4 id="confirm-title">Confirm</h4>
+    <p  id="confirm-msg">Are you sure?</p>
+    <div class="confirm-btns">
+      <button class="btn btn-secondary" id="confirm-no">Cancel</button>
+      <button class="btn btn-danger"    id="confirm-yes">Confirm</button>
+    </div>
+  </div>
+</div>
 
 <script>
+/* ═══════════════════════════════════════════
+   DIMA DEALS — ADMIN DASHBOARD  v2.0
+═══════════════════════════════════════════ */
 
-async function loadOrders(){
+// ── State ──────────────────────────────────
+let adminKey   = '';
+let allOrders  = [];
+let filtered   = [];
+let curPage    = 1;
+let curOrder   = null;
+const PER_PAGE = 15;
+let rChart = null, sChart = null;
 
-const key = document.getElementById("key").value
+// Products management
+let allProducts = [];
+let filteredProducts = [];
+let curProduct = null;
+let isEditingProduct = false;
 
-const res = await fetch("/api/orders",{
-headers:{
-Authorization:key
-}
-})
-
-const data = await res.json()
-
-if(!data.success){
-alert("Unauthorized")
-return
-}
-
-const tbody = document.querySelector("#ordersTable tbody")
-
-tbody.innerHTML=""
-
-data.orders.forEach(order=>{
-
-const row = document.createElement("tr")
-
-row.innerHTML=`
-<td>${order.orderId}</td>
-<td>${order.email}</td>
-<td>${order.total}</td>
-<td>${order.createdAt}</td>
-`
-
-tbody.appendChild(row)
-
-})
-
+// ── Security: escape HTML before inserting into DOM ──
+function esc(v) {
+  if (v == null) return '';
+  return String(v)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
 }
 
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})
+       + ' ' + d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+}
+function fmtNum(n){ return n == null ? '—' : Number(n).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+const STATUS_BADGE = {
+  pending:    '<span class="badge b-pending"><i class="fas fa-clock"></i> Pending</span>',
+  processing: '<span class="badge b-processing"><i class="fas fa-spinner"></i> Processing</span>',
+  completed:  '<span class="badge b-completed"><i class="fas fa-check"></i> Completed</span>',
+  delivered:  '<span class="badge b-delivered"><i class="fas fa-truck"></i> Delivered</span>',
+  cancelled:  '<span class="badge b-cancelled"><i class="fas fa-times"></i> Cancelled</span>',
+};
+function badge(s){ return STATUS_BADGE[s] || `<span class="badge">${esc(s||'—')}</span>`; }
+
+// ── Toast ───────────────────────────────────
+function toast(msg, type='inf'){
+  const el = document.createElement('div');
+  el.className = `toast t-${type}`;
+  const icons = {ok:'fa-check-circle', err:'fa-exclamation-circle', inf:'fa-info-circle'};
+  el.innerHTML = `<i class="fas ${icons[type]||'fa-info-circle'}"></i>${esc(msg)}`;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(()=>{ el.style.transition='opacity .3s'; el.style.opacity='0'; setTimeout(()=>el.remove(),300); }, 3200);
+}
+
+// ── Confirm dialog ──────────────────────────
+function confirmDialog(title, msg){
+  return new Promise(resolve => {
+    document.getElementById('confirm-title').textContent = title;
+    document.getElementById('confirm-msg').textContent   = msg;
+    const bg = document.getElementById('confirm-bg');
+    bg.classList.add('open');
+    document.getElementById('confirm-yes').onclick = ()=>{ bg.classList.remove('open'); resolve(true); };
+    document.getElementById('confirm-no').onclick  = ()=>{ bg.classList.remove('open'); resolve(false); };
+  });
+}
+
+// ── API helpers ─────────────────────────────
+async function apiFetch(url, opts={}){
+  const res = await fetch(url, { ...opts, headers:{ 'Content-Type':'application/json', Authorization: adminKey, ...opts.headers }});
+  if (res.status === 401){ logout(); throw new Error('Unauthorized'); }
+  return res.json();
+}
+
+// ── Login / Logout ──────────────────────────
+async function login(){
+  const key = document.getElementById('key-input').value.trim();
+  if (!key) return;
+  const btn = document.getElementById('login-btn');
+  btn.innerHTML = '<span class="spinner" style="width:14px;height:14px"></span> Verifying…';
+  btn.disabled  = true;
+  try {
+    const data = await apiFetch('/api/orders?limit=500', { headers:{ Authorization: key } });
+    if (!data.success) throw new Error('bad key');
+    adminKey = key;
+    sessionStorage.setItem('ak', key);
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').classList.add('vis');
+    initDash(data);
+  } catch(e){
+    const el = document.getElementById('login-err');
+    el.textContent = 'Invalid admin key. Please try again.';
+    el.style.display = 'block';
+  } finally {
+    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+    btn.disabled  = false;
+  }
+}
+
+function logout(){
+  adminKey = '';
+  sessionStorage.removeItem('ak');
+  document.getElementById('dashboard').classList.remove('vis');
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('key-input').value = '';
+  document.getElementById('login-err').style.display = 'none';
+}
+
+// ── Init dashboard with fetched data ────────
+function initDash(data){
+  allOrders = data.orders || [];
+  filtered  = [...allOrders];
+  updateKPIs(data.stats);
+  renderRecent();
+  renderOrdersTable();
+  buildCharts(data.stats);
+}
+
+// ── Refresh ─────────────────────────────────
+async function refresh(){
+  const btn = document.getElementById('refresh-btn');
+  btn.classList.add('spin');
+  try {
+    const data = await apiFetch('/api/orders?limit=500');
+    if (data.success){
+      allOrders = data.orders || [];
+      applyFilters();
+      updateKPIs(data.stats);
+      renderRecent();
+      buildCharts(data.stats);
+      toast('Refreshed', 'ok');
+    }
+  } catch(e){ toast('Refresh failed','err'); }
+  finally { btn.classList.remove('spin'); }
+}
+
+// ── KPIs ────────────────────────────────────
+function updateKPIs(s){
+  if (!s) return;
+  document.getElementById('k-total').textContent   = (s.total   ?? allOrders.length).toLocaleString();
+  document.getElementById('k-revenue').textContent = fmtNum(s.revenue ?? 0);
+  document.getElementById('k-pending').textContent = (s.pending ?? 0).toLocaleString();
+  document.getElementById('k-today').textContent   = (s.today   ?? 0).toLocaleString();
+}
+
+// ── Charts ──────────────────────────────────
+function buildCharts(stats){
+  buildRevenueChart();
+  buildStatusChart(stats);
+}
+
+function buildRevenueChart(){
+  const ctx = document.getElementById('chart-revenue').getContext('2d');
+  const labels = [], values = [];
+  for (let i=6; i>=0; i--){
+    const d = new Date(); d.setDate(d.getDate()-i);
+    labels.push(d.toLocaleDateString('en-GB',{month:'short',day:'numeric'}));
+    const ds = d.toDateString();
+    values.push(allOrders.filter(o=>new Date(o.createdAt).toDateString()===ds).reduce((s,o)=>s+(o.total||0),0));
+  }
+  if (rChart) rChart.destroy();
+  rChart = new Chart(ctx,{
+    type:'line',
+    data:{labels, datasets:[{
+      label:'Revenue (TND)', data:values, borderColor:'#ff006e',
+      backgroundColor:'rgba(255,0,110,.07)', borderWidth:2,
+      pointBackgroundColor:'#ff006e', pointRadius:3, tension:.4, fill:true
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index', intersect:false},
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:'#181818'}, ticks:{color:'#666',font:{size:10}}},
+        y:{grid:{color:'#181818'}, ticks:{color:'#666',font:{size:10}, callback:v=>v+' TND'}, beginAtZero:true}
+      }
+    }
+  });
+}
+
+function buildStatusChart(stats){
+  const ctx = document.getElementById('chart-status').getContext('2d');
+  const c = stats?.completed??0, p = stats?.pending??0, x = stats?.cancelled??0;
+  const total = stats?.total ?? allOrders.length;
+  const other = Math.max(0, total - c - p - x);
+  if (sChart) sChart.destroy();
+  sChart = new Chart(ctx,{
+    type:'doughnut',
+    data:{
+      labels:['Completed','Pending','Cancelled','Other'],
+      datasets:[{data:[c,p,x,other], backgroundColor:['#00e676','#ffd60a','#ff4444','#08d9d6'], borderWidth:0, borderRadius:3}]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom', labels:{color:'#666',font:{size:10},padding:10,boxWidth:10}}},
+      cutout:'65%'
+    }
+  });
+}
+
+// ── Recent orders (overview) ─────────────────
+function renderRecent(){
+  const tbody = document.getElementById('recent-tbody');
+  const rows  = allOrders.slice(0,5);
+  if (!rows.length){
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><i class="fas fa-inbox"></i><p>No orders yet</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(o=>`
+    <tr onclick="openModal('${esc(o.orderId)}')">
+      <td><span class="oid">${esc(o.orderId)}</span></td>
+      <td><div class="cname">${esc(o.fullname||'—')}</div><div class="cemail">${esc(o.email||'—')}</div></td>
+      <td>${esc(String(o.items?.length??0))}</td>
+      <td>${esc(fmtNum(o.total))} TND</td>
+      <td>${badge(o.status)}</td>
+      <td>${esc(fmtDate(o.createdAt))}</td>
+    </tr>`).join('');
+}
+
+// ── Orders table (full) ──────────────────────
+function applyFilters(){
+  const q      = (document.getElementById('order-search')?.value||'').toLowerCase().trim();
+  const status = document.getElementById('status-filter')?.value||'all';
+  filtered = allOrders.filter(o=>{
+    if (status!=='all' && o.status!==status) return false;
+    if (q) return o.orderId?.toLowerCase().includes(q)||o.email?.toLowerCase().includes(q)||o.fullname?.toLowerCase().includes(q);
+    return true;
+  });
+  curPage = 1;
+  renderOrdersTable();
+}
+
+function renderOrdersTable(){
+  const tbody = document.getElementById('orders-tbody');
+  const cnt   = document.getElementById('orders-count');
+  if (cnt) cnt.textContent = `${filtered.length} order(s)`;
+  if (!filtered.length){
+    tbody.innerHTML='<tr><td colspan="8"><div class="empty"><i class="fas fa-inbox"></i><p>No orders found</p></div></td></tr>';
+    renderPagination(0); return;
+  }
+  const start = (curPage-1)*PER_PAGE;
+  const page  = filtered.slice(start, start+PER_PAGE);
+  tbody.innerHTML = page.map(o=>`
+    <tr onclick="openModal('${esc(o.orderId)}')">
+      <td><span class="oid">${esc(o.orderId)}</span></td>
+      <td><div class="cname">${esc(o.fullname||'—')}</div><div class="cemail">${esc(o.email||'—')}</div></td>
+      <td>${esc(String(o.items?.length??0))}</td>
+      <td>${esc(fmtNum(o.total))} TND</td>
+      <td>${badge(o.paymentStatus||'pending')}</td>
+      <td>${badge(o.status)}</td>
+      <td>${esc(fmtDate(o.createdAt))}</td>
+      <td onclick="event.stopPropagation()">
+        <button class="btn btn-secondary btn-icon" onclick="openModal('${esc(o.orderId)}')"><i class="fas fa-eye"></i></button>
+      </td>
+    </tr>`).join('');
+  renderPagination(filtered.length);
+}
+
+function renderPagination(total){
+  const pages   = Math.ceil(total/PER_PAGE);
+  const info    = document.getElementById('pg-info');
+  const btns    = document.getElementById('pg-btns');
+  if (!info||!btns) return;
+  const s = Math.min((curPage-1)*PER_PAGE+1, total);
+  const e = Math.min(curPage*PER_PAGE, total);
+  info.textContent = total>0 ? `Showing ${s}–${e} of ${total}` : '';
+  btns.innerHTML = '';
+  if (pages<=1) return;
+  const mk = (label, page, disabled, active)=>{
+    const b = document.createElement('button');
+    b.className = 'pg-btn' + (active?' active':'');
+    b.innerHTML = label; b.disabled = disabled;
+    if (!disabled && !active) b.onclick = ()=>{ curPage=page; renderOrdersTable(); };
+    btns.appendChild(b);
+  };
+  mk('<i class="fas fa-chevron-left"></i>', curPage-1, curPage===1);
+  const nums = pages<=7 ? [...Array(pages)].map((_,i)=>i+1) :
+    [1, ...(curPage>3?['…']:[]), ...Array.from({length:3},(_,i)=>Math.max(2,Math.min(pages-1,curPage-1+i))).filter(n=>n>1&&n<pages), ...(curPage<pages-2?['…']:[]), pages];
+  nums.forEach(n=>{
+    if (n==='…'){ const b=document.createElement('button'); b.className='pg-btn'; b.textContent='…'; b.disabled=true; btns.appendChild(b); }
+    else mk(n, n, false, n===curPage);
+  });
+  mk('<i class="fas fa-chevron-right"></i>', curPage+1, curPage===pages);
+}
+
+// ── Order detail modal ───────────────────────
+function openModal(orderId){
+  curOrder = allOrders.find(o=>o.orderId===orderId);
+  if (!curOrder) return;
+  const o = curOrder;
+  const itemsHtml = (o.items||[]).map(item=>`
+    <li>
+      <div><span class="i-name">${esc(item.name||'—')}</span><span class="i-qty">×${esc(String(item.quantity||1))}</span></div>
+      <span class="i-price">${esc(fmtNum((item.price||0)*(item.quantity||1)))} TND</span>
+    </li>`).join('') || '<li style="color:var(--text-muted);font-size:12px">No items</li>';
+
+  document.getElementById('modal-body').innerHTML = `
+    <div class="msec">
+      <div class="msec-title">Order Info</div>
+      <div class="info-grid">
+        <div class="info-box"><div class="info-box-label">Order ID</div><div class="info-box-val" style="font-family:monospace;color:var(--cyan)">${esc(o.orderId)}</div></div>
+        <div class="info-box"><div class="info-box-label">Created At</div><div class="info-box-val">${esc(fmtDate(o.createdAt))}</div></div>
+        <div class="info-box"><div class="info-box-label">Status</div><div class="info-box-val">${badge(o.status)}</div></div>
+        <div class="info-box"><div class="info-box-label">Payment</div><div class="info-box-val">${badge(o.paymentStatus||'pending')}</div></div>
+      </div>
+    </div>
+    <div class="msec">
+      <div class="msec-title">Customer</div>
+      <div class="info-grid">
+        <div class="info-box"><div class="info-box-label">Full Name</div><div class="info-box-val">${esc(o.fullname||'—')}</div></div>
+        <div class="info-box"><div class="info-box-label">Email</div><div class="info-box-val">${esc(o.email||'—')}</div></div>
+        <div class="info-box"><div class="info-box-label">Phone</div><div class="info-box-val">${esc(o.phone||'—')}</div></div>
+        <div class="info-box"><div class="info-box-label">Country</div><div class="info-box-val">${esc(o.country||'—')}</div></div>
+      </div>
+    </div>
+    <div class="msec">
+      <div class="msec-title">Items</div>
+      <ul class="items-ul">${itemsHtml}</ul>
+    </div>
+    <div class="msec">
+      <div class="msec-title">Totals</div>
+      <div class="info-grid">
+        <div class="info-box"><div class="info-box-label">Subtotal</div><div class="info-box-val">${esc(fmtNum(o.subtotal))} TND</div></div>
+        <div class="info-box"><div class="info-box-label">Total</div><div class="info-box-val" style="color:var(--green);font-size:16px">${esc(fmtNum(o.total))} TND</div></div>
+      </div>
+    </div>`;
+
+  document.getElementById('modal-status').value = o.status || 'pending';
+  document.getElementById('order-modal').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('order-modal').classList.remove('open');
+  curOrder = null;
+}
+
+// ── Navigation ───────────────────────────────
+function switchSec(name){
+  document.querySelectorAll('.s-content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.s-nav a').forEach(a=>a.classList.remove('active'));
+  document.getElementById(`sec-${name}`)?.classList.add('active');
+  document.querySelector(`[data-sec="${name}"]`)?.classList.add('active');
+  document.getElementById('page-title').textContent = name.charAt(0).toUpperCase()+name.slice(1);
+}
+
+// ── PRODUCT MANAGEMENT ──────────────────────
+async function loadProducts() {
+  try {
+    const data = await apiFetch('/api/products');
+    if (data.success) {
+      allProducts = data.products || [];
+      filteredProducts = [...allProducts];
+      renderProductsTable();
+    }
+  } catch(e) { toast('Failed to load products','err'); }
+}
+
+function applyProductFilters(){
+  const q = (document.getElementById('product-search')?.value||'').toLowerCase().trim();
+  const cat = document.getElementById('category-filter')?.value||'all';
+  filteredProducts = allProducts.filter(p=>{
+    if (cat!=='all' && p.category!==cat) return false;
+    if (q) return p.name?.toLowerCase().includes(q) || p.category?.toLowerCase().includes(q);
+    return true;
+  });
+  renderProductsTable();
+}
+
+function renderProductsTable(){
+  const tbody = document.getElementById('products-tbody');
+  const cnt = document.getElementById('products-count');
+  if (cnt) cnt.textContent = `${filteredProducts.length} product(s)`;
+  if (!filteredProducts.length){
+    tbody.innerHTML='<tr><td colspan="6"><div class="empty"><i class="fas fa-inbox"></i><p>No products found</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = filteredProducts.map(p=>`
+    <tr onclick="editProduct(${p.id})">
+      <td><span class="oid">${esc(String(p.id))}</span></td>
+      <td>${esc(p.name||'—')}</td>
+      <td><span style="font-size:10px;background:#1e1e1e;padding:2px 6px;border-radius:4px">${esc(p.category||'—')}</span></td>
+      <td>${esc(fmtNum(p.price))} TND</td>
+      <td><span style="color:${p.inStock?'var(--green)':'var(--red)'}"><i class="fas fa-${p.inStock?'check':'times'}"></i> ${p.inStock?'Yes':'No'}</span></td>
+      <td onclick="event.stopPropagation()">
+        <button class="btn btn-secondary btn-icon" onclick="editProduct(${p.id})"><i class="fas fa-pencil-alt"></i></button>
+        <button class="btn btn-danger btn-icon" onclick="delProduct(${p.id})"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>`).join('');
+}
+
+function openProductModal(isNew=true){
+  isEditingProduct = !isNew;
+  const title = document.getElementById('product-modal-title');
+  const idField = document.getElementById('prod-id');
+  title.textContent = isNew ? 'Add Product' : 'Edit Product';
+  idField.disabled = !isNew;
+  if (isNew) document.getElementById('product-form').reset();
+  document.getElementById('product-modal').classList.add('open');
+}
+
+function closeProductModal(){
+  document.getElementById('product-modal').classList.remove('open');
+  curProduct = null;
+}
+
+function editProduct(id){
+  curProduct = allProducts.find(p=>p.id===id);
+  if (!curProduct) return;
+  document.getElementById('prod-id').value = curProduct.id;
+  document.getElementById('prod-name').value = curProduct.name;
+  document.getElementById('prod-category').value = curProduct.category;
+  document.getElementById('prod-price').value = curProduct.price;
+  document.getElementById('prod-original-price').value = curProduct.originalPrice||'';
+  document.getElementById('prod-description').value = curProduct.description;
+  document.getElementById('prod-rating').value = curProduct.rating || 0;
+  document.getElementById('prod-popular').checked = curProduct.popular || false;
+  document.getElementById('prod-recommended').checked = curProduct.recommended || false;
+  document.getElementById('prod-in-stock').checked = curProduct.inStock !== false;
+  openProductModal(false);
+}
+
+async function saveProduct(){
+  const id = document.getElementById('prod-id').value;
+  const name = document.getElementById('prod-name').value;
+  const category = document.getElementById('prod-category').value;
+  const price = parseFloat(document.getElementById('prod-price').value);
+  const originalPrice = document.getElementById('prod-original-price').value ? parseFloat(document.getElementById('prod-original-price').value) : undefined;
+  const description = document.getElementById('prod-description').value;
+  const rating = parseFloat(document.getElementById('prod-rating').value) || 0;
+  const popular = document.getElementById('prod-popular').checked;
+  const recommended = document.getElementById('prod-recommended').checked;
+  const inStock = document.getElementById('prod-in-stock').checked;
+
+  if (!id || !name || !category || isNaN(price)) {
+    toast('Please fill all required fields','err');
+    return;
+  }
+
+  const btn = document.getElementById('save-product-btn');
+  btn.disabled = true;
+  try {
+    const method = isEditingProduct ? 'PUT' : 'POST';
+    const data = await apiFetch('/api/products',{
+      method, body:JSON.stringify({
+        id: parseInt(id), name, category, price, originalPrice, description, rating, popular, recommended, inStock
+      })
+    });
+    if (data.success){
+      await loadProducts();
+      closeProductModal();
+      toast(isEditingProduct ? 'Product updated' : 'Product created','ok');
+    }
+  } catch(e){ toast('Save failed','err'); }
+  finally { btn.disabled=false; }
+}
+
+async function delProduct(id){
+  const ok = await confirmDialog('Delete Product', `Delete this product? This cannot be undone.`);
+  if (!ok) return;
+  try {
+    await apiFetch('/api/products',{ method:'DELETE', body:JSON.stringify({ id }) });
+    await loadProducts();
+    toast('Product deleted','ok');
+  } catch(e){ toast('Delete failed','err'); }
+}
+
+// ── Export CSV ───────────────────────────────
+function exportCSV(){
+  const headers = ['Order ID','Customer','Email','Phone','Country','Items','Subtotal','Total','Status','Payment','Created At'];
+  const rows = filtered.map(o=>[
+    o.orderId, o.fullname, o.email, o.phone, o.country,
+    (o.items||[]).map(i=>`${i.name}x${i.quantity}`).join('; '),
+    o.subtotal, o.total, o.status, o.paymentStatus, o.createdAt
+  ]);
+  const csv = [headers, ...rows].map(r=>r.map(c=>`"${String(c??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a   = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([csv],{type:'text/csv'})), download:`dima-orders-${new Date().toISOString().split('T')[0]}.csv` });
+  a.click(); URL.revokeObjectURL(a.href);
+  toast('CSV exported','ok');
+}
+
+// ── Event wiring ─────────────────────────────
+document.addEventListener('DOMContentLoaded', ()=>{
+
+  // Auto-login from session
+  const saved = sessionStorage.getItem('ak');
+  if (saved){
+    document.getElementById('key-input').value = saved;
+    login(); return;
+  }
+
+  document.getElementById('login-btn').addEventListener('click', login);
+  document.getElementById('key-input').addEventListener('keydown', e=>{ if(e.key==='Enter') login(); });
+  document.getElementById('logout-btn').addEventListener('click', logout);
+  document.getElementById('refresh-btn').addEventListener('click', refresh);
+
+  document.querySelectorAll('.s-nav a').forEach(a=>{
+    a.addEventListener('click', e=>{ e.preventDefault(); switchSec(a.dataset.sec); });
+  });
+
+  let debT;
+  document.getElementById('order-search').addEventListener('input',()=>{ clearTimeout(debT); debT=setTimeout(applyFilters,280); });
+  document.getElementById('status-filter').addEventListener('change', applyFilters);
+  document.getElementById('export-btn').addEventListener('click', exportCSV);
+
+  // Status update
+  document.getElementById('save-status-btn').addEventListener('click', async ()=>{
+    if (!curOrder) return;
+    const status = document.getElementById('modal-status').value;
+    const btn = document.getElementById('save-status-btn');
+    btn.disabled = true;
+    try {
+      await apiFetch('/api/orders',{ method:'PATCH', body:JSON.stringify({ orderId:curOrder.orderId, status }) });
+      const idx = allOrders.findIndex(o=>o.orderId===curOrder.orderId);
+      if (idx!==-1){ allOrders[idx].status=status; filtered=filtered.map(o=>o.orderId===curOrder.orderId?{...o,status}:o); }
+      renderOrdersTable(); renderRecent();
+      toast('Status updated','ok'); closeModal();
+    } catch(e){ toast('Update failed','err'); }
+    finally { btn.disabled=false; }
+  });
+
+  // Delete order
+  document.getElementById('del-btn').addEventListener('click', async ()=>{
+    if (!curOrder) return;
+    const ok = await confirmDialog('Delete Order', `Delete order ${curOrder.orderId}? This cannot be undone.`);
+    if (!ok) return;
+    try {
+      await apiFetch('/api/orders',{ method:'DELETE', body:JSON.stringify({ orderId:curOrder.orderId }) });
+      allOrders = allOrders.filter(o=>o.orderId!==curOrder.orderId);
+      filtered  = filtered.filter(o=>o.orderId!==curOrder.orderId);
+      renderOrdersTable(); renderRecent();
+      closeModal(); toast('Order deleted','ok');
+    } catch(e){ toast('Delete failed','err'); }
+  });
+
+  // Close modal on overlay click
+  document.getElementById('order-modal').addEventListener('click', e=>{ if(e.target.id==='order-modal') closeModal(); });
+
+  // Product management event listeners
+  document.getElementById('add-product-btn').addEventListener('click', ()=>openProductModal(true));
+  document.getElementById('save-product-btn').addEventListener('click', saveProduct);
+  let debProd;
+  document.getElementById('product-search').addEventListener('input',()=>{ clearTimeout(debProd); debProd=setTimeout(applyProductFilters,280); });
+  document.getElementById('category-filter').addEventListener('change', applyProductFilters);
+  document.getElementById('product-modal').addEventListener('click', e=>{ if(e.target.id==='product-modal') closeProductModal(); });
+
+  // Load products on products tab switch
+  const origSwitchSec = switchSec;
+  window.switchSec = function(name){
+    origSwitchSec(name);
+    if(name==='products') loadProducts();
+  };
+
+  // Load products on init if on products page
+  if (document.querySelector('#sec-products')) {
+    loadProducts();
+  }
+});
 </script>
-
 </body>
 </html>

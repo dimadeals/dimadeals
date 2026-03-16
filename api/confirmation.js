@@ -1,4 +1,4 @@
-import redis from "./redis.js";
+import { getRedis } from "./redis.js";
 
 export default async function handler(req, res) {
 
@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   ==========================*/
 
   if (req.method === "GET") {
-
+    const redis = await getRedis();
     try {
 
       const { orderId } = req.query;
@@ -64,7 +64,7 @@ export default async function handler(req, res) {
   ==========================*/
 
   if (req.method === "POST") {
-
+    const redis = await getRedis();
     try {
 
       const { orderId } = req.body;
@@ -95,7 +95,7 @@ export default async function handler(req, res) {
       await redis.set(
         `order:${orderId}`,
         JSON.stringify(orderData),
-        { ex: 7776000 } // 90 days
+        { EX: 7776000 } // 90 days
       );
 
       return res.status(200).json({

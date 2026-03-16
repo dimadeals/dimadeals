@@ -1,4 +1,12 @@
-import redis from "./redis.js";
+import { getRedis } from "./redis.js";
+
+// Strip HTML/script tags from strings to prevent stored XSS
+function sanitize(str) {
+  return String(str ?? "")
+    .replace(/<[^>]*>/g, "")
+    .trim()
+    .substring(0, 500);
+}
 
 export default async function handler(req, res) {
 
@@ -16,6 +24,7 @@ export default async function handler(req, res) {
   ==========================*/
 
   if (req.method === "POST") {
+    const redis = await getRedis();
     try {
 
       const { items, email, phone, fullname, country } = req.body;
@@ -83,10 +92,10 @@ export default async function handler(req, res) {
         country: country || "TN",
 
         items: items.map(item => ({
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity || 1
+          id:       Number(item.id),
+          name:     sanitize(item.name),
+          price:    Number(item.price),
+          quantity: Number(item.quantity) || 1
         })),
 
         subtotal,
@@ -114,20 +123,19 @@ export default async function handler(req, res) {
         await redis.set(
           `order:${orderId}`,
           JSON.stringify(orderRecord),
-          { ex: 7776000 } // 90 days
+          { EX: 7776000 } // 90 days
         );
 
         const customerOrders =
           await redis.get(`customer:${email}:orders`) || "[]";
 
         const orders = JSON.parse(customerOrders);
-
         orders.push(orderId);
 
         await redis.set(
           `customer:${email}:orders`,
           JSON.stringify(orders),
-          { ex: 31536000 }
+          { EX: 31536000 }
         );
 
         savedToDatabase = true;
@@ -154,8 +162,7 @@ export default async function handler(req, res) {
 
       return res.status(500).json({
         success: false,
-        error: "Checkout failed",
-        message: error.message
+        error: "Checkout failed"
       });
 
     }
@@ -166,7 +173,7 @@ export default async function handler(req, res) {
   ==========================*/
 
   if (req.method === "GET") {
-
+    const redis = await getRedis();
     try {
 
       const { orderId } = req.query;

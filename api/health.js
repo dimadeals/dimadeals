@@ -1,8 +1,9 @@
-import redis from "./redis.js";
+import { getRedis } from "./redis.js";
 
 export default async function handler(req, res) {
 
   try {
+    const redis = await getRedis();
 
     // write test
     await redis.set("test-key", "connected");

@@ -236,9 +236,39 @@ function initializeSearchFilters(allResults) {
   });
 }
 
-// ============ PRODUCT DATABASE ============
-// This is where you can easily add, remove, or edit products
-const PRODUCTS_DATABASE = {
+// ============ PRODUCT DATABASE — Dynamic (loaded from API) ============
+
+let PRODUCTS_DATABASE = {}; // Will be populated from API
+
+async function loadProductsFromAPI() {
+  try {
+    const res = await fetch("/api/products");
+    const data = await res.json();
+    
+    if (data.success && Array.isArray(data.products)) {
+      // Rebuild category-keyed structure
+      PRODUCTS_DATABASE = {};
+      data.products.forEach(prod => {
+        if (!PRODUCTS_DATABASE[prod.category]) {
+          PRODUCTS_DATABASE[prod.category] = [];
+        }
+        PRODUCTS_DATABASE[prod.category].push(prod);
+      });
+      return true;
+    }
+  } catch (e) {
+    console.warn("Failed to load products from API, using fallback:", e);
+    // Use fallback database if API fails
+    PRODUCTS_DATABASE = FALLBACK_PRODUCTS;
+    return false;
+  }
+  // Use fallback if API responds but no products
+  PRODUCTS_DATABASE = FALLBACK_PRODUCTS;
+  return false;
+}
+
+// Fallback hardcoded database (used if API fails)
+const FALLBACK_PRODUCTS = {
   netflix: [
     { id: 1, name: 'Basic 720p', price: 22, images: ['images/NetflixBigLogo.png'], description: '1 user subscription of Netflix for 1 month', rating: 4.8, popular: true, recommended: false, inStock: true },
     { id: 2, name: 'Standard 1080p', price: 29, originalPrice: 34, images: ['images/NetflixBigLogo.png'], description: '2 users subscription of Netflix for 1 month', rating: 4.9, popular: true, recommended: true, inStock: true },
@@ -328,20 +358,17 @@ const PRODUCTS_DATABASE = {
   ],
   pc: [
     { id: 500, name: 'ARC Raiders Steam Account', price: 95, images: ['images/arc-raiders.png','images/Arc_Raiders2.png','images/Arc_Raiders3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: true, recommended: true, inStock: true },
-    { id: 501, name: 'FC 26 Standard Edition Steam Account', price: 45, images: ['images/fc-26.png','images/fc-26s.png','images/fc-26-2.png'], description: 'Digital gift card for Steam games and software fifa', rating: 4.8, popular: true, recommended: false, inStock: true },
+    { id: 501, name: 'FC 26 Standard Edition Steam Account', price: 60, images: ['images/fc-26.png','images/fc-26s.png','images/fc-26-2.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: true, recommended: false, inStock: true },
     { id: 502, name: 'GTA V Standard Edition Steam Account', price: 50, images: ['images/gta5.png','images/gta5-2.png','images/gta5-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: false, recommended: true, inStock: true },
-    { id: 503, name: 'RUST Steam Account', price: 35, images: ['images/rust.png','images/rust-2.png','images/rust-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: true, recommended: true, inStock: true },
-    { id: 504, name: 'Elden Ring Steam Account', price: 80, images: ['images/elden-ring.png','images/elden-ring-2.png','images/elden-ring-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: false, recommended: true, inStock: true },
+    { id: 503, name: 'RUST Steam Account', price: 40, images: ['images/rust.png','images/rust-2.png','images/rust-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: true, recommended: true, inStock: true },
+    { id: 504, name: 'Elden Ring Steam Account', price: 90, images: ['images/elden-ring.png','images/elden-ring-2.png','images/elden-ring-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: false, recommended: true, inStock: true },
     { id: 505, name: 'HELLDIVERS 2 Steam Account', price: 95, images: ['images/helldivers-2-2.png','images/helldivers-2-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: true, recommended: false, inStock: true },
-    { id: 506, name: 'Nioh 3 Steam Account', price: 140, images: ['images/nioh-3.png','images/nioh-3-2.png','images/nioh-3-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: false, recommended: false, inStock: true },
-    { id: 507, name: 'REANIMAL Steam CD Key', price: 60, images: ['images/REANIMAL.png','images/REANIMAL-2.png','images/REANIMAL-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: true, recommended: false, inStock: true },
-    { id: 508, name: "No Man's Sky Steam Account", price: 35, images: ['images/no-man-s-sky.png','images/no-man-s-sky-2.png','images/no-man-s-sky-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: false, recommended: true, inStock: true },
-    { id: 509, name: 'Cyberpunk 2077 Steam Account', price: 45, images: ['images/Cyberpunk2077.png','images/Cyberpunk2077-2.png','images/Cyberpunk2077-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: false, recommended: false, inStock: true },
-    { id: 510, name: 'ARC Raiders Steam CD Key', price: 110, images: ['images/arc-raiders.png','images/Arc_Raiders2.png','images/Arc_Raiders3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: true, recommended: false, inStock: true },
-    { id: 511, name: 'Nioh 3 Steam CD Key', price: 170, images: ['images/nioh-3.png','images/nioh-3-2.png','images/nioh-3-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: false, recommended: false, inStock: true },
-    { id: 512, name: 'Minecraft Microsoft Account', price: 40, images: ['images/minecraft-java-and-bedrock-edition-pc-mac-cover.jpg','images/mc2.png','images/mc3.png'], description: 'Digital gift card for Steam games and software Mineraft', rating: 4.8, popular: true, recommended: false, inStock: true },
-  
-  
+    { id: 506, name: 'Nioh 3 Steam Account', price: 170, images: ['images/nioh-3.png','images/nioh-3-2.png','images/nioh-3-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: false, recommended: false, inStock: true },
+    { id: 507, name: 'REANIMAL Steam CD Key', price: 70, images: ['images/REANIMAL.png','images/REANIMAL-2.png','images/REANIMAL-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: true, recommended: false, inStock: true },
+    { id: 508, name: "No Man's Sky Steam Account", price: 40, images: ['images/no-man-s-sky.png','images/no-man-s-sky-2.png','images/no-man-s-sky-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: false, recommended: true, inStock: true },
+    { id: 509, name: 'Cyberpunk 2077 Steam Account', price: 50, images: ['images/Cyberpunk2077.png','images/Cyberpunk2077-2.png','images/Cyberpunk2077-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: false, recommended: false, inStock: true },
+    { id: 510, name: 'ARC Raiders Steam CD Key', price: 120, images: ['images/arc-raiders.png','images/Arc_Raiders2.png','images/Arc_Raiders3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: true, recommended: false, inStock: true },
+    { id: 511, name: 'Nioh 3 Steam CD Key', price: 190, images: ['images/nioh-3.png','images/nioh-3-2.png','images/nioh-3-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: false, recommended: false, inStock: true }
   ]
 };
 
@@ -359,22 +386,27 @@ updateProductDescription(14, 'Profitez de Spotify Premium à prix réduit un seu
 
 
 
+// Deterministic daily shuffle — stable within a page session, changes each day
+function _seededShuffle(arr) {
+  const seed = Math.floor(Date.now() / 86400000); // changes once per day
+  const out  = [...arr];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.abs(((seed * (i + 1) * 2654435761) >>> 0) % (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
 // Get all popular products
 function getAllPopularProducts() {
   const allProducts = Object.values(PRODUCTS_DATABASE).flat();
-  return allProducts
-    .filter(p => p && p.popular && p.inStock !== false)
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 8);
+  return _seededShuffle(allProducts.filter(p => p && p.popular && p.inStock !== false)).slice(0, 8);
 }
 
 // Get all recommended products
 function getAllRecommendedProducts() {
   const allProducts = Object.values(PRODUCTS_DATABASE).flat();
-  return allProducts
-    .filter(p => p && p.recommended && p.inStock !== false)
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 8);
+  return _seededShuffle(allProducts.filter(p => p && p.recommended && p.inStock !== false)).slice(0, 8);
 }
 
 // Get related products (same category or similar price range)
@@ -686,9 +718,12 @@ function renderProducts(containerId, products) {
 
 // ============ NAVIGATION & MENU ============
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
   // Initialize language
   initializeLanguage();
+  
+  // Load products from API (or fallback to hardcoded)
+  await loadProductsFromAPI();
   
   // Initialize product grids
   renderProducts('most-popular-grid', getAllPopularProducts());
