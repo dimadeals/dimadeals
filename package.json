@@ -2,6 +2,7 @@
 {
   "name": "dima-deals",
   "version": "1.0.0",
+  "type": "module",
   "description": "Premium digital subscriptions store for Tunisia - Complete e-commerce platform",
   "main": "index.html",
   "scripts": {
