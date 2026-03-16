@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>DIMA Deals Admin</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#111;
+color:white;
+padding:40px;
+}
+
+input{
+padding:10px;
+font-size:16px;
+width:300px;
+}
+
+button{
+padding:10px 20px;
+font-size:16px;
+cursor:pointer;
+}
+
+table{
+margin-top:30px;
+width:100%;
+border-collapse:collapse;
+}
+
+td,th{
+border:1px solid #333;
+padding:10px;
+}
+
+</style>
+
+</head>
+<body>
+
+<h1>DIMA Deals Admin</h1>
+
+<input id="key" placeholder="Enter admin key">
+<button onclick="loadOrders()">Load Orders</button>
+
+<table id="ordersTable">
+<thead>
+<tr>
+<th>Order ID</th>
+<th>Email</th>
+<th>Total</th>
+<th>Date</th>
+</tr>
+</thead>
+
+<tbody></tbody>
+
+</table>
+
+<script>
+
+async function loadOrders(){
+
+const key = document.getElementById("key").value
+
+const res = await fetch("/api/orders",{
+headers:{
+Authorization:key
+}
+})
+
+const data = await res.json()
+
+if(!data.success){
+alert("Unauthorized")
+return
+}
+
+const tbody = document.querySelector("#ordersTable tbody")
+
+tbody.innerHTML=""
+
+data.orders.forEach(order=>{
+
+const row = document.createElement("tr")
+
+row.innerHTML=`
+<td>${order.orderId}</td>
+<td>${order.email}</td>
+<td>${order.total}</td>
+<td>${order.createdAt}</td>
+`
+
+tbody.appendChild(row)
+
+})
+
+}
+
+</script>
+
+</body>
+</html>
