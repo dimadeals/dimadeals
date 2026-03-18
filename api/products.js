@@ -9,8 +9,8 @@ const VALID_CATEGORIES = [
 function validateProduct(prod) {
   if (!prod.name || typeof prod.name !== "string" || prod.name.trim().length === 0)
     return "Product name is required";
-  if (!prod.category || !VALID_CATEGORIES.includes(prod.category))
-    return `Invalid category. Must be one of: ${VALID_CATEGORIES.join(", ")}`;
+  if (!prod.category || typeof prod.category !== "string" || prod.category.trim().length === 0)
+    return "Category is required";
   if (typeof prod.price !== "number" || prod.price < 0)
     return "Price must be a non-negative number";
   if (!prod.description || typeof prod.description !== "string")
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
         .map(item => { try { return JSON.parse(item); } catch { return null; } })
         .filter(Boolean);
 
-      if (category && VALID_CATEGORIES.includes(category)) {
+      if (category) {
         products = products.filter(p => p.category === category);
       }
 

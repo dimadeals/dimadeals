@@ -639,7 +639,7 @@ function createProductCard(product) {
     ? `<img src="${imageSrc}" alt="${product.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`
     : '';
 
-  const noImageHTML = !imageSrc ? `<div class="no-image-card-message">🚫 No Image Available</div>` : '';
+  const noImageHTML = `<div class="no-image-card-message"${imageSrc ? ' style="display:none"' : ''}>🚫 No Image Available</div>`;
 
   // Create rating stars
   const rating = product.rating || 0;
@@ -728,6 +728,55 @@ document.addEventListener('DOMContentLoaded', async function() {
   // Initialize product grids
   renderProducts('most-popular-grid', getAllPopularProducts());
   renderProducts('recommended-grid', getAllRecommendedProducts());
+
+  // Page-specific product loading (runs after API data is available)
+  if (!loadBrowsePage()) {
+    const _up = new URLSearchParams(window.location.search);
+    const _tp = _up.get('type');
+    const catalogGrid = document.getElementById('catalog-grid');
+    if (catalogGrid && _tp) {
+      const products = PRODUCTS_DATABASE[_tp] || [];
+      const metadata = CATALOG_METADATA[_tp];
+      if (metadata) {
+        const titleEl = document.getElementById('catalog-title');
+        const subEl   = document.getElementById('catalog-subtitle');
+        if (titleEl) titleEl.textContent = metadata.title;
+        if (subEl)   subEl.textContent   = metadata.subtitle;
+      }
+      catalogGrid.innerHTML = products.map(p => createProductCard(p)).join('');
+    } else {
+      const gridWithCat = document.querySelector('.product-grid[data-category]');
+      if (gridWithCat) {
+        const cat = gridWithCat.dataset.category;
+        gridWithCat.innerHTML = (PRODUCTS_DATABASE[cat] || []).map(p => createProductCard(p)).join('');
+      } else if (_tp) {
+        const products = PRODUCTS_DATABASE[_tp] || [];
+        const legacyGrid = document.getElementById('games-grid') || document.getElementById('courses-grid') || document.getElementById('apps-grid');
+        if (legacyGrid) legacyGrid.innerHTML = products.map(p => createProductCard(p)).join('');
+        const _tMaps = {
+          'games-title':   { pc:'PC Games', console:'Console Games', mobile:'Mobile Games' },
+          'courses-title': { programming:'Programming Courses', design:'Design Courses', business:'Business Courses' },
+          'apps-title':    { mobile:'Mobile Apps', software:'Software' }
+        };
+        const _sMaps = {
+          'games-subtitle':   { pc:'Choose from the best PC games and digital content', console:'Browse console games for PlayStation and Xbox', mobile:'Download premium mobile games' },
+          'courses-subtitle': { programming:'Learn programming and development skills', design:'Master design tools and creativity', business:'Develop your business and leadership skills' },
+          'apps-subtitle':    { mobile:'Discover essential mobile applications', software:'Premium software solutions for your computer' }
+        };
+        for (const [id, map] of Object.entries(_tMaps)) { const el = document.getElementById(id); if (el && map[_tp]) el.textContent = map[_tp]; }
+        for (const [id, map] of Object.entries(_sMaps)) { const el = document.getElementById(id); if (el && map[_tp]) el.textContent = map[_tp]; }
+        const pcPlat = document.getElementById('pc-platforms');
+        if (pcPlat) pcPlat.style.display = _tp === 'pc' ? 'block' : 'none';
+      }
+    }
+  }
+
+  // Product detail page — load after API data is ready
+  if (document.querySelector('.product-detail-container')) {
+    loadProductDetails();
+    const _pid = localStorage.getItem('selectedProductId');
+    if (_pid) renderProducts('related-products-grid', getRelatedProducts(parseInt(_pid)));
+  }
 
   // Initialize search functionality
   initializeSearch();
@@ -1144,20 +1193,7 @@ function handleBuyClick(productName, price) {
   }
 }
 
-// Load product details when on product page
-if (document.querySelector('.product-detail-container')) {
-  document.addEventListener('DOMContentLoaded', function() {
-    loadProductDetails();
-    // Load related products after a short delay to ensure main product is loaded
-    setTimeout(() => {
-      const productId = localStorage.getItem('selectedProductId');
-      if (productId) {
-        const relatedProducts = getRelatedProducts(parseInt(productId));
-        renderProducts('related-products-grid', relatedProducts);
-      }
-    }, 100);
-  });
-}
+
 
 // ============ UNIVERSAL PAGE LOADING ============
 
@@ -1267,128 +1303,7 @@ function loadBrowsePage() {
   return true;
 }
 
-// Generic loader: handles any grid with data-category attribute (subscriptions, games, courses, etc.)
-document.addEventListener('DOMContentLoaded', () => {
-  // 0. Load unified browse page (browse.html?category=games&type=pc)
-  if (loadBrowsePage()) return;
 
-  // 1. Load catalog page (catalog.html?type=netflix, etc.)
-  const catalogGrid = document.getElementById('catalog-grid');
-  if (catalogGrid) {
-    const urlParams = new URLSearchParams(window.location.search);
-    const type = urlParams.get('type');
-    
-    if (type) {
-      const products = PRODUCTS_DATABASE[type] || [];
-      const metadata = CATALOG_METADATA[type];
-      
-      if (metadata) {
-        const titleElement = document.getElementById('catalog-title');
-        const subtitleElement = document.getElementById('catalog-subtitle');
-        if (titleElement) {
-          titleElement.innerHTML = `<i class="${metadata.icon}"></i> ${metadata.title}`;
-        }
-        if (subtitleElement) {
-          subtitleElement.textContent = metadata.subtitle;
-        }
-      }
-      
-      catalogGrid.innerHTML = products
-        .map(product => createProductCard(product))
-        .join('');
-      console.log(`Loaded ${products.length} products for type: ${type}`);
-    }
-    return;
-  }
-
-  // 2. Load any product grid with data-category attribute (legacy support)
-  const gridWithCategory = document.querySelector('.product-grid[data-category]');
-  if (gridWithCategory) {
-    const category = gridWithCategory.dataset.category;
-    const products = PRODUCTS_DATABASE[category] || [];
-    gridWithCategory.innerHTML = products
-      .map(product => createProductCard(product))
-      .join('');
-    console.log(`Loaded ${products.length} products for category: ${category}`);
-    return;
-  }
-
-  // 3. Load pages with specific IDs (games-grid, courses-grid, apps-grid)
-  const urlParams = new URLSearchParams(window.location.search);
-  const type = urlParams.get('type');
-  
-  if (type) {
-    const products = PRODUCTS_DATABASE[type] || [];
-    
-    // Try different grid IDs
-    let gridElement = document.getElementById('games-grid') || 
-                     document.getElementById('courses-grid') || 
-                     document.getElementById('apps-grid');
-    
-    if (gridElement) {
-      gridElement.innerHTML = products
-        .map(product => createProductCard(product))
-        .join('');
-      console.log(`Loaded ${products.length} products for type: ${type}`);
-    }
-
-    // Update dynamic titles
-    const titleMaps = {
-      'games-title': {
-        pc: 'PC Games',
-        console: 'Console Games',
-        mobile: 'Mobile Games'
-      },
-      'courses-title': {
-        programming: 'Programming Courses',
-        design: 'Design Courses',
-        business: 'Business Courses'
-      },
-      'apps-title': {
-        mobile: 'Mobile Apps',
-        software: 'Software',
-      }
-    };
-
-    // Update dynamic subtitles
-    const subtitleMaps = {
-      'games-subtitle': {
-        pc: 'Choose from the best PC games and digital content',
-        console: 'Browse console games for PlayStation and Xbox',
-        mobile: 'Download premium mobile games'
-      },
-      'courses-subtitle': {
-        programming: 'Learn programming and development skills',
-        design: 'Master design tools and creativity',
-        business: 'Develop your business and leadership skills'
-      },
-      'apps-subtitle': {
-        mobile: 'Discover essential mobile applications',
-        software: 'Premium software solutions for your computer',
-      }
-    };
-
-    for (const [titleId, titleMap] of Object.entries(titleMaps)) {
-      const titleElement = document.getElementById(titleId);
-      if (titleElement && titleMap[type]) {
-        titleElement.textContent = titleMap[type];
-      }
-    }
-
-    for (const [subtitleId, subtitleMap] of Object.entries(subtitleMaps)) {
-      const subtitleElement = document.getElementById(subtitleId);
-      if (subtitleElement && subtitleMap[type]) {
-        subtitleElement.textContent = subtitleMap[type];
-      }
-    }
-
-    // Show PC platforms section only for PC games
-    const platformsSection = document.getElementById('pc-platforms');
-    if (platformsSection) {
-      platformsSection.style.display = type === 'pc' ? 'block' : 'none';
-    }
-  }
-});
 
 // ============ MOUSE TRACKING FOR HERO BACKGROUND ============
 
