@@ -83,6 +83,8 @@ export default async function handler(req, res) {
       /* -------- Fetch all products in parallel (Promise.all + redis.get) -------- */
 
       const productIds = [...new Set(items.map(item => item.id))];
+      console.log("Fetching product IDs:", productIds); // Debugging log
+
       const rawProducts = await Promise.all(
         productIds.map(id => redis.get(`product:${id}`))
       );
@@ -90,14 +92,16 @@ export default async function handler(req, res) {
       const productMap = {};
       for (let i = 0; i < productIds.length; i++) {
         if (!rawProducts[i]) {
+          console.error(`Product not found in Redis: product:${productIds[i]}`); // Log missing product
           return res.status(400).json({
             success: false,
-            error: `Some cart items are no longer available. Please clear your cart and try again.`
+            error: `Product with ID ${productIds[i]} is no longer available. Please remove it from your cart and try again.`
           });
         }
         try {
           productMap[productIds[i]] = JSON.parse(rawProducts[i]);
         } catch {
+          console.error(`Failed to parse product data for ID: ${productIds[i]}`); // Log parsing error
           return res.status(400).json({
             success: false,
             error: `Failed to read product ${productIds[i]}`
