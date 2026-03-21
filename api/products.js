@@ -178,12 +178,21 @@ export default async function handler(req, res) {
   ==========================*/
   if (req.method === "DELETE") {
     try {
-      const { id } = req.body;
+      const { id } = req.query; // Extract ID from URL query
 
       if (!id) return res.status(400).json({ error: "Product ID is required" });
 
-      const deleted = await redis.del(`product:${id}`);
-      if (!deleted) return res.status(404).json({ error: "Product not found" });
+      const productKey = `product:${id}`;
+      const productExists = await redis.exists(productKey);
+
+      if (!productExists) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+
+      const deleted = await redis.del(productKey);
+      if (!deleted) {
+        return res.status(500).json({ error: "Failed to delete product" });
+      }
 
       return res.status(200).json({ success: true });
     } catch (error) {
