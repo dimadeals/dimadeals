@@ -73,6 +73,8 @@ export default async function handler(req, res) {
         });
       }
 
+      const cleanFullname = sanitize(fullname);
+
       /* -------- Generate Order ID -------- */
 
       const orderId =
@@ -90,7 +92,7 @@ export default async function handler(req, res) {
         if (!rawProducts[i]) {
           return res.status(400).json({
             success: false,
-            error: `Product ${productIds[i]} not found`
+            error: `Some cart items are no longer available. Please clear your cart and try again.`
           });
         }
         try {
@@ -143,7 +145,7 @@ export default async function handler(req, res) {
   orderId,
   email: email.toLowerCase(),
   phone: cleanPhone,
-  fullname: fullname.trim(),
+  fullname: cleanFullname,
   country: country || "TN",
 
   items: validatedItems, // ✅ USE THIS (NOT frontend items)

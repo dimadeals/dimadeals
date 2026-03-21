@@ -969,24 +969,11 @@ function displayProductDetails(product) {
       `;
     }
 
-
-    
-
-
-
-    // Use custom bottom description if available, otherwise use default
-    const bottomText = product.extendedDescription || `Experience premium entertainment with ${product.name}. Enjoy unlimited access to thousands of shows, movies, and content.
-        Instant delivery via email with activation instructions. Compatible with all devices.`;
-
     productInfo.innerHTML = `
-      <h2>${product.name}</h2>
+      <h1>${product.name}</h1>
+      <p class="stock-status ${statusClass}"><i class="fas fa-circle"></i> ${statusText}</p>
       ${priceDisplayHTML}
-      <p class="availability ${statusClass}"><strong>Status:</strong> ${statusText}</p>
-      <p class="description">
-        ${product.description}
-        <br><br>
-        ${bottomText}
-      </p>
+      <p class="product-description">${product.description}</p>
       ${buttonHTML}
     `;
   }
@@ -1063,18 +1050,26 @@ function handleBuyClick(productName, price) {
 
   // Get the product ID from localStorage
   const productId = localStorage.getItem('selectedProductId');
-  if (productId) {
-    const allProducts = Object.values(PRODUCTS_DATABASE).flat();
-    const product = allProducts.find(p => p.id === parseInt(productId));
-    
-    if (product && product.inStock === false) {
-      alert('⚠️ This product is currently out of stock and cannot be purchased.');
-      return;
-    }
-
-    // Add to cart instead of directly purchasing
-    addToCart(product);
+  if (!productId) {
+    alert('Error: Product not found. Please go back and select a product.');
+    return;
   }
+
+  const allProducts = Object.values(PRODUCTS_DATABASE).flat();
+  const product = allProducts.find(p => p.id === parseInt(productId));
+
+  if (!product) {
+    alert('Product not found. Please refresh the page and try again.');
+    return;
+  }
+
+  if (product.inStock === false) {
+    alert('⚠️ This product is currently out of stock and cannot be purchased.');
+    return;
+  }
+
+  // Add to cart
+  addToCart(product);
 }
 
 
@@ -1592,8 +1587,17 @@ function setupCheckoutForm() {
       if (formData.fullname.trim().length < 3) {
         throw new Error('Full name must be at least 3 characters');
       }
-      
-      
+
+      // Validate cart items against currently loaded products
+      const allProducts = Object.values(PRODUCTS_DATABASE).flat();
+      if (allProducts.length > 0) {
+        const allProductIds = new Set(allProducts.map(p => String(p.id)));
+        const invalidItems = formData.items.filter(item => !allProductIds.has(String(item.id)));
+        if (invalidItems.length > 0) {
+          throw new Error('Some items in your cart are no longer available. Please clear your cart and re-add items.');
+        }
+      }
+
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: {
@@ -1612,7 +1616,17 @@ function setupCheckoutForm() {
       // Save order ID to localStorage for confirmation page
       localStorage.setItem('lastOrderId', result.orderId);
       localStorage.setItem('lastOrderEmail', formData.email);
-      
+
+      // Save order data for confirmation page display
+      localStorage.setItem('lastOrderData', JSON.stringify({
+        email: formData.email,
+        fullname: formData.fullname,
+        phone: formData.phone,
+        country: formData.country,
+        items: formData.items,
+        total: formData.total
+      }));
+
       // Clear cart
       clearCart();
       
