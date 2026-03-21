@@ -10,8 +10,11 @@ function sanitize(str) {
 
 export default async function handler(req, res) {
 
-  // CORS
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  // CORS — must be explicitly configured in production (no wildcard fallback)
+  const corsOrigin = process.env.FRONTEND_ORIGIN;
+  if (corsOrigin) {
+    res.setHeader("Access-Control-Allow-Origin", corsOrigin);
+  }
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
@@ -75,42 +78,90 @@ export default async function handler(req, res) {
       const orderId =
         `ORD-${Date.now()}-${Math.random().toString(36).substring(2,9).toUpperCase()}`;
 
-      /* -------- Calculate totals -------- */
+      /* -------- Fetch all products in parallel (Promise.all + redis.get) -------- */
 
-      const subtotal = items.reduce(
-        (sum, item) => sum + (item.price * (item.quantity || 1)),
-        0
+      const productIds = [...new Set(items.map(item => item.id))];
+      const rawProducts = await Promise.all(
+        productIds.map(id => redis.get(`product:${id}`))
       );
+
+      const productMap = {};
+      for (let i = 0; i < productIds.length; i++) {
+        if (!rawProducts[i]) {
+          return res.status(400).json({
+            success: false,
+            error: `Product ${productIds[i]} not found`
+          });
+        }
+        try {
+          productMap[productIds[i]] = JSON.parse(rawProducts[i]);
+        } catch {
+          return res.status(400).json({
+            success: false,
+            error: `Failed to read product ${productIds[i]}`
+          });
+        }
+      }
+
+      /* -------- Validate stock and calculate totals -------- */
+
+      let subtotal = 0;
+      const validatedItems = [];
+
+      for (const item of items) {
+        const product = productMap[item.id];
+        if (!product) {
+          return res.status(400).json({
+            success: false,
+            error: `Product ${item.id} not found`
+          });
+        }
+
+        if (!product.inStock) {
+          return res.status(400).json({
+            success: false,
+            error: `${product.name} is out of stock`
+          });
+        }
+
+        const quantity = Number(item.quantity) || 1;
+        subtotal += product.price * quantity;
+
+        validatedItems.push({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          quantity
+        });
+      }
 
       /* -------- Order Object -------- */
 
+
+
       const orderRecord = {
-        orderId,
-        email: email.toLowerCase(),
-        phone: cleanPhone,
-        fullname: fullname.trim(),
-        country: country || "TN",
+  orderId,
+  email: email.toLowerCase(),
+  phone: cleanPhone,
+  fullname: fullname.trim(),
+  country: country || "TN",
 
-        items: items.map(item => ({
-          id:       Number(item.id),
-          name:     sanitize(item.name),
-          price:    Number(item.price),
-          quantity: Number(item.quantity) || 1
-        })),
+  items: validatedItems, // ✅ USE THIS (NOT frontend items)
 
-        subtotal,
-        tax: 0,
-        total: subtotal,
+  subtotal,
+  tax: 0,
+  total: subtotal,
 
-        status: "completed",
-        paymentStatus: "pending",
+  status: "completed",
+  paymentStatus: "pending",
 
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
 
-        ipAddress: req.headers["x-forwarded-for"] || req.socket.remoteAddress,
-        userAgent: req.headers["user-agent"]
-      };
+  ipAddress: req.headers["x-forwarded-for"] || req.socket.remoteAddress,
+  userAgent: req.headers["user-agent"]
+};
+
 
       console.log("Processing order:", orderId);
 
@@ -120,10 +171,10 @@ export default async function handler(req, res) {
 
       try {
 
+        // Orders are stored permanently (no expiry) to preserve full history
         await redis.set(
           `order:${orderId}`,
-          JSON.stringify(orderRecord),
-          { EX: 7776000 } // 90 days
+          JSON.stringify(orderRecord)
         );
 
         const customerOrders =
@@ -132,10 +183,10 @@ export default async function handler(req, res) {
         const orders = JSON.parse(customerOrders);
         orders.push(orderId);
 
+        // Customer order index is also stored permanently
         await redis.set(
           `customer:${email}:orders`,
-          JSON.stringify(orders),
-          { EX: 31536000 }
+          JSON.stringify(orders)
         );
 
         savedToDatabase = true;

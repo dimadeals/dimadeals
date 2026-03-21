@@ -21,7 +21,11 @@ function validateProduct(prod) {
 }
 
 export default async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", process.env.ADMIN_ORIGIN || "*");
+  // CORS — must be explicitly configured in production (no wildcard fallback)
+  const corsOrigin = process.env.ADMIN_ORIGIN;
+  if (corsOrigin) {
+    res.setHeader("Access-Control-Allow-Origin", corsOrigin);
+  }
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
@@ -37,12 +41,17 @@ export default async function handler(req, res) {
       const { category } = req.query;
 
       const allKeys = [];
-      let cursor = 0;
+      let cursor = "0";
       do {
-        const result = await redis.scan(cursor, { MATCH: "product:*", COUNT: 100 });
-        cursor = result.cursor;
+        const result = await redis.scan(cursor, {
+          MATCH: "product:*",
+          COUNT: 100
+        });
+
+        cursor = String(result.cursor || "0");
         allKeys.push(...result.keys);
-      } while (cursor !== 0);
+
+      } while (cursor !== "0");
 
       if (allKeys.length === 0) {
         return res.status(200).json({ success: true, products: [] });
@@ -50,7 +59,11 @@ export default async function handler(req, res) {
 
       let products = await redis.mGet(allKeys);
       products = products
-        .map(item => { try { return JSON.parse(item); } catch { return null; } })
+        .filter(Boolean)
+        .map(item => {
+          try { return JSON.parse(item); }
+          catch { return null; }
+        })
         .filter(Boolean);
 
       if (category) {
@@ -65,7 +78,7 @@ export default async function handler(req, res) {
   }
 
   // Auth check for write operations
-  const adminKey = req.headers.authorization;
+  const adminKey = req.headers["authorization"];
   if (!adminKey || adminKey !== process.env.ADMIN_KEY) {
     return res.status(401).json({ error: "Unauthorized" });
   }
@@ -73,6 +86,7 @@ export default async function handler(req, res) {
   /* =========================
      POST — create product
   ==========================*/
+
   if (req.method === "POST") {
     try {
       const { id, name, price, description, category, images, rating, popular, recommended, originalPrice, inStock } = req.body;
@@ -98,6 +112,10 @@ export default async function handler(req, res) {
       const err = validateProduct(product);
       if (err) return res.status(400).json({ error: err });
 
+      if (!VALID_CATEGORIES.includes(product.category.toLowerCase())) {
+        return res.status(400).json({ error: "Invalid category" });
+      }
+
       // Check if product already exists
       const existing = await redis.get(`product:${product.id}`);
       if (existing) return res.status(409).json({ error: "Product with this ID already exists" });
@@ -114,6 +132,7 @@ export default async function handler(req, res) {
   /* =========================
      PUT — update product
   ==========================*/
+
   if (req.method === "PUT") {
     try {
       const { id, name, price, description, category, images, rating, popular, recommended, originalPrice, inStock } = req.body;
@@ -140,6 +159,10 @@ export default async function handler(req, res) {
 
       const err = validateProduct(updated);
       if (err) return res.status(400).json({ error: err });
+
+      if (updated.category && !VALID_CATEGORIES.includes(updated.category.toLowerCase())) {
+        return res.status(400).json({ error: "Invalid category" });
+      }
 
       await redis.set(`product:${id}`, JSON.stringify(updated));
 

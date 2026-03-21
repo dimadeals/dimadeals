@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Buy Netflix, Spotify, and digital subscriptions in Tunisia with instant delivery and secure payment.">
   <title>Shopping Cart - DIMA Deals</title>
   <link rel="icon" type="image/png" href="images/brand.png">
   <link rel="stylesheet" href="style.css" />
@@ -15,46 +16,46 @@
 <header class="header">
   <div class="header-container">
     <div class="logo">
-      <a href="index.html" class="active"><img src="images/DimaDealsLogo.png" alt=""></a>
+      <a href="/" class="active"><img src="images/DimaDealsLogo.png" alt=""></a>
     </div>
     <nav class="nav-menu">
       <ul class="nav-links">
         <li class="nav-item">
           <a href="#" class="nav-link">Subscriptions <i class="fas fa-chevron-down"></i></a>
           <ul class="dropdown">
-            <li><a href="browse.html?category=subscriptions&type=netflix"><img src="images/NetflixLogo.png" alt="" class="small-logo"> Netflix</a></li>
-            <li><a href="browse.html?category=subscriptions&type=spotify"><img src="images/spotify.png" alt="" class="small-logo">Spotify</a></li>
-            <li><a href="browse.html?category=subscriptions&type=canva"><img src="images/canva-icon.png" alt="" class="small-logo">Canva Pro</a></li>
-            <li><a href="browse.html?category=subscriptions&type=shahid"><img src="images/ShahidLogo.png" alt="" class="small-logo"> Shahid</a></li>
+            <li><a href="/browse?category=netflix"><img src="images/NetflixLogo.png" alt="" class="small-logo"> Netflix</a></li>
+            <li><a href="/browse?category=spotify"><img src="images/spotify.png" alt="" class="small-logo">Spotify</a></li>
+            <li><a href="/browse?category=canva"><img src="images/canva-icon.png" alt="" class="small-logo">Canva Pro</a></li>
+            <li><a href="/browse?category=shahid"><img src="images/ShahidLogo.png" alt="" class="small-logo"> Shahid</a></li>
           </ul>
         </li>
         <li class="nav-item">
           <a href="#" class="nav-link">Games <i class="fas fa-chevron-down"></i></a>
           <ul class="dropdown">
-            <li><a href="browse.html?category=games&type=pc">PC Games</a></li>  
-            <li><a href="browse.html?category=games&type=console">Console Games</a></li>
-            <li><a href="browse.html?category=games&type=mobile">Mobile Games</a></li>
+            <li><a href="/browse?category=pc">PC Games</a></li>  
+            <li><a href="/browse?category=console">Console Games</a></li>
+            <li><a href="/browse?category=mobile">Mobile Games</a></li>
           </ul>
         </li>
         <li class="nav-item">
           <a href="#" class="nav-link">Courses <i class="fas fa-chevron-down"></i></a>
           <ul class="dropdown">
-            <li><a href="browse.html?category=courses&type=programming">Programming</a></li>
-            <li><a href="browse.html?category=courses&type=design">Design</a></li>
-            <li><a href="browse.html?category=courses&type=business">Business</a></li>
+            <li><a href="/browse?category=programming">Programming</a></li>
+            <li><a href="/browse?category=design">Design</a></li>
+            <li><a href="/browse?category=business">Business</a></li>
           </ul>
         </li>
         <li class="nav-item">
           <a href="#" class="nav-link">Apps <i class="fas fa-chevron-down"></i></a>
           <ul class="dropdown">
-            <li><a href="browse.html?category=apps&type=mobile">Mobile Apps</a></li>
-            <li><a href="browse.html?category=apps&type=software">Software</a></li>
+            <li><a href="/browse?category=mobile">Mobile Apps</a></li>
+            <li><a href="/browse?category=software">Software</a></li>
           </ul>
         </li>
       </ul>
     </nav>
     <div class="nav-right">
-      <a href="cart.html" class="cart-icon-link">
+      <a href="/cart" class="cart-icon-link">
         <i class="fas fa-shopping-cart"></i>
         <span class="cart-count" id="cart-count">0</span>
       </a>
@@ -97,7 +98,7 @@
           <i class="fas fa-shopping-cart"></i>
           <h2>Your cart is empty</h2>
           <p>Start shopping to add items to your cart!</p>
-          <a href="index.html" class="cta-button">Continue Shopping</a>
+          <a href="/" class="cta-button">Continue Shopping</a>
         </div>
       </div>
 
@@ -119,7 +120,7 @@
         <button class="checkout-button" onclick="goToCheckout()">
           <i class="fas fa-lock"></i> Proceed to Checkout
         </button>
-        <a href="index.html" class="continue-shopping-link">
+        <a href="/" class="continue-shopping-link">
           <i class="fas fa-arrow-left"></i> Continue Shopping
         </a>
       </div>
@@ -134,7 +135,7 @@
   </div>
 </footer>
 
-<script src="script.js"></script>
+<script src="script.js" defer></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     displayCart();

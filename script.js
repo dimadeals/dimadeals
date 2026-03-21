@@ -5,6 +5,10 @@ function searchProducts(query) {
     return [];
   }
 
+  if (!PRODUCTS_DATABASE || Object.keys(PRODUCTS_DATABASE).length === 0) {
+    return [];
+  }
+
   const searchTerm = query.toLowerCase().trim();
   const allProducts = Object.values(PRODUCTS_DATABASE).flat();
 
@@ -70,7 +74,7 @@ function hideSearchSuggestions() {
 function selectSuggestion(productId) {
   // Store the selected product ID and navigate to product page
   localStorage.setItem('selectedProductId', productId);
-  window.location.href = 'product.html';
+  window.location.href = '/product';
 }
 
 function performSearch(query) {
@@ -78,7 +82,7 @@ function performSearch(query) {
 
   // Store search query and navigate to search results page
   localStorage.setItem('searchQuery', query.trim());
-  window.location.href = 'search.html';
+  window.location.href = '/search';
 }
 
 function displaySearchResults(results, containerId) {
@@ -121,7 +125,7 @@ function initializeSearch() {
   }
 
   // Simple input event listener
-  searchInput.addEventListener('input', function() {
+  searchInput.addEventListener('input', debounce(function() {
     const query = this.value.trim();
 
     if (query.length > 0) {
@@ -129,7 +133,7 @@ function initializeSearch() {
     } else {
       hideSearchSuggestions();
     }
-  });
+  }));
 
   // Hide suggestions when clicking outside
   document.addEventListener('click', function(e) {
@@ -147,22 +151,22 @@ function initializeSearch() {
   });
 
   // Enter key support
-  searchInput.addEventListener('keypress', function(e) {
+  searchInput.addEventListener('keypress', debounce (function(e) {
     if (e.key === 'Enter') {
       const query = this.value;
       if (query.trim() !== '') {
         performSearch(query);
       }
     }
-  });
+  }));
 
   // Escape key to hide suggestions
-  searchInput.addEventListener('keydown', function(e) {
+  searchInput.addEventListener('keydown', debounce (function(e) {
     if (e.key === 'Escape') {
       hideSearchSuggestions();
       this.blur();
     }
-  });
+  }));
 }
 
 // ============ SEARCH RESULTS PAGE FUNCTIONALITY ============
@@ -170,7 +174,7 @@ function initializeSearch() {
 function loadSearchResults() {
   const searchQuery = localStorage.getItem('searchQuery');
   if (!searchQuery) {
-    window.location.href = 'index.html';
+    window.location.href = '/';
     return;
   }
 
@@ -243,9 +247,18 @@ let PRODUCTS_DATABASE = {}; // Will be populated from API
 async function loadProductsFromAPI() {
   try {
     const res = await fetch("/api/products");
-    const data = await res.json();
+
+    const text = await res.text();
+    let data;
+
+    try {
+      data = JSON.parse(text);
+    } catch {
+      console.error("Invalid JSON from API:", text);
+      return false;
+    }
     
-    if (data.success && Array.isArray(data.products)) {
+    if (data && data.success && Array.isArray(data.products)) {
       // Rebuild category-keyed structure
       PRODUCTS_DATABASE = {};
       data.products.forEach(prod => {
@@ -255,135 +268,16 @@ async function loadProductsFromAPI() {
         PRODUCTS_DATABASE[prod.category].push(prod);
       });
       return true;
+    } else {
+      PRODUCTS_DATABASE = {};
     }
   } catch (e) {
-    console.warn("Failed to load products from API, using fallback:", e);
-    // Use fallback database if API fails
-    PRODUCTS_DATABASE = FALLBACK_PRODUCTS;
-    return false;
-  }
+  console.error("API failed:", e);
+  PRODUCTS_DATABASE = {};
+}
   // Use fallback if API responds but no products
-  PRODUCTS_DATABASE = FALLBACK_PRODUCTS;
   return false;
 }
-
-// Fallback hardcoded database (used if API fails)
-const FALLBACK_PRODUCTS = {
-  netflix: [
-    { id: 1, name: 'Basic 720p', price: 22, images: ['images/NetflixBigLogo.png'], description: '1 user subscription of Netflix for 1 month', rating: 4.8, popular: true, recommended: false, inStock: true },
-    { id: 2, name: 'Standard 1080p', price: 29, originalPrice: 34, images: ['images/NetflixBigLogo.png'], description: '2 users subscription of Netflix for 1 month', rating: 4.9, popular: true, recommended: true, inStock: true },
-    { id: 3, name: 'premium 4K + HDR', price: 40, images: ['images/NetflixBigLogo.png'], description: '6 user subscription of Netflix for 1 month', rating: 4.9, popular: true, recommended: true, inStock: true },
-    { id: 4, name: 'part of premium (shared)', price: 15, images: ['images/NetflixBigLogo.png'], description: '1 user subscription of Netflix for 1 month (shared account)', rating: 4.9, popular: false, recommended: true, inStock: true }
-  ],
-  spotify: [
-    { id: 10, name: 'Spotify Étudiants', price: 17, images: ['images/spotify-1.png'], description: '1 user subscription of Spotify for 1 month', rating: 4.7, popular: true, recommended: false, inStock: true },
-    { id: 11, name: 'Spotify Personnel', price: 23, images: ['images/spotify-1.png'], description: '1 user subscription of Spotify for 1 month', rating: 4.8, popular: false, recommended: true, inStock: true },
-    { id: 12, name: 'Spotify Duo', price: 27, images: ['images/spotify-1.png'], description: 'Six months unlimited streaming', rating: 4.8, popular: false, recommended: true, inStock: true },
-    { id: 13, name: 'Spotify Famille', price: 32, images: ['images/spotify-1.png'], description: 'Full year premium subscription', rating: 4.9, popular: false, recommended: false, inStock: true },
-    { id: 14, name: 'part of premium (shared)', price: 13, images: ['images/spotify-1.png'], description: 'Full year premium subscription', rating: 4.9, popular: false, recommended: false, inStock: true }
-  ],
-  canva: [
-    { id: 20, name: 'Canva Pro', price: 200, images: ['images/canva-icon.png'], description: 'One year canva pro for 1 person', rating: 4.7, popular: true, recommended: false, inStock: true },
-    { id: 21, name: 'Canva business', price: 300, images: ['images/canva-icon.png'], description: 'One year canva business for 1 person', rating: 4.8, popular: false, recommended: true, inStock: true }
-  ],
-  shahid: [
-    { id: 30, name: 'Shahid VIP Mobile', price: 20, images: ['images/Shahid_Logo.png'], description: 'Epic Shahid Originals, exclusive series, movie premieres & Live TV.', rating: 4.6, popular: false, recommended: false, inStock: true },
-    { id: 31, name: 'Shahid VIP', price: 23, images: ['images/Shahid_Logo.png'], description: 'Epic Shahid Originals, exclusive series, movie premieres, Live TV & more!', rating: 4.7, popular: true, recommended: true, inStock: true },
-    { id: 32, name: 'Shahid VIP | BigTime', price: 40, images: ['images/Shahid_Logo.png'], description: 'Riyadh & Jeddah Seasons: Live concerts, thrilling events, plus all VIP perks.', rating: 4.7, popular: false, recommended: false, inStock: true },
-    { id: 33, name: 'Shahid VIP | Sport', price: 42, images: ['images/Shahid_Logo.png'], description: 'International qualifiers, global tournaments, and showdowns, plus all VIP perks.', rating: 4.8, popular: false, recommended: true, inStock: true },
-    { id: 34, name: 'Shahid Ultimate', price: 60, images: ['images/Shahid_Logo.png'], description: 'The best of all worlds: VIP access, Riyadh & Jeddah Seasons, sports & more!', rating: 4.8, popular: false, recommended: true, inStock: true }
-  ],
-  console: [
-    { id: 60, name: 'PlayStation Store Card 50 TND', price: 50, images: ['images/playstation.png'], description: 'Digital gift card for PlayStation Store', rating: 4.8, popular: true, recommended: false, inStock: true },
-    { id: 61, name: 'PlayStation Store Card 100 TND', price: 100, images: ['images/playstation.png'], description: 'Digital gift card for PlayStation Store', rating: 4.9, popular: true, recommended: true, inStock: true },
-    { id: 62, name: 'Xbox Gift Card 50 TND', price: 50, images: ['images/xbox.png'], description: 'Digital gift card for Xbox games', rating: 4.7, popular: false, recommended: true, inStock: true }
-  ],
-  mobile: [
-    { id: 70, name: 'Google Play Gift Card 20 TND', price: 20, images: ['images/google-play.png'], description: 'Digital gift card for Google Play Store apps and games', rating: 4.6, popular: true, recommended: false, inStock: true },
-    { id: 71, name: 'Google Play Gift Card 50 TND', price: 50, images: ['images/google-play.png'], description: 'Digital gift card for Google Play Store apps and games', rating: 4.8, popular: true, recommended: true, inStock: true },
-    { id: 72, name: 'App Store Gift Card 20 TND', price: 20, images: ['images/app-store.png'], description: 'Digital gift card for Apple App Store', rating: 4.7, popular: false, recommended: true, inStock: true }
-  ],
-  programming: [
-    { id: 80, name: 'Udemy subscription', price: 80, images: ['images/Udemy.png'], description: 'Complete programming course bundle', rating: 4.8, popular: true, recommended: false, inStock: true },
-    { id: 81, name: 'Coursera Single learning program', price: 100, images: ['images/Coursera.png'], description: 'Learn a single topic or skill and earn a credential with coursera', rating: 4.9, popular: true, recommended: true, inStock: true },
-    { id: 82, name: 'Coursera Plus Annual', price: 600, images: ['images/Coursera.png'], description: 'Combine flexibility and savings with long-term learning goals using coursera pro annual', rating: 4.9, popular: true, recommended: true, inStock: true },
-    { id: 83, name: 'Codecademy Plus Subscription', price: 60, images: ['images/Codecademy.png'], description: 'Build in-demand technical skills for work or a personal project', rating: 4.7, popular: false, recommended: true, inStock: true },
-    { id: 84, name: 'Codecademy Pro Subscription', price: 80, images: ['images/Codecademy.png'], description: 'Develop the experience to land a job and move up in your career', rating: 4.7, popular: false, recommended: true, inStock: true }
-  ],
-  design: [
-    { id: 90, name: 'Adobe Creative Cloud Student', price: 100, images: ['images/creativecloud.png'], description: 'Get 20+ creative apps, including Photoshop and Acrobat Pro, plus Adobe Firefly creative AI for images, video, and audio.', rating: 4.9, popular: true, recommended: false, inStock: true },
-    { id: 91, name: 'Figma Professional Full Seat Subscription', price: 100, images: ['images/Figmapro.png'], description: 'Professional design and prototyping tools', rating: 4.8, popular: true, recommended: true, inStock: true },
-    { id: 92, name: 'Sketch Standard License', price: 65, images: ['images/sketch.png'], description: 'Vector graphics editor for UI/UX design', rating: 4.6, popular: false, recommended: true, inStock: true },
-    { id: 40, name: 'Capcut 1 month', price: 40, images: ['images/logo-capcut.png'], description: 'CapCut Pro offers advanced AI tools that can automatically remove background noise and sharpen video details', rating: 4.6, popular: true, recommended: false, inStock: true },
-    { id: 41, name: 'Capcut 1 year', price: 160, images: ['images/logo-capcut.png'], description: 'CapCut Pro offers advanced AI tools that can automatically remove background noise and sharpen video details', rating: 4.7, popular: true, recommended: true, inStock: true },
-    { id: 42, name: 'Capcut teams (two people)', price: 50, images: ['images/logo-capcut.png'], description: 'Edit YouTube and Instagram videos with CapCut teams, team up to create creativeness', rating: 4.7, popular: false, recommended: true, inStock: true }
-
-  ],
-  business: [
-    { id: 110, name: 'LinkedIn Learning Subscription', price: 100, images: ['images/LinkedInLearning.png'], description: 'Professional development and business courses', rating: 4.8, popular: true, recommended: false, inStock: true },
-    { id: 111, name: 'QuickBooks Online Simple Start', price: 30, images: ['images/quickbooks.png'], description: '1 user Plus access for your accountant', rating: 4.7, popular: false, recommended: false, inStock: true },
-    { id: 112, name: 'QuickBooks Online Essentials', price: 35, images: ['images/quickbooks.png'], description: '3 users Plus access for your accountant', rating: 4.7, popular: true, recommended: false, inStock: true },
-    { id: 113, name: 'QuickBooks Online Plus', price: 40, images: ['images/quickbooks.png'], description: '5 users Plus access for your accountant', rating: 4.7, popular: true, recommended: true, inStock: true },
-    { id: 114, name: 'QuickBooks Online Advanced', price: 50, images: ['images/quickbooks.png'], description: '25 users Plus access for your accountant', rating: 4.7, popular: false, recommended: true, inStock: true }
-  ],
-  software: [
-    { id: 130, name: 'Microsoft 365 Personal', price: 45, images: ['images/365.png'], description: 'Complete Microsoft Office suite subscription', rating: 4.9, popular: true, recommended: false, inStock: true },
-    { id: 131, name: 'Norton AntiVirus Plus', price: 20, images: ['images/norton.png'], description: 'Comprehensive security software package', rating: 4.8, popular: true, recommended: true, inStock: true },
-    { id: 132, name: 'Adobe Premiere Pro', price: 45, images: ['images/adobe.png'], description: 'Professional video editing suite', rating: 4.7, popular: false, recommended: true, inStock: true }
-  ],
-  steam: [
-    { id: 150, name: 'Steam Gift Card $5', price: 25, images: ['images/steam1.png'], description: 'Digital gift card for Steam games and software', rating: 4.6, popular: true, recommended: false, inStock: true },
-    { id: 151, name: 'Steam Gift Card $10', price: 40, images: ['images/steam1.png'], description: 'Digital gift card for Steam games and software', rating: 4.7, popular: true, recommended: true, inStock: true },
-    { id: 152, name: 'Steam Gift Card $25', price: 100, images: ['images/steam1.png'], description: 'Digital gift card for Steam games and software', rating: 4.7, popular: false, recommended: true, inStock: true },
-    { id: 153, name: 'Steam Gift Card $50', price: 180, images: ['images/steam1.png'], description: 'Digital gift card for Steam games and software', rating: 4.7, popular: true, recommended: true, inStock: true },
-    { id: 154, name: 'Steam Gift Card $100', price: 350, images: ['images/steam1.png'], description: 'Digital gift card for Steam games and software', rating: 4.7, popular: false, recommended: true, inStock: true }
-  ],
-  epic_games: [
-    { id: 160, name: 'Epic Games Card $5', price: 25, images: ['images/epic-games1.png'], description: 'Digital gift card for Epic Games Store', rating: 4.6, popular: true, recommended: false, inStock: true },
-    { id: 161, name: 'Epic Games Card $10', price: 40, images: ['images/epic-games1.png'], description: 'Digital gift card for Epic Games Store', rating: 4.7, popular: true, recommended: true, inStock: true },
-    { id: 162, name: 'Epic Games Card $25', price: 100, images: ['images/epic-games1.png'], description: 'Digital gift card for Epic Games Store', rating: 4.7, popular: false, recommended: true, inStock: true },
-    { id: 163, name: 'Epic Games Card $50', price: 180, images: ['images/epic-games1.png'], description: 'Digital gift card for Epic Games Store', rating: 4.7, popular: true, recommended: true, inStock: true },
-    { id: 164, name: 'Epic Games Card $100', price: 350, images: ['images/epic-games1.png'], description: 'Digital gift card for Epic Games Store', rating: 4.7, popular: false, recommended: true, inStock: true }
-  ],
-  ea_games: [
-    { id: 170, name: 'EA Play 1 Month', price: 50, images: ['images/ea-logo.png'], description: 'Get unlimited access to top EA titles for 1 month', rating: 4.6, popular: true, recommended: false, inStock: true },
-    { id: 171, name: 'EA Play Pro 1 Months', price: 100, images: ['images/ea-logo.png'], description: 'Get unlimited access to premium editions for 3 months', rating: 4.7, popular: true, recommended: true, inStock: true },
-    { id: 172, name: 'EA Play 1 Year', price: 150, images: ['images/ea-logo.png'], description: 'Get unlimited access to top EA titles for 1 year', rating: 4.8, popular: false, recommended: true, inStock: true },
-    { id: 173, name: 'EA Play Pro 1 Year', price: 350, images: ['images/ea-logo.png'], description: 'Get unlimited access to premium editions for 1 year', rating: 4.8, popular: false, recommended: true, inStock: true }
-  ],
-  xbox_pc: [
-    { id: 180, name: 'Xbox Game Pass PC Essential', price: 40, images: ['images/xbox-game-pass.png'], description: 'Access to Xbox Game Pass PC, 50+ games on Xbox console, PC, and supported devices for 1 month', rating: 4.7, popular: true, recommended: false, inStock: true },
-    { id: 181, name: 'Xbox Game Pass PC Premium', price: 60, images: ['images/xbox-game-pass.png'], description: 'Access to Xbox Game Pass PC, 200+ games on Xbox console, PC, and supported devices for 1 month', rating: 4.8, popular: true, recommended: true, inStock: true },
-    { id: 182, name: 'Xbox Game Pass PC Ultimate', price: 110, images: ['images/xbox-game-pass.png'], description: 'Access to Xbox Game Pass PC, 500+ games on Xbox console, PC, and supported devices for 1 month', rating: 4.9, popular: false, recommended: true, inStock: true }
-  ],
-  pc: [
-    { id: 500, name: 'ARC Raiders Steam Account', price: 95, images: ['images/arc-raiders.png','images/Arc_Raiders2.png','images/Arc_Raiders3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: true, recommended: true, inStock: true },
-    { id: 501, name: 'FC 26 Standard Edition Steam Account', price: 60, images: ['images/fc-26.png','images/fc-26s.png','images/fc-26-2.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: true, recommended: false, inStock: true },
-    { id: 502, name: 'GTA V Standard Edition Steam Account', price: 50, images: ['images/gta5.png','images/gta5-2.png','images/gta5-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: false, recommended: true, inStock: true },
-    { id: 503, name: 'RUST Steam Account', price: 40, images: ['images/rust.png','images/rust-2.png','images/rust-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: true, recommended: true, inStock: true },
-    { id: 504, name: 'Elden Ring Steam Account', price: 90, images: ['images/elden-ring.png','images/elden-ring-2.png','images/elden-ring-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: false, recommended: true, inStock: true },
-    { id: 505, name: 'HELLDIVERS 2 Steam Account', price: 95, images: ['images/helldivers-2-2.png','images/helldivers-2-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: true, recommended: false, inStock: true },
-    { id: 506, name: 'Nioh 3 Steam Account', price: 170, images: ['images/nioh-3.png','images/nioh-3-2.png','images/nioh-3-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: false, recommended: false, inStock: true },
-    { id: 507, name: 'REANIMAL Steam CD Key', price: 70, images: ['images/REANIMAL.png','images/REANIMAL-2.png','images/REANIMAL-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: true, recommended: false, inStock: true },
-    { id: 508, name: "No Man's Sky Steam Account", price: 40, images: ['images/no-man-s-sky.png','images/no-man-s-sky-2.png','images/no-man-s-sky-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: false, recommended: true, inStock: true },
-    { id: 509, name: 'Cyberpunk 2077 Steam Account', price: 50, images: ['images/Cyberpunk2077.png','images/Cyberpunk2077-2.png','images/Cyberpunk2077-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: false, recommended: false, inStock: true },
-    { id: 510, name: 'ARC Raiders Steam CD Key', price: 120, images: ['images/arc-raiders.png','images/Arc_Raiders2.png','images/Arc_Raiders3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: true, recommended: false, inStock: true },
-    { id: 511, name: 'Nioh 3 Steam CD Key', price: 190, images: ['images/nioh-3.png','images/nioh-3-2.png','images/nioh-3-3.png'], description: 'Digital gift card for Steam games and software', rating: 4.8, popular: false, recommended: false, inStock: true }
-  ]
-};
-
-updateProductDescription(1, 'Stream your favorite movies and series in clear HD quality (720p) on one screen at a time. Perfect for personal viewing with smooth playback and full access to Netflix’s content library. Enjoy affordable entertainment anytime, anywhere on your preferred device.');
-updateProductDescription(2, 'Enjoy your favorite movies and series in sharp Full HD quality (1080p) for a more immersive viewing experience. Watch on two screens at the same time, perfect for sharing with a partner or family member. Unlimited access to Netflix’s full library across TV, laptop, tablet, and mobile devices.');
-updateProductDescription(3, 'Experience Netflix in stunning Ultra HD 4K with HDR for richer colors, deeper contrast, and exceptional clarity. Stream on up to four screens simultaneously, ideal for families or shared viewing. Enjoy the complete Netflix library with the highest video and audio quality available.');
-updateProductDescription(4, 'Access Netflix Premium features at a lower cost by sharing a Premium subscription. Enjoy high-quality streaming with smooth playback and full access to the entire Netflix library. A smart and affordable way to experience premium entertainment on your own device.');
-updateProductDescription(10, 'Profitez de Spotify Premium à prix réduit spécialement conçu pour les étudiants. Écoutez vos musiques et podcasts sans publicité, en mode hors-ligne et avec lecture illimitée. Une expérience audio complète pour accompagner vos études et vos moments de détente.');
-updateProductDescription(11, 'Profitez de Spotify Premium pour un seul utilisateur. Écoutez vos musiques et podcasts sans publicité, en mode hors-ligne et avec lecture illimitée. Une expérience audio complète pour accompagner vos études et vos moments de détente.');
-updateProductDescription(12, 'Profitez de Spotify Premium pour deux utilisateurs. Écoutez vos musiques et podcasts sans publicité, en mode hors-ligne et avec lecture illimitée. Une expérience audio complète pour accompagner vos études et vos moments de détente.');
-updateProductDescription(13, 'Profitez de Spotify Premium pour 6 utilisateurs. Écoutez vos musiques et podcasts sans publicité, en mode hors-ligne et avec lecture illimitée. Une expérience audio complète pour accompagner vos études et vos moments de détente.');
-updateProductDescription(14, 'Profitez de Spotify Premium à prix réduit un seul utilisateur en abonnement famille partagee. Écoutez vos musiques et podcasts sans publicité, en mode hors-ligne et avec lecture illimitée. Une expérience audio complète pour accompagner vos études et vos moments de détente.');
-
-
-
 
 
 // Deterministic daily shuffle — stable within a page session, changes each day
@@ -399,18 +293,27 @@ function _seededShuffle(arr) {
 
 // Get all popular products
 function getAllPopularProducts() {
+  if (!PRODUCTS_DATABASE || Object.keys(PRODUCTS_DATABASE).length === 0) {
+    return [];
+  }
   const allProducts = Object.values(PRODUCTS_DATABASE).flat();
   return _seededShuffle(allProducts.filter(p => p && p.popular && p.inStock !== false)).slice(0, 8);
 }
 
 // Get all recommended products
 function getAllRecommendedProducts() {
+  if (!PRODUCTS_DATABASE || Object.keys(PRODUCTS_DATABASE).length === 0) {
+    return [];
+  }
   const allProducts = Object.values(PRODUCTS_DATABASE).flat();
   return _seededShuffle(allProducts.filter(p => p && p.recommended && p.inStock !== false)).slice(0, 8);
 }
 
 // Get related products (same category or similar price range)
 function getRelatedProducts(productId, limit = 4) {
+  if (!PRODUCTS_DATABASE || Object.keys(PRODUCTS_DATABASE).length === 0) {
+    return [];
+  }
   const allProducts = Object.values(PRODUCTS_DATABASE).flat();
   const currentProduct = allProducts.find(p => p.id === productId);
 
@@ -614,7 +517,6 @@ function applyLanguage(lang) {
     }
   });
   
-  console.log(`Language changed to: ${lang}`);
 }
 
 function initializeLanguage() {
@@ -908,7 +810,7 @@ function viewProductDetails(productId) {
   try {
     // Store the product ID in localStorage to be retrieved on the product page
     localStorage.setItem('selectedProductId', parseInt(productId));
-    window.location.href = 'product.html';
+    window.location.href = '/product';
   } catch (error) {
     console.error('Error navigating to product details:', error);
     alert('Error: Could not load product details');
@@ -955,7 +857,7 @@ function showProductNotFound() {
     productInfo.innerHTML = `
       <h2>Product Not Found</h2>
       <p>Sorry, the product you're looking for doesn't exist or has been removed.</p>
-      <button onclick="window.location.href='index.html'" class="details-button">Back to Home</button>
+      <button onclick="window.location.href='/'" class="details-button">Back to Home</button>
     `;
   }
 
@@ -1152,24 +1054,6 @@ function displayProductDetails(product) {
 
 // ============ PRODUCT DESCRIPTION UPDATE ============
 
-function updateProductDescription(productId, newBottomDescription) {
-  if (!productId || !newBottomDescription) {
-    console.error('Invalid product ID or description');
-    return false;
-  }
-
-  const allProducts = Object.values(PRODUCTS_DATABASE).flat();
-  const product = allProducts.find(p => p.id === productId);
-
-  if (!product) {
-    console.error(`Product with ID ${productId} not found`);
-    return false;
-  }
-
-  product.extendedDescription = newBottomDescription.trim();
-  console.log(`Bottom description updated for product ${productId}: ${product.name}`);
-  return true;
-}
 
 function handleBuyClick(productName, price) {
   if (!productName || !price) {
@@ -1245,7 +1129,8 @@ function loadBrowsePage() {
 
   const urlParams = new URLSearchParams(window.location.search);
   const category = urlParams.get('category') || 'subscriptions';
-  const type = urlParams.get('type') || 'netflix';
+  // If ?type= is absent (new URL format: ?category=netflix), use category as the product key
+  const type = urlParams.get('type') || category;
 
   const products = PRODUCTS_DATABASE[type] || [];
   productsGrid.innerHTML = products
@@ -1299,7 +1184,6 @@ function loadBrowsePage() {
     platformsSection.style.display = (category === 'games') ? 'block' : 'none';
   }
 
-  console.log(`Loaded ${products.length} products for category: ${category}, type: ${type}`);
   return true;
 }
 
@@ -1442,31 +1326,27 @@ async function sendOrder(productId){
 
     // For local development, use a mock response
     let data;
+
+
+
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
       // Mock response for local testing
-      console.log("Running in local mode - using mock order response");
       data = {
         success: true,
         message: "Order received successfully (local mock)",
         orderId: `ORDER-${Date.now()}`,
         data: order
       };
-      console.log("Order response:", data);
     } else {
       // Production: use real API
-      console.log("📤 Sending order to API:", order);
-      console.log("🌐 Making fetch request to:", "/api/order");
       
-      const response = await fetch("/api/order", {
+      const response = await fetch("/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify(order)
       });
-
-      console.log("📬 API Response Status:", response.status);
-      console.log("📬 API Response Headers:", response.headers);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -1475,7 +1355,6 @@ async function sendOrder(productId){
       }
 
       data = await response.json();
-      console.log("✅ Order response received:", data);
     }
     
     alert(`✅ Purchase initiated!\n\nThank you for choosing DIMA Deals!\n\n📧 A confirmation email will be sent to you shortly with delivery instructions.\n\n💡 Your subscription will be activated within 24 hours.`);
@@ -1640,7 +1519,7 @@ function goToCheckout() {
     alert('Your cart is empty!');
     return;
   }
-  window.location.href = 'checkout.html';
+  window.location.href = '/checkout';
 }
 
 // Display checkout summary
@@ -1651,7 +1530,7 @@ function displayCheckoutSummary() {
   if (!orderItemsContainer) return;
   
   if (cartItems.length === 0) {
-    window.location.href = 'cart.html';
+    window.location.href = '/cart';
     return;
   }
   
@@ -1714,7 +1593,6 @@ function setupCheckoutForm() {
         throw new Error('Full name must be at least 3 characters');
       }
       
-      console.log('📤 Submitting checkout form...', formData);
       
       const response = await fetch('/api/checkout', {
         method: 'POST',
@@ -1730,7 +1608,6 @@ function setupCheckoutForm() {
         throw new Error(result.error || 'Checkout failed');
       }
       
-      console.log('✅ Checkout successful:', result);
       
       // Save order ID to localStorage for confirmation page
       localStorage.setItem('lastOrderId', result.orderId);
@@ -1740,7 +1617,7 @@ function setupCheckoutForm() {
       clearCart();
       
       // Redirect to confirmation
-      window.location.href = `confirmation.html?orderId=${result.orderId}`;
+      window.location.href = `/confirmation?orderId=${result.orderId}`;
       
     } catch (error) {
       console.error('❌ Checkout error:', error);
@@ -1758,7 +1635,7 @@ function displayConfirmation() {
   const finalOrderId = orderId || lastOrderId;
   
   if (!finalOrderId) {
-    window.location.href = 'index.html';
+    window.location.href = '/';
     return;
   }
   

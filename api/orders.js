@@ -4,15 +4,18 @@ const VALID_STATUSES = ["pending", "processing", "completed", "delivered", "canc
 
 export default async function handler(req, res) {
 
-  // CORS — tighten to your actual domain in production
-  res.setHeader("Access-Control-Allow-Origin", process.env.ADMIN_ORIGIN || "*");
+  // CORS — must be explicitly configured in production (no wildcard fallback)
+  const corsOrigin = process.env.ADMIN_ORIGIN;
+  if (corsOrigin) {
+    res.setHeader("Access-Control-Allow-Origin", corsOrigin);
+  }
   res.setHeader("Access-Control-Allow-Methods", "GET, PATCH, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
   if (req.method === "OPTIONS") return res.status(200).end();
 
-  // Auth check
-  const adminKey = req.headers.authorization;
+  // Auth check — use bracket notation for headers
+  const adminKey = req.headers["authorization"];
   if (!adminKey || adminKey !== process.env.ADMIN_KEY) {
     return res.status(401).json({ error: "Unauthorized" });
   }
@@ -29,13 +32,19 @@ export default async function handler(req, res) {
       const limitNum = Math.min(200, Math.max(1, parseInt(limit) || 50));
 
       // SCAN is non-blocking; use it instead of KEYS in production
+      // Use string cursor ("0") and ensure loop stops correctly
       const allKeys = [];
-      let cursor = 0;
+      let cursor = "0";
       do {
-        const result = await redis.scan(cursor, { MATCH: "order:*", COUNT: 200 });
-        cursor = result.cursor;
+        const result = await redis.scan(cursor, {
+          MATCH: "order:*",
+          COUNT: 200
+        });
+
+        cursor = String(result.cursor || "0");
         allKeys.push(...result.keys);
-      } while (cursor !== 0);
+
+      } while (cursor !== "0");
 
       if (allKeys.length === 0) {
         return res.status(200).json({
@@ -49,11 +58,22 @@ export default async function handler(req, res) {
       }
 
       // MGET — single round-trip for all values instead of N individual GETs
+      // Filter out nulls before parsing to prevent crashes
       const raw = await redis.mGet(allKeys);
       let orders = raw
-        .map(item => { try { return JSON.parse(item); } catch { return null; } })
+        .filter(Boolean)
+        .map(item => {
+          try {
+            return JSON.parse(item);
+          } catch (e) {
+            console.error("Failed to parse order:", e);
+            return null;
+          }
+        })
         .filter(Boolean)
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      console.log(`[orders/GET] Loaded ${orders.length} orders from Redis`);
 
       // Compute stats from full dataset before filtering
       const today = new Date().toDateString();
@@ -73,9 +93,9 @@ export default async function handler(req, res) {
       if (search) {
         const q = search.toLowerCase();
         orders = orders.filter(o =>
-          o.orderId?.toLowerCase().includes(q) ||
-          o.email?.toLowerCase().includes(q)   ||
-          o.fullname?.toLowerCase().includes(q)
+          (o.orderId || "").toLowerCase().includes(q) ||
+          (o.email || "").toLowerCase().includes(q) ||
+          (o.fullname || "").toLowerCase().includes(q)
         );
       }
 
@@ -123,7 +143,10 @@ export default async function handler(req, res) {
       order.status      = status;
       order.updatedAt   = new Date().toISOString();
 
-      await redis.set(`order:${orderId}`, JSON.stringify(order), { EX: 7776000 });
+      // Store without expiry — order history is permanent
+      await redis.set(`order:${orderId}`, JSON.stringify(order));
+
+      console.log(`[orders/PATCH] Order ${orderId} status updated to "${status}"`);
 
       return res.status(200).json({ success: true, order });
 
@@ -144,6 +167,8 @@ export default async function handler(req, res) {
 
       const deleted = await redis.del(`order:${orderId}`);
       if (!deleted) return res.status(404).json({ error: "Order not found" });
+
+      console.log(`[orders/DELETE] Order ${orderId} deleted`);
 
       return res.status(200).json({ success: true });
 

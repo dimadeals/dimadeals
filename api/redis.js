@@ -1,23 +1,35 @@
 import { createClient } from "redis";
 
-let client = null;
+let globalClient;
 
-/**
- * Returns a connected Redis client, creating one if needed.
- * Safe to call on every request (serverless-friendly singleton).
- */
 export async function getRedis() {
-  if (client?.isReady) return client;
+  // 1. If already connected → reuse
+  if (globalClient && globalClient.isOpen) {
+    return globalClient;
+  }
 
-  client = createClient({ url: process.env.REDIS_URL });
-
-  client.on("error", (err) => {
-    console.error("Redis Client Error:", err);
-    // Mark client as unusable so the next request reconnects cleanly
-    client = null;
+  // 2. Create new client
+  const client = createClient({
+    url: process.env.REDIS_URL
   });
 
-  await client.connect();
+  // 3. Handle errors properly
+  client.on("error", (err) => {
+    console.error("❌ Redis Error:", err);
+  });
+
+  // 4. Connect safely
+  try {
+    await client.connect();
+    console.log("✅ Redis connected");
+  } catch (err) {
+    console.error("❌ Redis connection failed:", err);
+    throw new Error("Redis connection failed");
+  }
+
+  // 5. Store globally (IMPORTANT)
+  globalClient = client;
+
   return client;
 }
 
