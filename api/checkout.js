@@ -86,11 +86,15 @@ export default async function handler(req, res) {
       console.log("Fetching product IDs:", productIds); // Debugging log
 
       const rawProducts = await Promise.all(
-        productIds.map(id => redis.get(`product:${id}`))
+        productIds.map(id => {
+          console.log(`Fetching product with key: product:${id}`); // Log Redis key
+          return redis.get(`product:${id}`);
+        })
       );
 
       const productMap = {};
       for (let i = 0; i < productIds.length; i++) {
+        console.log(`Raw data for product:${productIds[i]}:`, rawProducts[i]); // Log raw data
         if (!rawProducts[i]) {
           console.error(`Product not found in Redis: product:${productIds[i]}`); // Log missing product
           return res.status(400).json({
