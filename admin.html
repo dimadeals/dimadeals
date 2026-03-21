@@ -1233,14 +1233,28 @@ async function saveProduct(){
   finally { btn.disabled=false; }
 }
 
-async function delProduct(id){
+async function delProduct(id) {
   const ok = await confirmDialog('Delete Product', `Delete this product? This cannot be undone.`);
   if (!ok) return;
   try {
-    await apiFetch('/api/products',{ method:'DELETE', body:JSON.stringify({ id }) });
+    const response = await fetch(`https://dimadeals.vercel.app/api/products/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: adminKey,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to delete product: ${response.statusText}`);
+    }
+
     await loadProducts();
-    toast('Product deleted','ok');
-  } catch(e){ console.error(e); toast('Delete failed','err'); }
+    toast('Product deleted', 'ok');
+  } catch (e) {
+    console.error(e);
+    toast('Delete failed', 'err');
+  }
 }
 
 // ── Export CSV ───────────────────────────────
