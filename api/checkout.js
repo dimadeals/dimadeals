@@ -80,23 +80,25 @@ export default async function handler(req, res) {
       const orderId =
         `ORD-${Date.now()}-${Math.random().toString(36).substring(2,9).toUpperCase()}`;
 
-      /* -------- Fetch all products in parallel (Promise.all + redis.get) -------- */
+      /* -------- Fetch all products directly from the API -------- */
 
-      const productIds = [...new Set(items.map(item => item.id))];
-      console.log("Fetching product IDs:", productIds); // Debugging log
+      const fetchProduct = async (id) => {
+        const response = await fetch("https://dimadeals.vercel.app/api/products");
+        const data = await response.json();
+        const product = data.products.find((p) => p.id === id);
+        return product ? JSON.stringify(product) : null;
+      };
 
+      const productIds = [...new Set(items.map((item) => item.id))];
       const rawProducts = await Promise.all(
-        productIds.map(id => {
-          console.log(`Fetching product with key: product:${id}`); // Log Redis key
-          return redis.get(`product:${id}`);
-        })
+        productIds.map((id) => fetchProduct(id))
       );
 
       const productMap = {};
       for (let i = 0; i < productIds.length; i++) {
         console.log(`Raw data for product:${productIds[i]}:`, rawProducts[i]); // Log raw data
         if (!rawProducts[i]) {
-          console.error(`Product not found in Redis: product:${productIds[i]}`); // Log missing product
+          console.error(`Product not found in API: product:${productIds[i]}`); // Log missing product
           return res.status(400).json({
             success: false,
             error: `Product with ID ${productIds[i]} is no longer available. Please remove it from your cart and try again.`
