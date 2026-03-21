@@ -82,7 +82,7 @@ export default async function handler(req, res) {
 
       const productIds = [...new Set(items.map(item => item.id))];
       const rawProducts = await Promise.all(
-        productIds.map(id => redis.get(`product:${id}`))
+        productIds.map(id => redis.get(`products:${id}`))
       );
 
       const productMap = {};
