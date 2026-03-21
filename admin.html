@@ -1237,7 +1237,7 @@ async function delProduct(id) {
   const ok = await confirmDialog('Delete Product', `Delete this product? This cannot be undone.`);
   if (!ok) return;
   try {
-    const response = await fetch(`https://dimadeals.vercel.app/api/products/${id}`, {
+    const response = await fetch(`https://dimadeals.vercel.app/api/products?id=${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
