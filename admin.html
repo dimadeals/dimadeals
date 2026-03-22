@@ -353,7 +353,7 @@ tbody td{padding:12px 14px;vertical-align:middle}
   <!-- ── SIDEBAR ─────────────────────── -->
   <aside class="sidebar">
     <div class="sidebar-brand">
-      <a href="/" target="_blank">
+      <a href="index.html" target="_blank">
         <img src="images/DimaDealsLogo.png" alt="DIMA" onerror="this.style.display='none'"/>
         <span>DIMA Deals</span>
       </a>
@@ -465,13 +465,6 @@ tbody td{padding:12px 14px;vertical-align:middle}
           <option value="delivered">Delivered</option>
           <option value="cancelled">Cancelled</option>
         </select>
-        <select class="f-select" id="order-sort">
-          <option value="date-desc">Date (Newest)</option>
-          <option value="date-asc">Date (Oldest)</option>
-          <option value="total-desc">Total High→Low</option>
-          <option value="total-asc">Total Low→High</option>
-          <option value="status">Status</option>
-        </select>
         <button class="btn btn-secondary btn-sm" id="export-btn">
           <i class="fas fa-file-csv"></i> Export CSV
         </button>
@@ -525,16 +518,6 @@ tbody td{padding:12px 14px;vertical-align:middle}
           <option value="design">Design</option>
           <option value="business">Business</option>
           <option value="software">Software</option>
-        </select>
-        <select class="f-select" id="product-sort">
-          <option value="">Sort by…</option>
-          <option value="id-asc">ID ↑</option>
-          <option value="id-desc">ID ↓</option>
-          <option value="name-asc">Name A→Z</option>
-          <option value="name-desc">Name Z→A</option>
-          <option value="price-asc">Price Low→High</option>
-          <option value="price-desc">Price High→Low</option>
-          <option value="category">Category</option>
         </select>
         <button class="btn btn-primary btn-sm" id="add-product-btn">
           <i class="fas fa-plus"></i> Add Product
@@ -627,9 +610,7 @@ tbody td{padding:12px 14px;vertical-align:middle}
             <option value="design">Design</option>
             <option value="business">Business</option>
             <option value="software">Software</option>
-            <option value="__custom__">➕ Add Custom Category…</option>
           </select>
-          <input type="text" id="prod-category-custom" class="field" placeholder="Enter custom category name (e.g. crunchyroll)" style="display:none;margin-top:6px"/>
         </div>
         <div class="form-group">
           <label class="lbl">Price (TND)</label>
@@ -642,10 +623,6 @@ tbody td{padding:12px 14px;vertical-align:middle}
         <div class="form-group">
           <label class="lbl">Description</label>
           <textarea id="prod-description" class="field" placeholder="Product description" style="min-height:70px;resize:vertical" required></textarea>
-        </div>
-        <div class="form-group">
-          <label class="lbl">Image URLs <span style="font-weight:400;color:var(--text-muted)">(one per line, up to 10)</span></label>
-          <textarea id="prod-images" class="field" placeholder="images/example1.png&#10;images/example1.png" style="min-height:70px;resize:vertical"></textarea>
         </div>
         <div class="form-group">
           <label class="lbl">Rating (0-5)</label>
@@ -693,121 +670,20 @@ tbody td{padding:12px 14px;vertical-align:middle}
    DIMA DEALS — ADMIN DASHBOARD  v2.0
 ═══════════════════════════════════════════ */
 
-// Replace hardcoded API URLs with relative paths
-async function apiFetch(url, opts={}) {
-  const res = await fetch(url.startsWith('https://dimadeals.vercel.app') ? url.replace('https://dimadeals.vercel.app', '') : url, {
-    ...opts,
-    headers: { 'Content-Type': 'application/json', Authorization: adminKey, ...opts.headers },
-  });
-  if (res.status === 401) {
-    logout();
-    throw new Error('Unauthorized');
-  }
-  const text = await res.text();
-  try {
-    return JSON.parse(text);
-  } catch (e) {
-    console.error('Invalid JSON from server:', text);
-    throw new Error('Invalid JSON from server');
-  }
-}
+// ── State ──────────────────────────────────
+let adminKey   = '';
+let allOrders  = [];
+let filtered   = [];
+let curPage    = 1;
+let curOrder   = null;
+const PER_PAGE = 15;
+let rChart = null, sChart = null;
 
-// Update login function for safe JSON parsing
-async function login() {
-  const key = document.getElementById('key-input').value.trim();
-  if (!key) return;
-  const btn = document.getElementById('login-btn');
-  btn.innerHTML = '<span class="spinner" style="width:14px;height:14px"></span> Verifying…';
-  btn.disabled = true;
-  try {
-    const res = await fetch('/api/orders?limit=500', {
-      headers: {
-        Authorization: key,
-      },
-    });
-    const text = await res.text();
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (e) {
-      throw new Error('Invalid JSON response');
-    }
-    if (!data.success) throw new Error('bad key');
-    adminKey = key;
-    sessionStorage.setItem('ak', key);
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('dashboard').classList.add('vis');
-    _resetIdleTimer();
-    initDash(data);
-  } catch (e) {
-    console.error(e);
-    const el = document.getElementById('login-err');
-    el.textContent = 'Invalid admin key. Please try again.';
-    el.style.display = 'block';
-  } finally {
-    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
-    btn.disabled = false;
-  }
-}
-
-function logout(){
-  adminKey = '';
-  sessionStorage.removeItem('ak');
-  document.getElementById('dashboard').classList.remove('vis');
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('key-input').value = '';
-  document.getElementById('login-err').style.display = 'none';
-}
-
-// Modify initDash to call loadProducts
-function initDash(data){
-  allOrders = data.orders || [];
-  filtered = [...allOrders];
-  updateKPIs(data.stats);
-  renderRecent();
-  renderOrdersTable();
-  buildCharts(data.stats);
-  loadProducts(); // Added call to loadProducts
-}
-
-// Increase idle timeout to 10 minutes
-const _IDLE_MS = 600_000; // 10 minutes
-
-// Clean redundant checks
-function applySortToProducts(products) {
-  const sort = document.getElementById('product-sort')?.value || '';
-  if (!sort) return products;
-  const s = [...products];
-  switch (sort) {
-    case 'id-asc':
-      return s.sort((a, b) => (a.id || 0) - (b.id || 0));
-    case 'id-desc':
-      return s.sort((a, b) => (b.id || 0) - (a.id || 0));
-    case 'name-asc':
-      return s.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-    case 'name-desc':
-      return s.sort((a, b) => (b.name || '').localeCompare(a.name || ''));
-    case 'price-asc':
-      return s.sort((a, b) => (a.price || 0) - (b.price || 0));
-    case 'price-desc':
-      return s.sort((a, b) => (b.price || 0) - (a.price || 0));
-    case 'category':
-      return s.sort((a, b) => (a.category || '').localeCompare(b.category || ''));
-    default:
-      return products;
-  }
-}
-
-// ── Idle auto-logout state ─────────────────────────
-let _idleTimer;
-function _resetIdleTimer() {
-  if (!adminKey) return;
-  clearTimeout(_idleTimer);
-  _idleTimer = setTimeout(() => {
-    toast('Logged out due to 1 minute of inactivity', 'inf');
-    logout();
-  }, _IDLE_MS);
-}
+// Products management
+let allProducts = [];
+let filteredProducts = [];
+let curProduct = null;
+let isEditingProduct = false;
 
 // ── Security: escape HTML before inserting into DOM ──
 function esc(v) {
@@ -859,21 +735,9 @@ function confirmDialog(title, msg){
 
 // ── API helpers ─────────────────────────────
 async function apiFetch(url, opts={}){
-  const res = await fetch(url.startsWith('https://dimadeals.vercel.app') ? url.replace('https://dimadeals.vercel.app', '') : url, {
-    ...opts,
-    headers: { 'Content-Type': 'application/json', Authorization: adminKey, ...opts.headers },
-  });
-  if (res.status === 401) {
-    logout();
-    throw new Error('Unauthorized');
-  }
-  const text = await res.text();
-  try {
-    return JSON.parse(text);
-  } catch (e) {
-    console.error('Invalid JSON from server:', text);
-    throw new Error('Invalid JSON from server');
-  }
+  const res = await fetch(url, { ...opts, headers:{ 'Content-Type':'application/json', Authorization: adminKey, ...opts.headers }});
+  if (res.status === 401){ logout(); throw new Error('Unauthorized'); }
+  return res.json();
 }
 
 // ── Login / Logout ──────────────────────────
@@ -891,22 +755,15 @@ async function login(){
         Authorization: key
       }
     });
-    const text = await res.text();
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (e) {
-      throw new Error('Invalid JSON response');
-    }
+    const data = await res.json();
+
     if (!data.success) throw new Error('bad key');
     adminKey = key;
     sessionStorage.setItem('ak', key);
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('dashboard').classList.add('vis');
-    _resetIdleTimer();
     initDash(data);
   } catch(e){
-    console.error(e);
     const el = document.getElementById('login-err');
     el.textContent = 'Invalid admin key. Please try again.';
     el.style.display = 'block';
@@ -933,7 +790,6 @@ function initDash(data){
   renderRecent();
   renderOrdersTable();
   buildCharts(data.stats);
-  loadProducts(); // Added call to loadProducts
 }
 
 // ── Refresh ─────────────────────────────────
@@ -950,7 +806,7 @@ async function refresh(){
       buildCharts(data.stats);
       toast('Refreshed', 'ok');
     }
-  } catch(e){ console.error(e); toast('Refresh failed','err'); }
+  } catch(e){ toast('Refresh failed','err'); }
   finally { btn.classList.remove('spin'); }
 }
 
@@ -1059,8 +915,7 @@ function renderOrdersTable(){
     renderPagination(0); return;
   }
   const start = (curPage-1)*PER_PAGE;
-  const sortedFiltered = applySortToOrders(filtered);
-  const page  = sortedFiltered.slice(start, start+PER_PAGE);
+  const page  = filtered.slice(start, start+PER_PAGE);
   tbody.innerHTML = page.map(o=>`
     <tr onclick="openModal('${esc(o.orderId)}')">
       <td><span class="oid">${esc(o.orderId)}</span></td>
@@ -1168,12 +1023,12 @@ function switchSec(name){
 async function loadProducts() {
   try {
     const data = await apiFetch('/api/products');
-    if (data && data.success) {
+    if (data.success) {
       allProducts = data.products || [];
       filteredProducts = [...allProducts];
       renderProductsTable();
     }
-  } catch(e) { console.error(e); toast('Failed to load products','err'); }
+  } catch(e) { toast('Failed to load products','err'); }
 }
 
 function applyProductFilters(){
@@ -1195,8 +1050,7 @@ function renderProductsTable(){
     tbody.innerHTML='<tr><td colspan="6"><div class="empty"><i class="fas fa-inbox"></i><p>No products found</p></div></td></tr>';
     return;
   }
-  const sorted = applySortToProducts(filteredProducts);
-  tbody.innerHTML = sorted.map(p=>`
+  tbody.innerHTML = filteredProducts.map(p=>`
     <tr onclick="editProduct(${p.id})">
       <td><span class="oid">${esc(String(p.id))}</span></td>
       <td>${esc(p.name||'—')}</td>
@@ -1216,21 +1070,12 @@ function openProductModal(isNew=true){
   const idField = document.getElementById('prod-id');
   title.textContent = isNew ? 'Add Product' : 'Edit Product';
   idField.disabled = !isNew;
-  if (isNew) {
-    document.getElementById('product-form').reset();
-    document.getElementById('prod-category-custom').style.display = 'none';
-    document.getElementById('prod-category-custom').value = '';
-    // Auto-set next available ID
-    const nextId = allProducts.reduce((max, p) => Math.max(max, p.id || 0), 0) + 1;
-    idField.value = nextId;
-  }
+  if (isNew) document.getElementById('product-form').reset();
   document.getElementById('product-modal').classList.add('open');
 }
 
 function closeProductModal(){
   document.getElementById('product-modal').classList.remove('open');
-  document.getElementById('prod-category-custom').style.display = 'none';
-  document.getElementById('prod-category-custom').value = '';
   curProduct = null;
 }
 
@@ -1239,22 +1084,10 @@ function editProduct(id){
   if (!curProduct) return;
   document.getElementById('prod-id').value = curProduct.id;
   document.getElementById('prod-name').value = curProduct.name;
-  // Handle category — may be a custom value not in the select list
-  const catSelect = document.getElementById('prod-category');
-  const knownCats = Array.from(catSelect.options).map(o => o.value).filter(v => v && v !== '__custom__');
-  if (knownCats.includes(curProduct.category)) {
-    catSelect.value = curProduct.category;
-    document.getElementById('prod-category-custom').style.display = 'none';
-    document.getElementById('prod-category-custom').value = '';
-  } else {
-    catSelect.value = '__custom__';
-    document.getElementById('prod-category-custom').style.display = 'block';
-    document.getElementById('prod-category-custom').value = curProduct.category;
-  }
+  document.getElementById('prod-category').value = curProduct.category;
   document.getElementById('prod-price').value = curProduct.price;
   document.getElementById('prod-original-price').value = curProduct.originalPrice||'';
   document.getElementById('prod-description').value = curProduct.description;
-  document.getElementById('prod-images').value = (curProduct.images||[]).join('\n');
   document.getElementById('prod-rating').value = curProduct.rating || 0;
   document.getElementById('prod-popular').checked = curProduct.popular || false;
   document.getElementById('prod-recommended').checked = curProduct.recommended || false;
@@ -1265,16 +1098,10 @@ function editProduct(id){
 async function saveProduct(){
   const id = document.getElementById('prod-id').value;
   const name = document.getElementById('prod-name').value;
-  let category = document.getElementById('prod-category').value;
-  if (category === '__custom__') {
-    category = document.getElementById('prod-category-custom').value.trim().toLowerCase().replace(/\s+/g, '_');
-    if (!category) { toast('Please enter a custom category name','err'); return; }
-  }
+  const category = document.getElementById('prod-category').value;
   const price = parseFloat(document.getElementById('prod-price').value);
   const originalPrice = document.getElementById('prod-original-price').value ? parseFloat(document.getElementById('prod-original-price').value) : undefined;
   const description = document.getElementById('prod-description').value;
-  const images = (document.getElementById('prod-images').value || '')
-    .split('\n').map(s => s.trim()).filter(s => s.length > 0);
   const rating = parseFloat(document.getElementById('prod-rating').value) || 0;
   const popular = document.getElementById('prod-popular').checked;
   const recommended = document.getElementById('prod-recommended').checked;
@@ -1291,42 +1118,26 @@ async function saveProduct(){
     const method = isEditingProduct ? 'PUT' : 'POST';
     const data = await apiFetch('/api/products',{
       method, body:JSON.stringify({
-        id: parseInt(id), name, category, price, originalPrice, description, images, rating, popular, recommended, inStock
+        id: parseInt(id), name, category, price, originalPrice, description, rating, popular, recommended, inStock
       })
     });
     if (data.success){
       await loadProducts();
       closeProductModal();
       toast(isEditingProduct ? 'Product updated' : 'Product created','ok');
-    } else {
-      toast(data.error || 'Save failed','err');
     }
-  } catch(e){ console.error(e); toast('Save failed','err'); }
+  } catch(e){ toast('Save failed','err'); }
   finally { btn.disabled=false; }
 }
 
-async function delProduct(id) {
+async function delProduct(id){
   const ok = await confirmDialog('Delete Product', `Delete this product? This cannot be undone.`);
   if (!ok) return;
   try {
-    const response = await fetch(`/api/products?id=${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: adminKey,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to delete product: ${response.statusText}`);
-    }
-
+    await apiFetch('/api/products',{ method:'DELETE', body:JSON.stringify({ id }) });
     await loadProducts();
-    toast('Product deleted', 'ok');
-  } catch (e) {
-    console.error(e);
-    toast('Delete failed', 'err');
-  }
+    toast('Product deleted','ok');
+  } catch(e){ toast('Delete failed','err'); }
 }
 
 // ── Export CSV ───────────────────────────────
@@ -1349,11 +1160,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // Auto-login from session
   const saved = sessionStorage.getItem('ak');
   if (saved){
-    adminKey = saved;
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('dashboard').classList.add('vis');
-    refresh();
-    _resetIdleTimer();
+    document.getElementById('key-input').value = saved;
+    login(); return;
   }
 
   document.getElementById('login-btn').addEventListener('click', login);
@@ -1382,7 +1190,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       if (idx!==-1){ allOrders[idx].status=status; filtered=filtered.map(o=>o.orderId===curOrder.orderId?{...o,status}:o); }
       renderOrdersTable(); renderRecent();
       toast('Status updated','ok'); closeModal();
-    } catch(e){ console.error(e); toast('Update failed','err'); }
+    } catch(e){ toast('Update failed','err'); }
     finally { btn.disabled=false; }
   });
 
@@ -1397,7 +1205,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       filtered  = filtered.filter(o=>o.orderId!==curOrder.orderId);
       renderOrdersTable(); renderRecent();
       closeModal(); toast('Order deleted','ok');
-    } catch(e){ console.error(e); toast('Delete failed','err'); }
+    } catch(e){ toast('Delete failed','err'); }
   });
 
   // Close modal on overlay click
@@ -1410,28 +1218,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   document.getElementById('product-search').addEventListener('input',()=>{ clearTimeout(debProd); debProd=setTimeout(applyProductFilters,280); });
   document.getElementById('category-filter').addEventListener('change', applyProductFilters);
   document.getElementById('product-modal').addEventListener('click', e=>{ if(e.target.id==='product-modal') closeProductModal(); });
-
-  // Sort controls
-  document.getElementById('order-sort').addEventListener('change', ()=>renderOrdersTable());
-  document.getElementById('product-sort').addEventListener('change', ()=>renderProductsTable());
-
-  // Custom category toggle
-  document.getElementById('prod-category').addEventListener('change', function(){
-    const customInput = document.getElementById('prod-category-custom');
-    if (this.value === '__custom__') {
-      customInput.style.display = 'block';
-      customInput.required = true;
-    } else {
-      customInput.style.display = 'none';
-      customInput.required = false;
-      customInput.value = '';
-    }
-  });
-
-  // Idle auto-logout (1 minute)
-  ['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(evt =>
-    document.addEventListener(evt, _resetIdleTimer, { passive: true })
-  );
 
   // Load products on products tab switch
   const origSwitchSec = switchSec;
