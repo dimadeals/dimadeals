@@ -800,7 +800,6 @@ function applySortToProducts(products) {
 
 // ── Idle auto-logout state ─────────────────────────
 let _idleTimer;
-const _IDLE_MS = 600_000; // 10 minutes
 function _resetIdleTimer() {
   if (!adminKey) return;
   clearTimeout(_idleTimer);
