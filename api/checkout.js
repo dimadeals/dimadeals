@@ -80,13 +80,11 @@ export default async function handler(req, res) {
       const orderId =
         `ORD-${Date.now()}-${Math.random().toString(36).substring(2,9).toUpperCase()}`;
 
-      /* -------- Fetch all products directly from the API -------- */
+      /* -------- Fetch all products from Redis -------- */
 
       const fetchProduct = async (id) => {
-        const response = await fetch("https://dimadeals.vercel.app/api/products");
-        const data = await response.json();
-        const product = data.products.find((p) => p.id === id);
-        return product ? JSON.stringify(product) : null;
+        const raw = await redis.get(`product:${id}`);
+        return raw;
       };
 
       const productIds = [...new Set(items.map((item) => item.id))];
