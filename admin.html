@@ -693,53 +693,114 @@ tbody td{padding:12px 14px;vertical-align:middle}
    DIMA DEALS — ADMIN DASHBOARD  v2.0
 ═══════════════════════════════════════════ */
 
-// ── State ──────────────────────────────────
-let adminKey   = '';
-let allOrders  = [];
-let filtered   = [];
-let curPage    = 1;
-let curOrder   = null;
-const PER_PAGE = 15;
-let rChart = null, sChart = null;
-
-// Products management
-let allProducts = [];
-let filteredProducts = [];
-let curProduct = null;
-let isEditingProduct = false;
-
-// ── Sort helpers ─────────────────────────────
-function applySortToOrders(orders) {
-  const sort = document.getElementById('order-sort')?.value || 'date-desc';
-  const s = [...orders];
-  switch(sort) {
-    case 'date-asc':   return s.sort((a,b) => new Date(a.createdAt) - new Date(b.createdAt));
-    case 'total-asc':  return s.sort((a,b) => (a.total||0) - (b.total||0));
-    case 'total-desc': return s.sort((a,b) => (b.total||0) - (a.total||0));
-    case 'status':     return s.sort((a,b) => (a.status||'').localeCompare(b.status||''));
-    default:           return s.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+// Replace hardcoded API URLs with relative paths
+async function apiFetch(url, opts={}) {
+  const res = await fetch(url.startsWith('https://dimadeals.vercel.app') ? url.replace('https://dimadeals.vercel.app', '') : url, {
+    ...opts,
+    headers: { 'Content-Type': 'application/json', Authorization: adminKey, ...opts.headers },
+  });
+  if (res.status === 401) {
+    logout();
+    throw new Error('Unauthorized');
+  }
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    console.error('Invalid JSON from server:', text);
+    throw new Error('Invalid JSON from server');
   }
 }
 
+// Update login function for safe JSON parsing
+async function login() {
+  const key = document.getElementById('key-input').value.trim();
+  if (!key) return;
+  const btn = document.getElementById('login-btn');
+  btn.innerHTML = '<span class="spinner" style="width:14px;height:14px"></span> Verifying…';
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/orders?limit=500', {
+      headers: {
+        Authorization: key,
+      },
+    });
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      throw new Error('Invalid JSON response');
+    }
+    if (!data.success) throw new Error('bad key');
+    adminKey = key;
+    sessionStorage.setItem('ak', key);
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').classList.add('vis');
+    _resetIdleTimer();
+    initDash(data);
+  } catch (e) {
+    console.error(e);
+    const el = document.getElementById('login-err');
+    el.textContent = 'Invalid admin key. Please try again.';
+    el.style.display = 'block';
+  } finally {
+    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+    btn.disabled = false;
+  }
+}
+
+function logout(){
+  adminKey = '';
+  sessionStorage.removeItem('ak');
+  document.getElementById('dashboard').classList.remove('vis');
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('key-input').value = '';
+  document.getElementById('login-err').style.display = 'none';
+}
+
+// Modify initDash to call loadProducts
+function initDash(data){
+  allOrders = data.orders || [];
+  filtered = [...allOrders];
+  updateKPIs(data.stats);
+  renderRecent();
+  renderOrdersTable();
+  buildCharts(data.stats);
+  loadProducts(); // Added call to loadProducts
+}
+
+// Increase idle timeout to 10 minutes
+const _IDLE_MS = 600_000; // 10 minutes
+
+// Clean redundant checks
 function applySortToProducts(products) {
   const sort = document.getElementById('product-sort')?.value || '';
   if (!sort) return products;
   const s = [...products];
-  switch(sort) {
-    case 'id-asc':    return s.sort((a,b) => (a.id||0) - (b.id||0));
-    case 'id-desc':   return s.sort((a,b) => (b.id||0) - (a.id||0));
-    case 'name-asc':  return s.sort((a,b) => (a.name||'').localeCompare(b.name||''));
-    case 'name-desc': return s.sort((a,b) => (b.name||'').localeCompare(a.name||''));
-    case 'price-asc': return s.sort((a,b) => (a.price||0) - (b.price||0));
-    case 'price-desc':return s.sort((a,b) => (b.price||0) - (a.price||0));
-    case 'category':  return s.sort((a,b) => (a.category||'').localeCompare(b.category||''));
-    default:          return products;
+  switch (sort) {
+    case 'id-asc':
+      return s.sort((a, b) => (a.id || 0) - (b.id || 0));
+    case 'id-desc':
+      return s.sort((a, b) => (b.id || 0) - (a.id || 0));
+    case 'name-asc':
+      return s.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    case 'name-desc':
+      return s.sort((a, b) => (b.name || '').localeCompare(a.name || ''));
+    case 'price-asc':
+      return s.sort((a, b) => (a.price || 0) - (b.price || 0));
+    case 'price-desc':
+      return s.sort((a, b) => (b.price || 0) - (a.price || 0));
+    case 'category':
+      return s.sort((a, b) => (a.category || '').localeCompare(b.category || ''));
+    default:
+      return products;
   }
 }
 
 // ── Idle auto-logout state ─────────────────────────
 let _idleTimer;
-const _IDLE_MS = 60_000; // 60 seconds
+const _IDLE_MS = 600_000; // 10 minutes
 function _resetIdleTimer() {
   if (!adminKey) return;
   clearTimeout(_idleTimer);
@@ -799,12 +860,18 @@ function confirmDialog(title, msg){
 
 // ── API helpers ─────────────────────────────
 async function apiFetch(url, opts={}){
-  const res = await fetch(url, { ...opts, headers:{ 'Content-Type':'application/json', Authorization: adminKey, ...opts.headers }});
-  if (res.status === 401){ logout(); throw new Error('Unauthorized'); }
+  const res = await fetch(url.startsWith('https://dimadeals.vercel.app') ? url.replace('https://dimadeals.vercel.app', '') : url, {
+    ...opts,
+    headers: { 'Content-Type': 'application/json', Authorization: adminKey, ...opts.headers },
+  });
+  if (res.status === 401) {
+    logout();
+    throw new Error('Unauthorized');
+  }
   const text = await res.text();
   try {
     return JSON.parse(text);
-  } catch(e) {
+  } catch (e) {
     console.error('Invalid JSON from server:', text);
     throw new Error('Invalid JSON from server');
   }
@@ -825,8 +892,13 @@ async function login(){
         Authorization: key
       }
     });
-    const data = await res.json();
-
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      throw new Error('Invalid JSON response');
+    }
     if (!data.success) throw new Error('bad key');
     adminKey = key;
     sessionStorage.setItem('ak', key);
@@ -862,6 +934,7 @@ function initDash(data){
   renderRecent();
   renderOrdersTable();
   buildCharts(data.stats);
+  loadProducts(); // Added call to loadProducts
 }
 
 // ── Refresh ─────────────────────────────────
@@ -1237,7 +1310,7 @@ async function delProduct(id) {
   const ok = await confirmDialog('Delete Product', `Delete this product? This cannot be undone.`);
   if (!ok) return;
   try {
-    const response = await fetch(`https://dimadeals.vercel.app/api/products?id=${id}`, {
+    const response = await fetch(`/api/products?id=${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
