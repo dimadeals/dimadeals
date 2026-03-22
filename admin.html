@@ -353,7 +353,7 @@ tbody td{padding:12px 14px;vertical-align:middle}
   <!-- ── SIDEBAR ─────────────────────── -->
   <aside class="sidebar">
     <div class="sidebar-brand">
-      <a href="index.html" target="_blank">
+      <a href="/" target="_blank">
         <img src="images/DimaDealsLogo.png" alt="DIMA" onerror="this.style.display='none'"/>
         <span>DIMA Deals</span>
       </a>
@@ -645,7 +645,7 @@ tbody td{padding:12px 14px;vertical-align:middle}
         </div>
         <div class="form-group">
           <label class="lbl">Image URLs <span style="font-weight:400;color:var(--text-muted)">(one per line, up to 10)</span></label>
-          <textarea id="prod-images" class="field" placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg" style="min-height:70px;resize:vertical"></textarea>
+          <textarea id="prod-images" class="field" placeholder="images/example1.png&#10;images/example1.png" style="min-height:70px;resize:vertical"></textarea>
         </div>
         <div class="form-group">
           <label class="lbl">Rating (0-5)</label>
@@ -703,9 +703,9 @@ const PER_PAGE = 15;
 let rChart = null, sChart = null;
 
 // Products management
-let allProducts = [];
+let allProducts      = [];
 let filteredProducts = [];
-let curProduct = null;
+let curProduct       = null;
 let isEditingProduct = false;
 
 // ── Sort helpers ─────────────────────────────
@@ -737,14 +737,14 @@ function applySortToProducts(products) {
   }
 }
 
-// ── Idle auto-logout state ─────────────────────────
+// ── Idle auto-logout ─────────────────────────
 let _idleTimer;
-const _IDLE_MS = 60_000; // 60 seconds
+const _IDLE_MS = 600_000; // 10 minutes
 function _resetIdleTimer() {
   if (!adminKey) return;
   clearTimeout(_idleTimer);
   _idleTimer = setTimeout(() => {
-    toast('Logged out due to 1 minute of inactivity', 'inf');
+    toast('Logged out due to 10 minutes of inactivity', 'inf');
     logout();
   }, _IDLE_MS);
 }
@@ -797,30 +797,34 @@ function confirmDialog(title, msg){
   });
 }
 
-// ── API helpers ─────────────────────────────
-async function apiFetch(url, opts={}){
-  const res = await fetch(url, { ...opts, headers:{ 'Content-Type':'application/json', Authorization: adminKey, ...opts.headers }});
-  if (res.status === 401){ logout(); throw new Error('Unauthorized'); }
-  return res.json();
+// ── API helper ───────────────────────────────
+async function apiFetch(url, opts={}) {
+  const res = await fetch(url, {
+    ...opts,
+    headers: { 'Content-Type': 'application/json', Authorization: adminKey, ...opts.headers }
+  });
+  if (res.status === 401) { logout(); throw new Error('Unauthorized'); }
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch(e) {
+    console.error('Invalid JSON from server:', text);
+    throw new Error('Invalid JSON from server');
+  }
 }
 
 // ── Login / Logout ──────────────────────────
-
-
-async function login(){
+async function login() {
   const key = document.getElementById('key-input').value.trim();
   if (!key) return;
   const btn = document.getElementById('login-btn');
   btn.innerHTML = '<span class="spinner" style="width:14px;height:14px"></span> Verifying…';
   btn.disabled  = true;
   try {
-    const res = await fetch('/api/orders?limit=500', {
-      headers: {
-        Authorization: key
-      }
-    });
-    const data = await res.json();
-
+    const res = await fetch('/api/orders?limit=500', { headers: { Authorization: key } });
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); } catch(e) { throw new Error('Invalid JSON response'); }
     if (!data.success) throw new Error('bad key');
     adminKey = key;
     sessionStorage.setItem('ak', key);
@@ -828,7 +832,8 @@ async function login(){
     document.getElementById('dashboard').classList.add('vis');
     _resetIdleTimer();
     initDash(data);
-  } catch(e){
+  } catch(e) {
+    console.error(e);
     const el = document.getElementById('login-err');
     el.textContent = 'Invalid admin key. Please try again.';
     el.style.display = 'block';
@@ -838,7 +843,7 @@ async function login(){
   }
 }
 
-function logout(){
+function logout() {
   adminKey = '';
   sessionStorage.removeItem('ak');
   document.getElementById('dashboard').classList.remove('vis');
@@ -848,13 +853,14 @@ function logout(){
 }
 
 // ── Init dashboard with fetched data ────────
-function initDash(data){
+function initDash(data) {
   allOrders = data.orders || [];
   filtered  = [...allOrders];
   updateKPIs(data.stats);
   renderRecent();
   renderOrdersTable();
   buildCharts(data.stats);
+  loadProducts();
 }
 
 // ── Refresh ─────────────────────────────────
@@ -871,7 +877,7 @@ async function refresh(){
       buildCharts(data.stats);
       toast('Refreshed', 'ok');
     }
-  } catch(e){ toast('Refresh failed','err'); }
+  } catch(e){ console.error(e); toast('Refresh failed','err'); }
   finally { btn.classList.remove('spin'); }
 }
 
@@ -1094,7 +1100,7 @@ async function loadProducts() {
       filteredProducts = [...allProducts];
       renderProductsTable();
     }
-  } catch(e) { toast('Failed to load products','err'); }
+  } catch(e) { console.error(e); toast('Failed to load products','err'); }
 }
 
 function applyProductFilters(){
@@ -1222,18 +1228,25 @@ async function saveProduct(){
     } else {
       toast(data.error || 'Save failed','err');
     }
-  } catch(e){ toast('Save failed','err'); }
+  } catch(e){ console.error(e); toast('Save failed','err'); }
   finally { btn.disabled=false; }
 }
 
-async function delProduct(id){
-  const ok = await confirmDialog('Delete Product', `Delete this product? This cannot be undone.`);
+async function delProduct(id) {
+  const ok = await confirmDialog('Delete Product', 'Delete this product? This cannot be undone.');
   if (!ok) return;
   try {
-    await apiFetch('/api/products',{ method:'DELETE', body:JSON.stringify({ id }) });
-    await loadProducts();
-    toast('Product deleted','ok');
-  } catch(e){ toast('Delete failed','err'); }
+    const data = await apiFetch(`/api/products?id=${id}`, { method: 'DELETE' });
+    if (data.success) {
+      await loadProducts();
+      toast('Product deleted', 'ok');
+    } else {
+      toast(data.error || 'Delete failed', 'err');
+    }
+  } catch(e) {
+    console.error(e);
+    toast('Delete failed', 'err');
+  }
 }
 
 // ── Export CSV ───────────────────────────────
@@ -1256,8 +1269,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // Auto-login from session
   const saved = sessionStorage.getItem('ak');
   if (saved){
-    document.getElementById('key-input').value = saved;
-    login(); return;
+    adminKey = saved;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').classList.add('vis');
+    refresh();
+    _resetIdleTimer();
   }
 
   document.getElementById('login-btn').addEventListener('click', login);
@@ -1286,7 +1302,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       if (idx!==-1){ allOrders[idx].status=status; filtered=filtered.map(o=>o.orderId===curOrder.orderId?{...o,status}:o); }
       renderOrdersTable(); renderRecent();
       toast('Status updated','ok'); closeModal();
-    } catch(e){ toast('Update failed','err'); }
+    } catch(e){ console.error(e); toast('Update failed','err'); }
     finally { btn.disabled=false; }
   });
 
@@ -1301,7 +1317,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       filtered  = filtered.filter(o=>o.orderId!==curOrder.orderId);
       renderOrdersTable(); renderRecent();
       closeModal(); toast('Order deleted','ok');
-    } catch(e){ toast('Delete failed','err'); }
+    } catch(e){ console.error(e); toast('Delete failed','err'); }
   });
 
   // Close modal on overlay click
