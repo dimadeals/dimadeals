@@ -1077,73 +1077,17 @@ function displayProductDetails(product) {
       `;
     }
 
+    // Include thumbnails in product-info
+    const thumbnailsHTML = product.images.map(imgSrc => `<img src="${imgSrc}" class="thumbnail">`).join('');
+
     productInfo.innerHTML = `
       <h1>${product.name}</h1>
       <p class="stock-status ${statusClass}"><i class="fas fa-circle"></i> ${statusText}</p>
       ${priceDisplayHTML}
       <p class="product-description">${product.description}</p>
+      <div class="thumbnails">${thumbnailsHTML}</div>
       ${buttonHTML}
     `;
-  }
-
-  // Generate thumbnail images with better error handling
-  const thumbnails = document.querySelector('.thumbnails');
-  if (thumbnails) {
-    // Clear existing thumbnails
-    thumbnails.innerHTML = '';
-
-    if (product.images && product.images.length > 0) {
-      // Show thumbnails for all available images
-      product.images.forEach((imgSrc, index) => {
-        const thumbImg = document.createElement('img');
-        thumbImg.src = imgSrc;
-        thumbImg.alt = `Image ${index + 1}`;
-        thumbImg.dataset.full = imgSrc;
-        if (index === 0) thumbImg.classList.add('active');
-
-        // Add error handling for thumbnails
-        thumbImg.onerror = function() {
-          this.style.display = 'none';
-        };
-
-        thumbImg.onclick = function() {
-          if (mainImageElement) {
-            mainImageElement.src = this.dataset.full || this.src;
-            mainImageElement.style.display = 'block';
-          }
-          // Update active state
-          document.querySelectorAll('.thumbnails img').forEach(t => t.classList.remove('active'));
-          this.classList.add('active');
-        };
-
-        thumbnails.appendChild(thumbImg);
-      });
-      thumbnails.style.display = 'flex';
-    } else if (product.image) {
-      // Single image - show only one thumbnail
-      const thumbImg = document.createElement('img');
-      thumbImg.src = product.image;
-      thumbImg.alt = 'Image 1';
-      thumbImg.dataset.full = product.image;
-      thumbImg.classList.add('active');
-
-      thumbImg.onerror = function() {
-        this.style.display = 'none';
-      };
-
-      thumbImg.onclick = function() {
-        if (mainImageElement) {
-          mainImageElement.src = this.dataset.full || this.src;
-          mainImageElement.style.display = 'block';
-        }
-      };
-
-      thumbnails.appendChild(thumbImg);
-      thumbnails.style.display = 'flex';
-    } else {
-      // No images available - hide thumbnails completely
-      thumbnails.style.display = 'none';
-    }
   }
 }
 

@@ -1367,7 +1367,7 @@ h2 {
 }
 
 .footer-section h4 {
-  font-size: 18px;
+  font-size: 18p  x;
   margin-bottom: 15px;
   color: var(--primary);
 }
@@ -1568,16 +1568,25 @@ h2 {
   background: var(--white);
   border-radius: 16px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  align-items: stretch; /* Ensure content stretches naturally */
 }
 
-/* Description grows to fill available height, pushing buy button to bottom */
+/* Remove flex-grow to prevent description from stretching */
 .product-info .product-description {
-  flex-grow: 1;
+  flex-grow: unset;
+}
+
+/* Ensure thumbnails are part of product-info layout */
+.product-info .thumbnails {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
 }
 
 /* Buy button always anchored at bottom of product-info */
 .product-info .buy-button {
-  margin-top: 0;
+  margin-top: auto;
   width: 100%;
   align-self: stretch;
 }
@@ -2345,8 +2354,6 @@ h2 {
   font-size: 12px;
   font-weight: 700;
 }
-
-
 
 .product-info .availability {
   display: flex;
