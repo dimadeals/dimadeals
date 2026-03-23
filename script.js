@@ -672,6 +672,7 @@ function loadMoreProducts() {
 
 // ============ END PAGINATION UTILITIES ============
 
+function renderProducts(containerId, products) {
   const container = document.getElementById(containerId);
   if (!container) {
     console.warn(`Container with ID '${containerId}' not found`);
@@ -694,7 +695,8 @@ function loadMoreProducts() {
   } catch (error) {
     console.error('Error rendering products:', error);
     container.innerHTML = '<p>Error loading products</p>';
-  } 
+  }
+}
 
 // ============ NAVIGATION & MENU ============
 
