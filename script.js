@@ -1077,23 +1077,33 @@ function displayProductDetails(product) {
       `;
     }
 
-    // Include thumbnails in product-info
-    const thumbnailsHTML = product.images.map(imgSrc => `<img src="${imgSrc}" class="thumbnail">`).join('');
-
     productInfo.innerHTML = `
       <h1>${product.name}</h1>
       <p class="stock-status ${statusClass}"><i class="fas fa-circle"></i> ${statusText}</p>
       ${priceDisplayHTML}
       <p class="product-description">${product.description}</p>
-      <div class="thumbnails">${thumbnailsHTML}</div>
       ${buttonHTML}
     `;
   }
+
+  // Generate thumbnail images below the main image
+  const thumbnails = document.querySelector('.thumbnails');
+  if (thumbnails) {
+    // Clear existing thumbnails
+    thumbnails.innerHTML = '';
+
+    if (product.images && product.images.length > 0) {
+      // Show thumbnails for all available images
+      product.images.forEach((imgSrc, index) => {
+        const thumbImg = document.createElement('img');
+        thumbImg.src = imgSrc;
+        thumbImg.alt = `Image ${index + 1}`;
+        thumbImg.className = 'thumbnail';
+        thumbnails.appendChild(thumbImg);
+      });
+    }
+  }
 }
-
-
-
-
 
 // ============ UNIVERSAL PAGE LOADING ============
 

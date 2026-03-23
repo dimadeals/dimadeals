@@ -1447,7 +1447,15 @@ h2 {
 .product-images {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 20px;
+}
+
+.product-images .thumbnails {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
 }
 
 #main-image {
@@ -1574,14 +1582,6 @@ h2 {
 /* Remove flex-grow to prevent description from stretching */
 .product-info .product-description {
   flex-grow: unset;
-}
-
-/* Ensure thumbnails are part of product-info layout */
-.product-info .thumbnails {
-  margin-top: 20px;
-  display: flex;
-  gap: 10px;
-  justify-content: center;
 }
 
 /* Buy button always anchored at bottom of product-info */
