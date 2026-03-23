@@ -100,7 +100,7 @@ function displaySearchResults(results, containerId) {
     return;
   }
 
-  container.innerHTML = results.map(product => createProductCard(product)).join('');
+  initSearchPagination(results);
 }
 
 function filterSearchResults(results, category) {
@@ -211,27 +211,21 @@ function initializeSearchFilters(allResults) {
       
       // Apply sorting
       filteredResults = sortProducts(filteredResults, this.value);
-      displaySearchResults(filteredResults, 'search-results-grid');
+      initSearchPagination(filteredResults);
     });
   }
 
   filterButtons.forEach(button => {
     button.addEventListener('click', function() {
-      // Remove active class from all buttons
       filterButtons.forEach(btn => btn.classList.remove('active'));
-      // Add active class to clicked button
       this.classList.add('active');
 
       const category = this.dataset.filter;
       let filteredResults = filterSearchResults(allResults, category);
-      
-      // Apply current sort
       const sortValue = sortSelect ? sortSelect.value : 'relevance';
       filteredResults = sortProducts(filteredResults, sortValue);
-      
-      displaySearchResults(filteredResults, 'search-results-grid');
+      initSearchPagination(filteredResults);
 
-      // Update results count
       const resultsCount = document.getElementById('results-count');
       if (resultsCount) {
         resultsCount.textContent = `${filteredResults.length} result${filteredResults.length !== 1 ? 's' : ''} found`;
@@ -575,12 +569,6 @@ function createProductCard(product) {
     `;
   }
 
-  // Truncate description to 3 lines (approximately 150 characters)
-  const maxChars = 150;
-  const truncatedDesc = product.description.length > maxChars 
-    ? product.description.substring(0, maxChars) + '...'
-    : product.description;
-
   // Create action button - Buy Now with price (not clickable when out of stock)
   let buttonHTML = '';
   if (isOutOfStock) {
@@ -600,77 +588,117 @@ function createProductCard(product) {
       <h3>${product.name}</h3>
       ${priceHTML}
       ${ratingHTML}
-      <p class="product-description-preview">${truncatedDesc}</p>
+      <p class="product-description-preview">${product.description}</p>
       ${buttonHTML}
     </div>
   `;
 }
 
-// Handle Buy Now button clicks from product cards
+// Handle Buy Now button clicks from product cards and product detail page
 function handleBuyClick(productName, price) {
-  const cart = getCart();
-  
-  // Find the full product object from PRODUCTS_DATABASE
   const allProducts = Object.values(PRODUCTS_DATABASE).flat();
   const product = allProducts.find(p => p.name === productName && p.price === price);
-  
   if (product) {
     addToCart(product, 1);
   } else {
-    alert(`Could not add ${productName} to cart`);
+    alert('Product not found. Please refresh and try again.');
   }
 }
 
-// ============ PAGINATION UTILITIES ============
+// ============ PAGINATION ============
 
-const PRODUCTS_PER_PAGE = 9;
-let currentPageProducts = [];
+const INITIAL_LOAD    = 9;
+const LOAD_MORE_COUNT = 8;
+
 let allBrowseProducts = [];
-let currentPage = 1;
+let browseShownCount  = 0;
+let allSearchProducts = [];
+let searchShownCount  = 0;
 
-function displayProductPage(page) {
-  const productsGrid = document.getElementById('products-grid');
-  if (!productsGrid) return;
-
-  const start = (page - 1) * PRODUCTS_PER_PAGE;
-  const end = start + PRODUCTS_PER_PAGE;
-  const productsToDisplay = allBrowseProducts.slice(start, end);
-
-  // Render products for this page
-  const productsHTML = productsToDisplay.map(product => createProductCard(product)).join('');
-  
-  // Remove existing see more button if present
-  const existingSeeMoreBtn = productsGrid.nextElementSibling;
-  if (existingSeeMoreBtn && existingSeeMoreBtn.classList.contains('see-more-container')) {
-    existingSeeMoreBtn.remove();
-  }
-
-  // Update grid
-  if (start === 0) {
-    productsGrid.innerHTML = productsHTML;
-  } else {
-    productsGrid.innerHTML += productsHTML;
-  }
-
-  // Show See More button if there are more products
-  if (end < allBrowseProducts.length) {
-    const seeMoreContainer = document.createElement('div');
-    seeMoreContainer.className = 'see-more-container';
-    seeMoreContainer.innerHTML = `
-      <button class="see-more-button" onclick="loadMoreProducts()">
-        See More Products (${allBrowseProducts.length - end} remaining)
-      </button>
-    `;
-    productsGrid.parentNode.insertBefore(seeMoreContainer, productsGrid.nextSibling);
+function _updateSeeMoreBtn(total, shown, gridId, loadMoreFn) {
+  const grid = document.getElementById(gridId);
+  if (!grid) return;
+  const parent = grid.parentNode;
+  let seeMore = parent.querySelector('.see-more-container');
+  if (shown < total) {
+    const remaining = total - shown;
+    const next = Math.min(LOAD_MORE_COUNT, remaining);
+    if (!seeMore) {
+      seeMore = document.createElement('div');
+      seeMore.className = 'see-more-container';
+      parent.insertBefore(seeMore, grid.nextSibling);
+    }
+    seeMore.innerHTML = `
+      <button class="see-more-button" onclick="${loadMoreFn}()">
+        <span class="see-more-icon"><i class="fas fa-th-large"></i></span>
+        <span class="see-more-text">Show ${next} More</span>
+        <span class="see-more-pill">${remaining} left</span>
+      </button>`;
+  } else if (seeMore) {
+    seeMore.innerHTML = `<p class="all-loaded-msg"><i class="fas fa-check-circle"></i> All products loaded</p>`;
+    setTimeout(() => seeMore.remove(), 2000);
   }
 }
 
-function loadMoreProducts() {
-  currentPage++;
-  displayProductPage(currentPage);
+// ── Browse page ──────────────────────────────
+function initBrowsePagination(products) {
+  allBrowseProducts = products;
+  browseShownCount  = 0;
+  const grid = document.getElementById('products-grid');
+  if (!grid) return;
+  // Remove any existing see-more container
+  const old = grid.parentNode.querySelector('.see-more-container');
+  if (old) old.remove();
+  grid.innerHTML = '';
+  const batch = products.slice(0, INITIAL_LOAD);
+  grid.innerHTML = batch.map(p => createProductCard(p)).join('');
+  browseShownCount = batch.length;
+  _updateSeeMoreBtn(products.length, browseShownCount, 'products-grid', 'loadMoreBrowse');
 }
 
-// ============ END PAGINATION UTILITIES ============
+function loadMoreBrowse() {
+  const grid = document.getElementById('products-grid');
+  if (!grid) return;
+  const batch = allBrowseProducts.slice(browseShownCount, browseShownCount + LOAD_MORE_COUNT);
+  grid.insertAdjacentHTML('beforeend', batch.map(p => createProductCard(p)).join(''));
+  browseShownCount += batch.length;
+  _updateSeeMoreBtn(allBrowseProducts.length, browseShownCount, 'products-grid', 'loadMoreBrowse');
+}
+
+// ── Search page ──────────────────────────────
+function initSearchPagination(products) {
+  allSearchProducts = products;
+  searchShownCount  = 0;
+  const grid = document.getElementById('search-results-grid');
+  if (!grid) return;
+  const old = grid.parentNode.querySelector('.see-more-container');
+  if (old) old.remove();
+  if (products.length === 0) {
+    grid.innerHTML = `
+      <div class="no-results">
+        <i class="fas fa-search"></i>
+        <h3>No products found</h3>
+        <p>Try a different search or filter</p>
+      </div>`;
+    return;
+  }
+  grid.innerHTML = '';
+  const batch = products.slice(0, INITIAL_LOAD);
+  grid.innerHTML = batch.map(p => createProductCard(p)).join('');
+  searchShownCount = batch.length;
+  _updateSeeMoreBtn(products.length, searchShownCount, 'search-results-grid', 'loadMoreSearch');
+}
+
+function loadMoreSearch() {
+  const grid = document.getElementById('search-results-grid');
+  if (!grid) return;
+  const batch = allSearchProducts.slice(searchShownCount, searchShownCount + LOAD_MORE_COUNT);
+  grid.insertAdjacentHTML('beforeend', batch.map(p => createProductCard(p)).join(''));
+  searchShownCount += batch.length;
+  _updateSeeMoreBtn(allSearchProducts.length, searchShownCount, 'search-results-grid', 'loadMoreSearch');
+}
+
+// ============ END PAGINATION ============
 
 function renderProducts(containerId, products) {
   const container = document.getElementById(containerId);
@@ -1054,13 +1082,8 @@ function displayProductDetails(product) {
       <p class="stock-status ${statusClass}"><i class="fas fa-circle"></i> ${statusText}</p>
       ${priceDisplayHTML}
       <p class="product-description">${product.description}</p>
+      ${buttonHTML}
     `;
-
-    // Place button in sticky container
-    const stickyContainer = document.getElementById('sticky-button-container');
-    if (stickyContainer) {
-      stickyContainer.innerHTML = buttonHTML;
-    }
   }
 
   // Generate thumbnail images with better error handling
@@ -1124,38 +1147,7 @@ function displayProductDetails(product) {
   }
 }
 
-// ============ PRODUCT DESCRIPTION UPDATE ============
 
-
-function handleBuyClick(productName, price) {
-  if (!productName || !price) {
-    alert('Error: Product information is missing.');
-    return;
-  }
-
-  // Get the product ID from localStorage
-  const productId = localStorage.getItem('selectedProductId');
-  if (!productId) {
-    alert('Error: Product not found. Please go back and select a product.');
-    return;
-  }
-
-  const allProducts = Object.values(PRODUCTS_DATABASE).flat();
-  const product = allProducts.find(p => p.id === parseInt(productId));
-
-  if (!product) {
-    alert('Product not found. Please refresh the page and try again.');
-    return;
-  }
-
-  if (product.inStock === false) {
-    alert('⚠️ This product is currently out of stock and cannot be purchased.');
-    return;
-  }
-
-  // Add to cart
-  addToCart(product);
-}
 
 
 
@@ -1214,12 +1206,8 @@ function loadBrowsePage() {
 
   const products = PRODUCTS_DATABASE[type] || [];
   
-  // Initialize pagination
-  allBrowseProducts = products;
-  currentPage = 1;
-  
-  // Display first page
-  displayProductPage(1);
+  // Initialize paginated display
+  initBrowsePagination(products);
 
   // Title and subtitle configuration
   const categoryTitles = {

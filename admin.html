@@ -627,9 +627,7 @@ tbody td{padding:12px 14px;vertical-align:middle}
             <option value="design">Design</option>
             <option value="business">Business</option>
             <option value="software">Software</option>
-            <option value="__custom__">➕ Add Custom Category…</option>
           </select>
-          <input type="text" id="prod-category-custom" class="field" placeholder="Enter custom category name (e.g. crunchyroll)" style="display:none;margin-top:6px"/>
         </div>
         <div class="form-group">
           <label class="lbl">Price (TND)</label>
@@ -1145,8 +1143,6 @@ function openProductModal(isNew=true){
   idField.disabled = !isNew;
   if (isNew) {
     document.getElementById('product-form').reset();
-    document.getElementById('prod-category-custom').style.display = 'none';
-    document.getElementById('prod-category-custom').value = '';
     // Auto-set next available ID
     const nextId = allProducts.reduce((max, p) => Math.max(max, p.id || 0), 0) + 1;
     idField.value = nextId;
@@ -1156,8 +1152,6 @@ function openProductModal(isNew=true){
 
 function closeProductModal(){
   document.getElementById('product-modal').classList.remove('open');
-  document.getElementById('prod-category-custom').style.display = 'none';
-  document.getElementById('prod-category-custom').value = '';
   curProduct = null;
 }
 
@@ -1166,18 +1160,9 @@ function editProduct(id){
   if (!curProduct) return;
   document.getElementById('prod-id').value = curProduct.id;
   document.getElementById('prod-name').value = curProduct.name;
-  // Handle category — may be a custom value not in the select list
+  // Set category from fixed list
   const catSelect = document.getElementById('prod-category');
-  const knownCats = Array.from(catSelect.options).map(o => o.value).filter(v => v && v !== '__custom__');
-  if (knownCats.includes(curProduct.category)) {
-    catSelect.value = curProduct.category;
-    document.getElementById('prod-category-custom').style.display = 'none';
-    document.getElementById('prod-category-custom').value = '';
-  } else {
-    catSelect.value = '__custom__';
-    document.getElementById('prod-category-custom').style.display = 'block';
-    document.getElementById('prod-category-custom').value = curProduct.category;
-  }
+  catSelect.value = curProduct.category || '';
   document.getElementById('prod-price').value = curProduct.price;
   document.getElementById('prod-original-price').value = curProduct.originalPrice||'';
   document.getElementById('prod-description').value = curProduct.description;
@@ -1193,10 +1178,6 @@ async function saveProduct(){
   const id = document.getElementById('prod-id').value;
   const name = document.getElementById('prod-name').value;
   let category = document.getElementById('prod-category').value;
-  if (category === '__custom__') {
-    category = document.getElementById('prod-category-custom').value.trim().toLowerCase().replace(/\s+/g, '_');
-    if (!category) { toast('Please enter a custom category name','err'); return; }
-  }
   const price = parseFloat(document.getElementById('prod-price').value);
   const originalPrice = document.getElementById('prod-original-price').value ? parseFloat(document.getElementById('prod-original-price').value) : undefined;
   const description = document.getElementById('prod-description').value;
@@ -1334,19 +1315,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // Sort controls
   document.getElementById('order-sort').addEventListener('change', ()=>renderOrdersTable());
   document.getElementById('product-sort').addEventListener('change', ()=>renderProductsTable());
-
-  // Custom category toggle
-  document.getElementById('prod-category').addEventListener('change', function(){
-    const customInput = document.getElementById('prod-category-custom');
-    if (this.value === '__custom__') {
-      customInput.style.display = 'block';
-      customInput.required = true;
-    } else {
-      customInput.style.display = 'none';
-      customInput.required = false;
-      customInput.value = '';
-    }
-  });
 
   // Idle auto-logout (1 minute)
   ['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(evt =>
