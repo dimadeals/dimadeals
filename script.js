@@ -607,7 +607,7 @@ function handleBuyClick(productName, price) {
 
 // ============ PAGINATION ============
 
-const INITIAL_LOAD    = 9;
+const INITIAL_LOAD    = 8;
 const LOAD_MORE_COUNT = 8;
 
 let allBrowseProducts = [];
