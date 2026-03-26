@@ -112,10 +112,6 @@ export default async function handler(req, res) {
       const err = validateProduct(product);
       if (err) return res.status(400).json({ error: err });
 
-      if (!VALID_CATEGORIES.includes(product.category.toLowerCase())) {
-        return res.status(400).json({ error: "Invalid category" });
-      }
-
       // Check if product already exists
       const existing = await redis.get(`product:${product.id}`);
       if (existing) return res.status(409).json({ error: "Product with this ID already exists" });
@@ -159,10 +155,6 @@ export default async function handler(req, res) {
 
       const err = validateProduct(updated);
       if (err) return res.status(400).json({ error: err });
-
-      if (updated.category && !VALID_CATEGORIES.includes(updated.category.toLowerCase())) {
-        return res.status(400).json({ error: "Invalid category" });
-      }
 
       await redis.set(`product:${id}`, JSON.stringify(updated));
 

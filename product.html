@@ -157,12 +157,18 @@
         </div>
     </footer>
 
-  <script src="script.js?v=2.0" defer></script>
   <script>
     // Early guard: redirect to home if no product was selected
     if (!localStorage.getItem('selectedProductId')) {
       window.location.href = '/';
     }
   </script>
+  <!-- WhatsApp Float -->
+  <a href="https://wa.me/21629156007" target="_blank" rel="noopener" class="whatsapp-float" aria-label="Chat on WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+    <span class="whatsapp-tooltip">Chat with us</span>
+  </a>
+
+  <script type="module" src="js/main.js?v=4.0"></script>
 </body>
 </html>

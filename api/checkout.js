@@ -162,7 +162,7 @@ export default async function handler(req, res) {
   tax: 0,
   total: subtotal,
 
-  status: "completed",
+  status: "pending",
   paymentStatus: "pending",
 
   createdAt: new Date().toISOString(),

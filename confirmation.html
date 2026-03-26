@@ -31,7 +31,16 @@
 
       <!-- Confirmation Message -->
       <h1>Order Confirmed!</h1>
-      <p class="confirmation-subtitle">Thank you for your purchase. Your order has been received and processed.</p>
+      <p class="confirmation-subtitle">Thank you for your order. Your order has been received successfully.</p>
+
+      <!-- Manual Payment Notice -->
+      <div class="manual-payment-notice">
+        <i class="fas fa-info-circle"></i>
+        <div>
+          <strong>Payment will be handled manually.</strong>
+          <p>We will contact you shortly via phone or WhatsApp to arrange payment and deliver your order.</p>
+        </div>
+      </div>
 
       <!-- Order Details -->
       <div class="confirmation-details">
@@ -53,16 +62,20 @@
         <h2>What's Next?</h2>
         <ul>
           <li>
-            <i class="fas fa-envelope"></i>
-            <span>A confirmation email will be sent to your email address shortly</span>
+            <i class="fas fa-phone"></i>
+            <span>You will be contacted shortly to confirm your order and arrange payment</span>
           </li>
           <li>
-            <i class="fas fa-clock"></i>
-            <span>You will receive your subscription codes within 24 hours</span>
+            <i class="fas fa-envelope"></i>
+            <span>A confirmation will be sent to your email address</span>
+          </li>
+          <li>
+            <i class="fas fa-bolt"></i>
+            <span>Once payment is confirmed, you'll receive your product instantly</span>
           </li>
           <li>
             <i class="fas fa-headset"></i>
-            <span>If you have any questions, our support team is available 24/7</span>
+            <span>Need help? Our support team is available 24/7 via WhatsApp</span>
           </li>
         </ul>
       </div>
@@ -79,7 +92,7 @@
 
       <!-- Support -->
       <div class="support-info">
-        <p>Need help? Contact our support team at <strong>support@dimadeals.com</strong> or call <strong>+216 99 999 999</strong></p>
+        <p>Need help? Contact us via <a href="https://wa.me/21629156007" target="_blank" rel="noopener"><strong><i class="fab fa-whatsapp"></i> WhatsApp</strong></a> or email <strong>dimadeals0@gmail.com</strong></p>
       </div>
     </div>
   </div>
@@ -92,22 +105,13 @@
   </div>
 </footer>
 
-<script src="script.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const orderId = new URLSearchParams(window.location.search).get('orderId');
-    const lastOrderId = localStorage.getItem('lastOrderId');
-    if (!orderId && !lastOrderId) {
-      window.location.href = '/';
-      return;
-    }
-    try {
-      displayConfirmation();
-    } catch (e) {
-      console.error('Confirmation page error:', e);
-    }
-  });
-</script>
+<!-- WhatsApp Float -->
+<a href="https://wa.me/21629156007" target="_blank" rel="noopener" class="whatsapp-float" aria-label="Chat on WhatsApp">
+  <i class="fab fa-whatsapp"></i>
+  <span class="whatsapp-tooltip">Chat with us</span>
+</a>
+
+<script type="module" src="js/main.js?v=4.0"></script>
 
 </body>
 </html>
