@@ -311,6 +311,26 @@ tbody td{padding:12px 14px;vertical-align:middle}
 .empty i{font-size:40px;display:block;margin-bottom:12px;opacity:.25}
 .empty p{font-size:14px}
 .loading-cell{text-align:center;padding:36px;color:var(--text-muted)}
+
+/* ─── CATEGORIES ──────────────────────────*/
+.main-cat-card{
+  background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);
+  padding:18px;margin-bottom:14px;
+}
+.main-cat-header{
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;
+  padding-bottom:12px;border-bottom:1px solid var(--card-border);
+}
+.main-cat-header h4{font-size:14px;font-weight:700;margin:0}
+.subcats-list{display:flex;flex-direction:column;gap:8px}
+.subcat-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:9px 12px;background:#0d0d0d;border-radius:var(--radius-sm);
+  font-size:12px;min-height:36px;
+}
+.subcat-name{font-weight:500;flex:1}
+.subcat-actions{display:flex;gap:6px}
+
 @media(max-width:900px){
   .sidebar{width:200px}
   .main-wrap{margin-left:200px}
@@ -361,6 +381,7 @@ tbody td{padding:12px 14px;vertical-align:middle}
     <ul class="s-nav">
       <li><a href="#" class="active" data-sec="overview"><i class="fas fa-chart-line"></i> Overview</a></li>
       <li><a href="#" data-sec="orders"><i class="fas fa-shopping-bag"></i> Orders</a></li>
+      <li><a href="#" data-sec="categories"><i class="fas fa-tags"></i> Categories</a></li>
       <li><a href="#" data-sec="products"><i class="fas fa-box"></i> Products</a></li>
     </ul>
     <div class="sidebar-footer">
@@ -500,6 +521,19 @@ tbody td{padding:12px 14px;vertical-align:middle}
       </div>
     </div><!-- /orders -->
 
+    <!-- ── CATEGORIES SECTION ────────────── -->
+    <div class="s-content" id="sec-categories">
+      <div class="toolbar">
+        <button class="btn btn-primary btn-sm" id="add-main-cat-btn">
+          <i class="fas fa-plus"></i> Add Main Category
+        </button>
+      </div>
+
+      <div id="categories-list">
+        <!-- Categories will be populated here -->
+      </div>
+    </div><!-- /categories -->
+
     <!-- ── PRODUCTS SECTION ─────────── -->
     <div class="s-content" id="sec-products">
       <div class="toolbar">
@@ -509,22 +543,6 @@ tbody td{padding:12px 14px;vertical-align:middle}
         </div>
         <select class="f-select" id="category-filter">
           <option value="all">All Categories</option>
-          <option value="netflix">Netflix</option>
-          <option value="spotify">Spotify</option>
-          <option value="canva">Canva</option>
-          <option value="shahid">Shahid</option>
-          <option value="capcut">CapCut</option>
-          <option value="steam">Steam</option>
-          <option value="epic_games">Epic Games</option>
-          <option value="ea_games">EA Games</option>
-          <option value="xbox_pc">Xbox GamePass</option>
-          <option value="pc">PC Games</option>
-          <option value="console">Console</option>
-          <option value="mobile">Mobile</option>
-          <option value="programming">Programming</option>
-          <option value="design">Design</option>
-          <option value="business">Business</option>
-          <option value="software">Software</option>
         </select>
         <select class="f-select" id="product-sort">
           <option value="">Sort by…</option>
@@ -611,22 +629,6 @@ tbody td{padding:12px 14px;vertical-align:middle}
           <label class="lbl">Category</label>
           <select id="prod-category" class="field" required>
             <option value="">Select Category</option>
-            <option value="netflix">Netflix</option>
-            <option value="spotify">Spotify</option>
-            <option value="canva">Canva</option>
-            <option value="shahid">Shahid</option>
-            <option value="capcut">CapCut</option>
-            <option value="steam">Steam</option>
-            <option value="epic_games">Epic Games</option>
-            <option value="ea_games">EA Games</option>
-            <option value="xbox_pc">Xbox GamePass</option>
-            <option value="pc">PC Games</option>
-            <option value="console">Console</option>
-            <option value="mobile">Mobile</option>
-            <option value="programming">Programming</option>
-            <option value="design">Design</option>
-            <option value="business">Business</option>
-            <option value="software">Software</option>
           </select>
         </div>
         <div class="form-group">
@@ -696,6 +698,58 @@ tbody td{padding:12px 14px;vertical-align:middle}
   </div>
 </div>
 
+<!-- ── MAIN CATEGORY FORM MODAL ───────── -->
+<div class="modal-bg" id="main-cat-modal">
+  <div class="modal">
+    <div class="mhead">
+      <h3 id="main-cat-modal-title">Add Main Category</h3>
+      <button class="mclose" onclick="closeMainCatModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="mbody">
+      <form id="main-cat-form">
+        <div class="form-group">
+          <label class="lbl">Main Category Name</label>
+          <input type="text" id="main-cat-name" class="field" placeholder="e.g., Subscriptions" required/>
+        </div>
+      </form>
+    </div>
+    <div class="mfooter">
+      <button class="btn btn-secondary" onclick="closeMainCatModal()">Cancel</button>
+      <button class="btn btn-primary" id="save-main-cat-btn">
+        <i class="fas fa-check"></i> Save
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SUBCATEGORY FORM MODAL ────────── -->
+<div class="modal-bg" id="subcat-modal">
+  <div class="modal">
+    <div class="mhead">
+      <h3 id="subcat-modal-title">Add Subcategory</h3>
+      <button class="mclose" onclick="closeSubcatModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="mbody">
+      <form id="subcat-form">
+        <div class="form-group">
+          <label class="lbl">Main Category</label>
+          <input type="text" id="main-cat-for-subcat" class="field" disabled style="background:#0d0d0d;cursor:not-allowed"/>
+        </div>
+        <div class="form-group">
+          <label class="lbl">Subcategory Name</label>
+          <input type="text" id="subcat-name" class="field" placeholder="e.g., Netflix" required/>
+        </div>
+      </form>
+    </div>
+    <div class="mfooter">
+      <button class="btn btn-secondary" onclick="closeSubcatModal()">Cancel</button>
+      <button class="btn btn-primary" id="save-subcat-btn">
+        <i class="fas fa-check"></i> Save
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ── CONFIRM DIALOG ─────────────────── -->
 <div class="confirm-bg" id="confirm-bg">
   <div class="confirm-box">
@@ -727,6 +781,12 @@ let allProducts      = [];
 let filteredProducts = [];
 let curProduct       = null;
 let isEditingProduct = false;
+
+// Categories management
+let allCategories = [];
+let currentEditingMainCat = null;
+let currentEditingSubcat = null;
+let isEditingSubcat = false;
 
 // ── Sort helpers ─────────────────────────────
 function applySortToOrders(orders) {
@@ -1111,6 +1171,170 @@ function switchSec(name){
   document.getElementById('page-title').textContent = name.charAt(0).toUpperCase()+name.slice(1);
 }
 
+// ── CATEGORIES MANAGEMENT ───────────────
+async function loadCategories() {
+  try {
+    const data = await apiFetch('/api/categories');
+    if (data.success) {
+      allCategories = data.categories || [];
+      renderCategories();
+    }
+  } catch(e) { console.error(e); toast('Failed to load categories','err'); }
+}
+
+function renderCategories(){
+  const container = document.getElementById('categories-list');
+  if (!container || !allCategories.length) {
+    if (container) container.innerHTML = '<div class="empty"><i class="fas fa-inbox"></i><p>No categories found</p></div>';
+    return;
+  }
+
+  const html = allCategories.map(mainCat => {
+    const subcatsHTML = mainCat.subcategories.map(subcat => `
+      <div class="subcat-item">
+        <span class="subcat-name">${esc(subcat)}</span>
+        <div class="subcat-actions">
+          <button class="btn btn-secondary btn-icon btn-sm" onclick="editSubcat('${esc(mainCat.mainCategory)}','${esc(subcat)}')">
+            <i class="fas fa-pencil-alt"></i>
+          </button>
+          <button class="btn btn-danger btn-icon btn-sm" onclick="delSubcat('${esc(mainCat.mainCategory)}','${esc(subcat)}')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    `).join('');
+
+    return `
+      <div class="main-cat-card">
+        <div class="main-cat-header">
+          <h4>${esc(mainCat.mainCategory)}</h4>
+          <button class="btn btn-secondary btn-sm" onclick="openAddSubcatModal('${esc(mainCat.mainCategory)}')">
+            <i class="fas fa-plus"></i> Add Subcategory
+          </button>
+        </div>
+        <div class="subcats-list">
+          ${subcatsHTML}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = html;
+}
+
+function openAddMainCatModal(){
+  document.getElementById('main-cat-modal-title').textContent = 'Add Main Category';
+  document.getElementById('main-cat-form').reset();
+  currentEditingMainCat = null;
+  document.getElementById('main-cat-modal').classList.add('open');
+}
+
+function closeMainCatModal(){
+  document.getElementById('main-cat-modal').classList.remove('open');
+  currentEditingMainCat = null;
+}
+
+function openAddSubcatModal(mainCatName){
+  currentEditingMainCat = mainCatName;
+  isEditingSubcat = false;
+  currentEditingSubcat = null;
+  document.getElementById('subcat-modal-title').textContent = `Add Subcategory to ${mainCatName}`;
+  document.getElementById('main-cat-for-subcat').value = mainCatName;
+  document.getElementById('subcat-name').value = '';
+  document.getElementById('subcat-modal').classList.add('open');
+}
+
+function editSubcat(mainCatName, subcatName){
+  currentEditingMainCat = mainCatName;
+  currentEditingSubcat = subcatName;
+  isEditingSubcat = true;
+  document.getElementById('subcat-modal-title').textContent = `Edit Subcategory`;
+  document.getElementById('main-cat-for-subcat').value = mainCatName;
+  document.getElementById('subcat-name').value = subcatName;
+  document.getElementById('subcat-modal').classList.add('open');
+}
+
+function closeSubcatModal(){
+  document.getElementById('subcat-modal').classList.remove('open');
+  currentEditingMainCat = null;
+  currentEditingSubcat = null;
+  isEditingSubcat = false;
+}
+
+async function saveMainCat(){
+  const name = document.getElementById('main-cat-name').value.trim();
+  if (!name) { toast('Category name is required','err'); return; }
+
+  const btn = document.getElementById('save-main-cat-btn');
+  btn.disabled = true;
+  try {
+    // Main categories are created implicitly when first subcategory is added
+    // So we just show a message
+    toast('Main categories are created automatically when you add a subcategory','inf');
+    closeMainCatModal();
+  } finally { btn.disabled = false; }
+}
+
+async function saveSubcat(){
+  const mainCat = currentEditingMainCat;
+  const oldName = currentEditingSubcat;
+  const newName = document.getElementById('subcat-name').value.trim();
+
+  if (!newName) { toast('Subcategory name is required','err'); return; }
+  
+  const btn = document.getElementById('save-subcat-btn');
+  btn.disabled = true;
+  try {
+    if (!isEditingSubcat) {
+      // Adding new subcategory
+      const data = await apiFetch('/api/categories', {
+        method: 'POST',
+        body: JSON.stringify({ mainCategory: mainCat, subcategory: newName })
+      });
+      if (data.success) {
+        allCategories = data.categories;
+        renderCategories();
+        await loadCategories();
+        closeSubcatModal();
+        toast('Subcategory added','ok');
+      } else {
+        toast(data.error || 'Failed to add','err');
+      }
+    } else if (newName !== oldName) {
+      // Editing subcategory name
+      const data = await apiFetch('/api/categories', {
+        method: 'PUT',
+        body: JSON.stringify({ mainCategory: mainCat, oldSubcategory: oldName, newSubcategory: newName })
+      });
+      if (data.success) {
+        allCategories = data.categories;
+        renderCategories();
+        await loadCategories();
+        closeSubcatModal();
+        toast('Subcategory updated','ok');
+      } else {
+        toast(data.error || 'Failed to update','err');
+      }
+    }
+  } catch(e) { console.error(e); toast('Failed to save','err'); }
+  finally { btn.disabled = false; }
+}
+
+async function delSubcat(mainCat, subcat) {
+  const ok = await confirmDialog('Delete Subcategory', `Delete "${subcat}"? Products using this category will not be affected.`);
+  if (!ok) return;
+  try {
+    const data = await apiFetch(`/api/categories?mainCategory=${encodeURIComponent(mainCat)}&subcategory=${encodeURIComponent(subcat)}`, { method: 'DELETE' });
+    if (data.success) {
+      allCategories = data.categories;
+      renderCategories();
+      toast('Subcategory deleted','ok');
+    } else {
+      toast(data.error || 'Delete failed','err');
+    }
+  } catch(e) { console.error(e); toast('Delete failed','err'); }
+}
+
 // ── PRODUCT MANAGEMENT ──────────────────────
 async function loadProducts() {
   try {
@@ -1118,6 +1342,7 @@ async function loadProducts() {
     if (data.success) {
       allProducts = data.products || [];
       filteredProducts = [...allProducts];
+      populateCategoryFilter();
       renderProductsTable();
     }
   } catch(e) { console.error(e); toast('Failed to load products','err'); }
@@ -1179,7 +1404,45 @@ function openProductModal(isNew=true){
     const nextId = allProducts.reduce((max, p) => Math.max(max, p.id || 0), 0) + 1;
     idField.value = nextId;
   }
+  // Populate category dropdown
+  populateCategoryDropdown();
   document.getElementById('product-modal').classList.add('open');
+}
+
+function populateCategoryDropdown(){
+  const select = document.getElementById('prod-category');
+  const currentValue = select.value;
+  select.innerHTML = '<option value="">Select Category</option>';
+  
+  allCategories.forEach(mainCat => {
+    mainCat.subcategories.forEach(subcat => {
+      const option = document.createElement('option');
+      option.value = subcat;
+      option.textContent = subcat.charAt(0).toUpperCase() + subcat.slice(1).replace(/-/g, ' ');
+      select.appendChild(option);
+    });
+  });
+  
+  select.value = currentValue;
+}
+
+function populateCategoryFilter(){
+  const select = document.getElementById('category-filter');
+  const currentValue = select.value;
+  select.innerHTML = '<option value="all">All Categories</option>';
+  
+  allCategories.forEach(mainCat => {
+    mainCat.subcategories.forEach(subcat => {
+      const option = document.createElement('option');
+      option.value = subcat;
+      option.textContent = subcat.charAt(0).toUpperCase() + subcat.slice(1).replace(/-/g, ' ');
+      select.appendChild(option);
+    });
+  });
+  
+  if (currentValue && currentValue !== 'all') {
+    select.value = currentValue;
+  }
 }
 
 function closeProductModal(){
@@ -1356,6 +1619,13 @@ document.addEventListener('DOMContentLoaded', ()=>{
   document.getElementById('order-sort').addEventListener('change', ()=>renderOrdersTable());
   document.getElementById('product-sort').addEventListener('change', ()=>renderProductsTable());
 
+  // Category management event listeners
+  document.getElementById('add-main-cat-btn').addEventListener('click', openAddMainCatModal);
+  document.getElementById('save-main-cat-btn').addEventListener('click', saveMainCat);
+  document.getElementById('save-subcat-btn').addEventListener('click', saveSubcat);
+  document.getElementById('main-cat-modal').addEventListener('click', e=>{ if(e.target.id==='main-cat-modal') closeMainCatModal(); });
+  document.getElementById('subcat-modal').addEventListener('click', e=>{ if(e.target.id==='subcat-modal') closeSubcatModal(); });
+
   // Idle auto-logout (1 minute)
   ['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(evt =>
     document.addEventListener(evt, _resetIdleTimer, { passive: true })
@@ -1366,9 +1636,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
   window.switchSec = function(name){
     origSwitchSec(name);
     if(name==='products') loadProducts();
+    if(name==='categories') loadCategories();
   };
 
-  // Load products on init if on products page
+  // Load categories and products on init
+  loadCategories();
   if (document.querySelector('#sec-products')) {
     loadProducts();
   }
