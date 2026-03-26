@@ -383,6 +383,7 @@ tbody td{padding:12px 14px;vertical-align:middle}
       <li><a href="#" data-sec="orders"><i class="fas fa-shopping-bag"></i> Orders</a></li>
       <li><a href="#" data-sec="categories"><i class="fas fa-tags"></i> Categories</a></li>
       <li><a href="#" data-sec="products"><i class="fas fa-box"></i> Products</a></li>
+      <li><a href="#" data-sec="messages"><i class="fas fa-envelope"></i> Messages</a></li>
     </ul>
     <div class="sidebar-footer">
       <button id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
@@ -576,6 +577,36 @@ tbody td{padding:12px 14px;vertical-align:middle}
         </div>
       </div>
     </div><!-- /products -->
+
+    <!-- ── MESSAGES SECTION ──────────── -->
+    <div class="s-content" id="sec-messages">
+      <div class="toolbar">
+        <div class="search-wrap">
+          <i class="fas fa-search"></i>
+          <input type="text" id="message-search" placeholder="Search messages…"/>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="refresh-messages-btn" style="margin-left:auto">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-head">
+          <h3>Contact Messages</h3>
+          <span id="messages-count" style="font-size:11px;color:var(--text-muted)"></span>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Date</th><th>Name</th><th>Email</th><th>Message</th><th></th>
+            </tr></thead>
+            <tbody id="messages-tbody">
+              <tr><td colspan="5" class="loading-cell"><span class="spinner"></span>Loading messages…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /messages -->
 
   </div><!-- /main-wrap -->
 </div><!-- /dashboard -->
@@ -1619,6 +1650,79 @@ document.addEventListener('DOMContentLoaded', ()=>{
   document.getElementById('order-sort').addEventListener('change', ()=>renderOrdersTable());
   document.getElementById('product-sort').addEventListener('change', ()=>renderProductsTable());
 
+  // Messages handling
+  let allMessages = [];
+  
+  async function loadMessages(){
+    try {
+      const data = await apiFetch('/api/messages');
+      if (data.success) {
+        allMessages = data.messages || [];
+        renderMessagesTable();
+        document.getElementById('messages-count').textContent = `(${allMessages.length})`;
+      }
+    } catch(e) { console.error(e); toast('Failed to load messages','err'); }
+  }
+  
+  function renderMessagesTable(){
+    const tbody = document.getElementById('messages-tbody');
+    if (!tbody) return;
+    
+    if (!allMessages.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text-muted)"><i class="fas fa-inbox"></i> <p>No messages yet</p></td></tr>';
+      return;
+    }
+    
+    tbody.innerHTML = allMessages.map(msg => {
+      const date = new Date(msg.date).toLocaleDateString();
+      const preview = msg.message.substring(0, 50) + (msg.message.length > 50 ? '...' : '');
+      return `
+        <tr onclick="showMessageDetail('${esc(msg.id)}')">
+          <td>${date}</td>
+          <td style="font-weight:500">${esc(msg.name)}</td>
+          <td style="font-size:11px;color:var(--text-muted)">${esc(msg.email)}</td>
+          <td style="font-size:12px">${esc(preview)}</td>
+          <td style="text-align:right">
+            <button class="btn btn-danger btn-icon btn-sm" onclick="deleteMessage('${esc(msg.id)}',event)" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+  
+  window.showMessageDetail = function(msgId) {
+    const msg = allMessages.find(m => m.id === msgId);
+    if (!msg) return;
+    alert(`From: ${msg.name}\nEmail: ${msg.email}\n\nMessage:\n${msg.message}`);
+  };
+  
+  window.deleteMessage = async function(msgId, e) {
+    if (e) { e.stopPropagation(); e.preventDefault(); }
+    const ok = await confirmDialog('Delete Message', 'Delete this message?');
+    if (!ok) return;
+    try {
+      await apiFetch('/api/messages?id=' + msgId, { method: 'DELETE' });
+      allMessages = allMessages.filter(m => m.id !== msgId);
+      renderMessagesTable();
+      document.getElementById('messages-count').textContent = `(${allMessages.length})`;
+      toast('Message deleted', 'ok');
+    } catch(e) { console.error(e); toast('Delete failed', 'err'); }
+  };
+
+  // Refresh messages button
+  const refreshMessagesBtn = document.getElementById('refresh-messages-btn');
+  if (refreshMessagesBtn) {
+    refreshMessagesBtn.addEventListener('click', async () => {
+      refreshMessagesBtn.disabled = true;
+      refreshMessagesBtn.innerHTML = '<i class="fas fa-sync-alt" style="animation:spin .7s linear infinite"></i> Refreshing...';
+      await loadMessages();
+      refreshMessagesBtn.disabled = false;
+      refreshMessagesBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+    });
+  }
+
   // Category management event listeners
   document.getElementById('add-main-cat-btn').addEventListener('click', openAddMainCatModal);
   document.getElementById('save-main-cat-btn').addEventListener('click', saveMainCat);
@@ -1637,6 +1741,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     origSwitchSec(name);
     if(name==='products') loadProducts();
     if(name==='categories') loadCategories();
+    if(name==='messages') loadMessages();
   };
 
   // Load categories and products on init

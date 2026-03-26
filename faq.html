@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Frequently asked questions about DIMA Deals.">
+    <title>FAQ - DIMA Deals</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="images/brand.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .faq-item {
+            background: var(--white);
+            border: 2px solid var(--gray-light);
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            padding: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .faq-question:hover {
+            background: rgba(255, 0, 110, 0.05);
+        }
+
+        .faq-question i {
+            color: var(--primary);
+            transition: transform 0.3s ease;
+        }
+
+        .faq-item.open .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: rgba(255, 0, 110, 0.02);
+            border-top: 2px solid var(--gray-light);
+        }
+
+        .faq-item.open .faq-answer {
+            max-height: 500px;
+        }
+
+        .faq-answer-content {
+            padding: 20px;
+            color: var(--gray);
+            line-height: 1.8;
+        }
+
+        .faq-answer-content strong {
+            color: var(--dark);
+        }
+
+        .faq-answer-content ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .faq-answer-content li {
+            margin-bottom: 8px;
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .faq-answer-content li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <a href="/" class="active"><img src="images/DimaDealsLogo.png" alt="DIMA Deals"></a>
+            </div>
+            <nav class="nav-menu">
+                <ul class="nav-links">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">Subscriptions <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown">
+                            <li><a href="/browse?category=netflix"><img src="images/NetflixLogo.png" alt="" class="small-logo"> Netflix</a></li>
+                            <li><a href="/browse?category=spotify"><img src="images/spotify.png" alt="" class="small-logo">Spotify</a></li>
+                            <li><a href="/browse?category=canva"><img src="images/canva-icon.png" alt="" class="small-logo">Canva Pro</a></li>
+                            <li><a href="/browse?category=shahid"><img src="images/ShahidLogo.png" alt="" class="small-logo"> Shahid</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">Games <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown">
+                            <li><a href="/browse?category=pc">PC Games</a></li>
+                            <li><a href="/browse?category=console">Console Games</a></li>
+                            <li><a href="/browse?category=mobile">Mobile Games</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">Courses <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown">
+                            <li><a href="/browse?category=programming">Programming</a></li>
+                            <li><a href="/browse?category=design">Design</a></li>
+                            <li><a href="/browse?category=business">Business</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">Apps <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown">
+                            <li><a href="/browse?category=mobile">Mobile Apps</a></li>
+                            <li><a href="/browse?category=software">Software</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <div class="nav-right">
+                <a href="/cart" class="cart-icon-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cart-count">0</span>
+                </a>
+                <div class="search-container">
+                    <input type="text" id="search-input" placeholder="Search products..." class="search-input">
+                    <button id="search-button" class="search-button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <select class="language-select" id="language-select">
+                    <option value="en">EN</option>
+                    <option value="fr">FR</option>
+                    <option value="ar">AR</option>
+                </select>
+                <label class="theme-toggle-container" title="Toggle dark mode">
+                    <input type="checkbox" id="theme-toggle" class="theme-toggle-input">
+                    <span class="theme-toggle-slider"></span>
+                </label>
+            </div>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-label="Toggle menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <section class="hero">
+            <h1>Frequently Asked Questions</h1>
+            <p>Find answers to common questions about DIMA Deals</p>
+        </section>
+
+        <div class="faq-container">
+            <div class="faq-item">
+                <div class="faq-question">
+                    <i class="fas fa-chevron-down"></i>
+                    How does instant delivery work?
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        <p>Once you complete your purchase and payment is verified, we immediately send you your access credentials via email. You can typically start using your subscription within 5-10 minutes of purchase. No waiting periods, no delays!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <i class="fas fa-chevron-down"></i>
+                    What payment methods do you accept?
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        <p>We accept manual payments through:</p>
+                        <ul>
+                            <li>Bank transfer</li>
+                            <li>Orange Money (Tunisian mobile money)</li>
+                            <li>Attijari Bank payments</li>
+                            <li>WhatsApp direct contact for special arrangements</li>
+                        </ul>
+                        <p>Our team will guide you through the payment process when you checkout.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <i class="fas fa-chevron-down"></i>
+                    What is your refund policy?
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        <p><strong>30-Day Money Back Guarantee:</strong> If you're not satisfied with your purchase for any reason, you can request a full refund within 30 days. We want you to be completely happy with DIMA Deals.</p>
+                        <p><strong>Instant Access Refunds:</strong> Since our products are delivered instantly, refunds are only available if the product doesn't work as advertised or you have technical issues we can't resolve.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <i class="fas fa-chevron-down"></i>
+                    Is my account safe with DIMA Deals?
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        <p>Yes! We take security very seriously:</p>
+                        <ul>
+                            <li>All transactions are encrypted and secure</li>
+                            <li>Your personal data is never shared with third parties</li>
+                            <li>We use industry-standard security protocols</li>
+                            <li>Your email and phone are only used for order confirmations and support</li>
+                            <li>We comply with international data protection standards</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <i class="fas fa-chevron-down"></i>
+                    Can I use the same product on multiple accounts?
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        <p>This depends on the specific product. Most subscriptions allow 1-4 simultaneous streams or logins. Please check the product description for specific details about account sharing limits.</p>
+                        <p><strong>Note:</strong> Some services may detect and block simultaneous logins from different geographic locations.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <i class="fas fa-chevron-down"></i>
+                    What if I don't receive my credentials?
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        <p>If you don't receive your access credentials within 15 minutes:</p>
+                        <ul>
+                            <li>Check your spam/junk email folder</li>
+                            <li>Contact us immediately via WhatsApp or email</li>
+                            <li>We'll resend your credentials right away</li>
+                            <li>If there's an issue, we'll offer a full refund</li>
+                        </ul>
+                        <p>Our support team is available 24/7 to assist you.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <i class="fas fa-chevron-down"></i>
+                    Are you officially affiliated with these services?
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        <p>DIMA Deals is an authorized reseller of digital products and subscriptions. All products we sell are legitimate and official. We work directly with service providers to ensure the best rates and instant delivery for our customers.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <i class="fas fa-chevron-down"></i>
+                    Do you offer bulk/discounts for multiple purchases?
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        <p>Yes! We offer special pricing for bulk orders. Contact our team via WhatsApp or email with your requirements, and we'll provide you with a customized quote.</p>
+                        <p>For businesses, schools, or organizations looking to purchase in bulk, we can arrange special rates.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4><i class="fas fa-store"></i> DIMA Deals</h4>
+                <p>Your trusted source for premium digital subscriptions at unbeatable prices.</p>     
+                <div class="social-links">
+                    <a href="https://www.facebook.com/DimaDeals001/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/dima_deals_/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://wa.me/21629156007" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/browse?category=netflix">Subscriptions</a></li>
+                    <li><a href="/about.html">About Us</a></li>
+                    <li><a href="/contact.html">Contact</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="/faq.html">FAQ</a></li>
+                    <li><a href="/help.html">Help Center</a></li>
+                    <li><a href="/terms.html">Terms of Service</a></li>
+                    <li><a href="/privacy.html">Privacy Policy</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Contact Info</h4>
+                <p><a href="mailto:dimadeals0@gmail.com"><i class="fas fa-envelope"></i> dimadeals0@gmail.com</a></p>
+                <p><a href="tel:+21629156007"><i class="fas fa-phone"></i> +216 29 156 007</a></p>
+                <p><i class="fas fa-map-marker-alt"></i> Tunisia</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 DIMA Deals. All rights reserved. Made with <i class="fas fa-heart" style="color: var(--primary);"></i> in Tunisia</p>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Float -->
+    <a href="https://wa.me/21629156007" target="_blank" rel="noopener" class="whatsapp-float" aria-label="Chat on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+        <span class="whatsapp-tooltip">Chat with us</span>
+    </a>
+
+    <script>
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            document.getElementById('cart-count').textContent = cart.length;
+        }
+        updateCartCount();
+
+        // FAQ accordion
+        document.querySelectorAll('.faq-item').forEach(item => {
+            item.querySelector('.faq-question').addEventListener('click', () => {
+                item.classList.toggle('open');
+            });
+        });
+    </script>
+    <script type="module" src="js/main.js?v=4.0"></script>
+</body>
+</html>

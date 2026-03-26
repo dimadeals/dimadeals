@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Contact DIMA Deals - Get in touch with our customer support team.">
+    <title>Contact Us - DIMA Deals</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="images/brand.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .contact-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .contact-form {
+            background: var(--white);
+            border: 2px solid var(--gray-light);
+            border-radius: var(--border-radius);
+            padding: 40px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--border-radius-sm);
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--dark);
+            background: var(--white);
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 0, 110, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+            border: none;
+            border-radius: var(--border-radius-sm);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 0, 110, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 60px;
+        }
+
+        .info-card {
+            background: var(--white);
+            padding: 24px;
+            border-radius: var(--border-radius-sm);
+            border: 2px solid var(--gray-light);
+            text-align: center;
+        }
+
+        .info-card i {
+            font-size: 32px;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .info-card h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .info-card p {
+            font-size: 14px;
+            color: var(--gray);
+            margin: 0;
+        }
+
+        .info-card a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .success-message {
+            display: none;
+            background: rgba(0, 230, 118, 0.1);
+            border: 2px solid rgba(0, 230, 118, 0.3);
+            color: var(--dark);
+            padding: 16px 20px;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 24px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .error-message {
+            display: none;
+            background: rgba(255, 68, 68, 0.1);
+            border: 2px solid rgba(255, 68, 68, 0.3);
+            color: #ff4444;
+            padding: 16px 20px;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 24px;
+            text-align: center;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <a href="/" class="active"><img src="images/DimaDealsLogo.png" alt="DIMA Deals"></a>
+            </div>
+            <nav class="nav-menu">
+                <ul class="nav-links">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">Subscriptions <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown">
+                            <li><a href="/browse?category=netflix"><img src="images/NetflixLogo.png" alt="" class="small-logo"> Netflix</a></li>
+                            <li><a href="/browse?category=spotify"><img src="images/spotify.png" alt="" class="small-logo">Spotify</a></li>
+                            <li><a href="/browse?category=canva"><img src="images/canva-icon.png" alt="" class="small-logo">Canva Pro</a></li>
+                            <li><a href="/browse?category=shahid"><img src="images/ShahidLogo.png" alt="" class="small-logo"> Shahid</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">Games <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown">
+                            <li><a href="/browse?category=pc">PC Games</a></li>
+                            <li><a href="/browse?category=console">Console Games</a></li>
+                            <li><a href="/browse?category=mobile">Mobile Games</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">Courses <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown">
+                            <li><a href="/browse?category=programming">Programming</a></li>
+                            <li><a href="/browse?category=design">Design</a></li>
+                            <li><a href="/browse?category=business">Business</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">Apps <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown">
+                            <li><a href="/browse?category=mobile">Mobile Apps</a></li>
+                            <li><a href="/browse?category=software">Software</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <div class="nav-right">
+                <a href="/cart" class="cart-icon-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cart-count">0</span>
+                </a>
+                <div class="search-container">
+                    <input type="text" id="search-input" placeholder="Search products..." class="search-input">
+                    <button id="search-button" class="search-button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <select class="language-select" id="language-select">
+                    <option value="en">EN</option>
+                    <option value="fr">FR</option>
+                    <option value="ar">AR</option>
+                </select>
+                <label class="theme-toggle-container" title="Toggle dark mode">
+                    <input type="checkbox" id="theme-toggle" class="theme-toggle-input">
+                    <span class="theme-toggle-slider"></span>
+                </label>
+            </div>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-label="Toggle menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <section class="hero">
+            <h1>Contact Us</h1>
+            <p>Have a question? We'd love to hear from you. Get in touch with our team anytime!</p>
+        </section>
+
+        <div class="contact-container">
+            <form class="contact-form" id="contact-form">
+                <div class="success-message" id="success-message">
+                    <i class="fas fa-check-circle"></i> Message sent successfully! We'll respond soon.
+                </div>
+                <div class="error-message" id="error-message"></div>
+
+                <div class="form-group">
+                    <label for="name">Your Name *</label>
+                    <input type="text" id="name" name="name" placeholder="John Doe" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" name="email" placeholder="your@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Your Message *</label>
+                    <textarea id="message" name="message" placeholder="Tell us how we can help..." required></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submit-btn">
+                    <i class="fas fa-paper-plane"></i> Send Message
+                </button>
+            </form>
+
+            <div class="contact-info">
+                <div class="info-card">
+                    <i class="fas fa-envelope"></i>
+                    <h3>Email</h3>
+                    <p><a href="mailto:dimadeals0@gmail.com">dimadeals0@gmail.com</a></p>
+                </div>
+
+                <div class="info-card">
+                    <i class="fas fa-phone"></i>
+                    <h3>Phone</h3>
+                    <p><a href="tel:+21629156007">+216 29 156 007</a></p>
+                </div>
+
+                <div class="info-card">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <h3>Location</h3>
+                    <p>Tunisia</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4><i class="fas fa-store"></i> DIMA Deals</h4>
+                <p>Your trusted source for premium digital subscriptions at unbeatable prices.</p>     
+                <div class="social-links">
+                    <a href="https://www.facebook.com/DimaDeals001/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/dima_deals_/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://wa.me/21629156007" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/browse?category=netflix">Subscriptions</a></li>
+                    <li><a href="/about.html">About Us</a></li>
+                    <li><a href="/contact.html">Contact</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="/faq.html">FAQ</a></li>
+                    <li><a href="/help.html">Help Center</a></li>
+                    <li><a href="/terms.html">Terms of Service</a></li>
+                    <li><a href="/privacy.html">Privacy Policy</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Contact Info</h4>
+                <p><a href="mailto:dimadeals0@gmail.com"><i class="fas fa-envelope"></i> dimadeals0@gmail.com</a></p>
+                <p><a href="tel:+21629156007"><i class="fas fa-phone"></i> +216 29 156 007</a></p>
+                <p><i class="fas fa-map-marker-alt"></i> Tunisia</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 DIMA Deals. All rights reserved. Made with <i class="fas fa-heart" style="color: var(--primary);"></i> in Tunisia</p>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Float -->
+    <a href="https://wa.me/21629156007" target="_blank" rel="noopener" class="whatsapp-float" aria-label="Chat on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+        <span class="whatsapp-tooltip">Chat with us</span>
+    </a>
+
+    <script>
+        // Simple cart count update
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            document.getElementById('cart-count').textContent = cart.length;
+        }
+        updateCartCount();
+
+        // Contact form submission
+        document.getElementById('contact-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const message = document.getElementById('message').value.trim();
+            const submitBtn = document.getElementById('submit-btn');
+            const successMsg = document.getElementById('success-message');
+            const errorMsg = document.getElementById('error-message');
+
+            // Hide messages
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+
+            // Validate
+            if (!name || !email || !message) {
+                errorMsg.textContent = 'Please fill in all fields';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            // Disable button
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+            try {
+                const response = await fetch('/api/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email, message })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    successMsg.style.display = 'block';
+                    document.getElementById('contact-form').reset();
+                    setTimeout(() => {
+                        successMsg.style.display = 'none';
+                    }, 5000);
+                } else {
+                    errorMsg.textContent = data.error || 'Failed to send message';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (err) {
+                console.error(err);
+                errorMsg.textContent = 'Error sending message. Please try again.';
+                errorMsg.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
+            }
+        });
+    </script>
+    <script type="module" src="js/main.js?v=4.0"></script>
+</body>
+</html>

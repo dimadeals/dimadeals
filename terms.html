@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Terms of Service for DIMA Deals.">
+    <title>Terms of Service - DIMA Deals</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="images/brand.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .legal-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            line-height: 1.8;
+        }
+
+        .legal-section {
+            background: var(--white);
+            border: 2px solid var(--gray-light);
+            border-radius: var(--border-radius-sm);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .legal-section h2 {
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+
+        .legal-section h3 {
+            color: var(--dark);
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
+
+        .legal-section p {
+            color: var(--gray);
+            margin-bottom: 12px;
+        }
+
+        .legal-section ul {
+            list-style: none;
+            padding-left: 20px;
+            color: var(--gray);
+        }
+
+        .legal-section li {
+            margin-bottom: 8px;
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .legal-section li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <a href="/" class="active"><img src="images/DimaDealsLogo.png" alt="DIMA Deals"></a>
+            </div>
+            <nav class="nav-menu">
+                <ul class="nav-links">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">Subscriptions <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown">
+                            <li><a href="/browse?category=netflix"><img src="images/NetflixLogo.png" alt="" class="small-logo"> Netflix</a></li>
+                            <li><a href="/browse?category=spotify"><img src="images/spotify.png" alt="" class="small-logo">Spotify</a></li>
+                            <li><a href="/browse?category=canva"><img src="images/canva-icon.png" alt="" class="small-logo">Canva Pro</a></li>
+                            <li><a href="/browse?category=shahid"><img src="images/ShahidLogo.png" alt="" class="small-logo"> Shahid</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">Games <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown">
+                            <li><a href="/browse?category=pc">PC Games</a></li>
+                            <li><a href="/browse?category=console">Console Games</a></li>
+                            <li><a href="/browse?category=mobile">Mobile Games</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">Courses <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown">
+                            <li><a href="/browse?category=programming">Programming</a></li>
+                            <li><a href="/browse?category=design">Design</a></li>
+                            <li><a href="/browse?category=business">Business</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">Apps <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown">
+                            <li><a href="/browse?category=mobile">Mobile Apps</a></li>
+                            <li><a href="/browse?category=software">Software</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <div class="nav-right">
+                <a href="/cart" class="cart-icon-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cart-count">0</span>
+                </a>
+                <div class="search-container">
+                    <input type="text" id="search-input" placeholder="Search products..." class="search-input">
+                    <button id="search-button" class="search-button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <select class="language-select" id="language-select">
+                    <option value="en">EN</option>
+                    <option value="fr">FR</option>
+                    <option value="ar">AR</option>
+                </select>
+                <label class="theme-toggle-container" title="Toggle dark mode">
+                    <input type="checkbox" id="theme-toggle" class="theme-toggle-input">
+                    <span class="theme-toggle-slider"></span>
+                </label>
+            </div>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-label="Toggle menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <section class="hero">
+            <h1>Terms of Service</h1>
+            <p>Please read carefully before using DIMA Deals</p>
+        </section>
+
+        <div class="legal-container">
+            <div class="legal-section">
+                <h2>1. Service Usage</h2>
+                <p>By using DIMA Deals, you agree to our Terms of Service. You must:</p>
+                <ul>
+                    <li>Be at least 18 years old (or have parental consent)</li>
+                    <li>Provide accurate information during registration</li>
+                    <li>Use the service only for personal use</li>
+                    <li>Not resell or redistribute credentials</li>
+                    <li>Comply with all applicable laws</li>
+                    <li>Not attempt unauthorized access to our systems</li>
+                </ul>
+            </div>
+
+            <div class="legal-section">
+                <h2>2. Payments & Billing</h2>
+                <h3>Price & Payment Terms</h3>
+                <p>All prices are in Tunisian Dinars (TND). Prices may change without notice but changes won't affect existing orders. Payment is required before access to products is granted.</p>
+                <h3>Payment Methods</h3>
+                <p>We accept manual payments through:</p>
+                <ul>
+                    <li>Bank transfer</li>
+                    <li>Orange Money</li>
+                    <li>Attijari Bank</li>
+                    <li>Direct WhatsApp payment arrangements</li>
+                </ul>
+                <h3>Billing Disputes</h3>
+                <p>If you have a billing dispute, contact us within 30 days with proof. We'll investigate and resolve promptly.</p>
+            </div>
+
+            <div class="legal-section">
+                <h2>3. Refund & Return Policy</h2>
+                <p><strong>30-Day Money Back Guarantee:</strong> If you're unsatisfied with your purchase, you can request a full refund within 30 days of purchase.</p>
+                <h3>Refund Eligibility</h3>
+                <ul>
+                    <li>Request must be made within 30 days</li>
+                    <li>Product must not work as advertised</li>
+                    <li>Technical issues must be unresolvable</li>
+                    <li>No refund for changed mind (we can't take back digital access)</li>
+                </ul>
+                <h3>Refund Process</h3>
+                <p>Approved refunds are processed within 5-7 business days to your original payment method.</p>
+            </div>
+
+            <div class="legal-section">
+                <h2>4. Product Warranties</h2>
+                <p>DIMA Deals provides credentials and access to third-party services. We warrant that:</p>
+                <ul>
+                    <li>Credentials will be delivered as promised</li>
+                    <li>Access will be instant upon purchase</li>
+                    <li>Credentials will be valid and functional</li>
+                </ul>
+                <p>However, DIMA Deals is not responsible for service outages, policy changes, or issues with the third-party service provider.</p>
+            </div>
+
+            <div class="legal-section">
+                <h2>5. Limitation of Liability</h2>
+                <p>DIMA Deals is provided "as-is" without warranties. We're not liable for:</p>
+                <ul>
+                    <li>Indirect or consequential damages</li>
+                    <li>Loss of data or profits</li>
+                    <li>Third-party service changes or outages</li>
+                    <li>Unauthorized account access</li>
+                    <li>Any damages exceeding the purchase price</li>
+                </ul>
+            </div>
+
+            <div class="legal-section">
+                <h2>6. Account Responsibility</h2>
+                <p>You are responsible for:</p>
+                <ul>
+                    <li>Keeping your login credentials secure</li>
+                    <li>All activity using your account</li>
+                    <li>Notifying us of unauthorized access</li>
+                    <li>Service terms of the third-party provider</li>
+                </ul>
+            </div>
+
+            <div class="legal-section">
+                <h2>7. Intellectual Property</h2>
+                <p>DIMA Deals name, logo, and content are protected intellectual property. You may not:</p>
+                <ul>
+                    <li>Copy or reproduce without permission</li>
+                    <li>Create derivative works</li>
+                    <li>Use for commercial purposes</li>
+                    <li>Remove copyright notices</li>
+                </ul>
+            </div>
+
+            <div class="legal-section">
+                <h2>8. Changes to Terms</h2>
+                <p>We may update these terms anytime. We'll notify users of material changes. Your continued use means acceptance of new terms.</p>
+            </div>
+
+            <div class="legal-section">
+                <h2>9. Termination</h2>
+                <p>We may terminate your account if you violate these terms or any applicable laws. Termination is without refund unless required by law.</p>
+            </div>
+
+            <div class="legal-section">
+                <h2>10. Governing Law</h2>
+                <p>These terms are governed by the laws of Tunisia. Any disputes will be resolved in Tunisian courts.</p>
+            </div>
+
+            <div class="legal-section" style="background: rgba(255, 0, 110, 0.05); border-color: var(--primary);">
+                <h2>Contact Us</h2>
+                <p>For questions about these terms, contact us:</p>
+                <p><strong>Email:</strong> <a href="mailto:dimadeals0@gmail.com" style="color: var(--primary);">dimadeals0@gmail.com</a></p>
+                <p><strong>WhatsApp:</strong> <a href="https://wa.me/21629156007" style="color: var(--primary);">+216 29 156 007</a></p>
+                <p><strong>Last updated:</strong> 2026</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4><i class="fas fa-store"></i> DIMA Deals</h4>
+                <p>Your trusted source for premium digital subscriptions at unbeatable prices.</p>     
+                <div class="social-links">
+                    <a href="https://www.facebook.com/DimaDeals001/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/dima_deals_/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://wa.me/21629156007" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/browse?category=netflix">Subscriptions</a></li>
+                    <li><a href="/about.html">About Us</a></li>
+                    <li><a href="/contact.html">Contact</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="/faq.html">FAQ</a></li>
+                    <li><a href="/help.html">Help Center</a></li>
+                    <li><a href="/terms.html">Terms of Service</a></li>
+                    <li><a href="/privacy.html">Privacy Policy</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Contact Info</h4>
+                <p><a href="mailto:dimadeals0@gmail.com"><i class="fas fa-envelope"></i> dimadeals0@gmail.com</a></p>
+                <p><a href="tel:+21629156007"><i class="fas fa-phone"></i> +216 29 156 007</a></p>
+                <p><i class="fas fa-map-marker-alt"></i> Tunisia</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 DIMA Deals. All rights reserved. Made with <i class="fas fa-heart" style="color: var(--primary);"></i> in Tunisia</p>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Float -->
+    <a href="https://wa.me/21629156007" target="_blank" rel="noopener" class="whatsapp-float" aria-label="Chat on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+        <span class="whatsapp-tooltip">Chat with us</span>
+    </a>
+
+    <script>
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            document.getElementById('cart-count').textContent = cart.length;
+        }
+        updateCartCount();
+    </script>
+    <script type="module" src="js/main.js?v=4.0"></script>
+</body>
+</html>
