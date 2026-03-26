@@ -1084,6 +1084,25 @@ h2 {
   text-overflow: ellipsis;
 }
 
+.product-main-categories {
+  padding: 0 20px 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.main-cat-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: rgba(255, 0, 110, 0.1);
+  color: var(--primary);
+  border: 1px solid rgba(255, 0, 110, 0.2);
+  letter-spacing: 0.3px;
+}
+
 .product-card .details-button,
 .product-card button,
 .product-card .buy-now-button {

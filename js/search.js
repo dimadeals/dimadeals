@@ -1,6 +1,6 @@
 import { escapeHTML, debounce } from './utils.js';
 import { PRODUCTS_DATABASE, getAllProducts } from './api.js';
-import { getProductBroadCategory, sortProducts } from './products.js';
+import { getProductBroadCategory, getMainCategories, sortProducts } from './products.js';
 import { initSearchPagination } from './ui.js';
 
 // ============ SEARCH FUNCTIONALITY ============
@@ -111,7 +111,15 @@ export function displaySearchResults(results, containerId) {
 
 function filterSearchResults(results, category) {
   if (category === 'all') return results;
-  return results.filter(product => getProductBroadCategory(product) === category);
+  return results.filter(product => {
+    // Check mainCategories first (case-insensitive)
+    const mains = getMainCategories(product);
+    if (mains.length > 0) {
+      return mains.some(mc => mc.toLowerCase() === category.toLowerCase());
+    }
+    // Fallback to broad category
+    return getProductBroadCategory(product) === category;
+  });
 }
 
 export function initializeSearch() {

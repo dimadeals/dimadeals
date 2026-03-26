@@ -1,5 +1,35 @@
 import { PRODUCTS_DATABASE, getAllProducts } from './api.js';
 
+// ============ CATEGORY-TO-MAIN MAPPING ============
+
+export const CATEGORY_TO_MAIN = {
+  netflix:     ['Subscriptions'],
+  spotify:     ['Subscriptions'],
+  canva:       ['Subscriptions'],
+  shahid:      ['Subscriptions'],
+  capcut:      ['Subscriptions'],
+  pc:          ['Games'],
+  console:     ['Games'],
+  mobile:      ['Games'],
+  steam:       ['Games'],
+  epic_games:  ['Games'],
+  ea_games:    ['Games'],
+  xbox_pc:     ['Games'],
+  programming: ['Courses'],
+  design:      ['Courses'],
+  business:    ['Courses'],
+  mobile_apps: ['Apps'],
+  software:    ['Apps'],
+};
+
+export function getMainCategories(product) {
+  if (Array.isArray(product.mainCategories) && product.mainCategories.length > 0) {
+    return product.mainCategories;
+  }
+  const cat = product.category || getProductCategory(product);
+  return CATEGORY_TO_MAIN[cat] || [];
+}
+
 // ============ CATALOG METADATA ============
 
 export const CATALOG_METADATA = {
@@ -120,8 +150,14 @@ export function getProductCategory(product) {
 }
 
 export function getProductBroadCategory(product) {
-  // Map detailed categories to broad categories
-  const category = getProductCategory(product);
+  // Use mainCategories if available (returns lowercase for filter matching)
+  const mains = getMainCategories(product);
+  if (mains.length > 0) {
+    return mains[0].toLowerCase();
+  }
+
+  // Fallback: map detailed categories to broad categories
+  const category = product.category || getProductCategory(product);
   
   if (['netflix', 'spotify', 'canva', 'shahid', 'capcut'].includes(category)) {
     return 'subscriptions';
@@ -131,6 +167,9 @@ export function getProductBroadCategory(product) {
   }
   if (['programming', 'design', 'business'].includes(category)) {
     return 'courses';
+  }
+  if (['mobile_apps', 'software'].includes(category)) {
+    return 'apps';
   }
   return 'unknown';
 }

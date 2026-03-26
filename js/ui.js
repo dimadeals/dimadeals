@@ -1,6 +1,6 @@
 import { escapeHTML, showToast } from './utils.js';
 import { PRODUCTS_DATABASE, getAllProducts } from './api.js';
-import { CATALOG_METADATA } from './products.js';
+import { CATALOG_METADATA, getMainCategories } from './products.js';
 import { addToCart } from './cart.js';
 
 // ============ LANGUAGE TRANSLATIONS ============
@@ -130,6 +130,12 @@ export function createProductCard(product) {
   
   const badgesContainer = badgesHTML ? `<div class="product-badges">${badgesHTML}</div>` : '';
 
+  // Main categories display
+  const mainCats = getMainCategories(product);
+  const mainCatHTML = mainCats.length > 0
+    ? `<div class="product-main-categories">${mainCats.map(mc => `<span class="main-cat-badge">${escapeHTML(mc)}</span>`).join('')}</div>`
+    : '';
+
   // Check if product is out of stock
   const isOutOfStock = product.inStock === false;
   const outOfStockOverlay = isOutOfStock ? `<div class="out-of-stock-overlay"><div class="out-of-stock-label">OUT OF STOCK</div></div>` : '';
@@ -163,6 +169,7 @@ export function createProductCard(product) {
         ${outOfStockOverlay}
       </div>
       <h3>${escapeHTML(product.name)}</h3>
+      ${mainCatHTML}
       ${priceHTML}
       ${ratingHTML}
       <p class="product-description-preview">${escapeHTML(product.description)}</p>

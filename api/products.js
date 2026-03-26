@@ -6,6 +6,31 @@ const VALID_CATEGORIES = [
   "ea_games", "xbox_pc", "pc"
 ];
 
+const VALID_MAIN_CATEGORIES = ["Subscriptions", "Games", "Courses", "Apps"];
+
+const CATEGORY_TO_MAIN = {
+  netflix:     ["Subscriptions"],
+  spotify:     ["Subscriptions"],
+  canva:       ["Subscriptions"],
+  shahid:      ["Subscriptions"],
+  capcut:      ["Subscriptions"],
+  pc:          ["Games"],
+  console:     ["Games"],
+  mobile:      ["Games"],
+  steam:       ["Games"],
+  epic_games:  ["Games"],
+  ea_games:    ["Games"],
+  xbox_pc:     ["Games"],
+  programming: ["Courses"],
+  design:      ["Courses"],
+  business:    ["Courses"],
+  software:    ["Apps"],
+};
+
+function deriveMainCategories(category) {
+  return CATEGORY_TO_MAIN[category] || [];
+}
+
 function validateProduct(prod) {
   if (!prod.name || typeof prod.name !== "string" || prod.name.trim().length === 0)
     return "Product name is required";
@@ -17,6 +42,12 @@ function validateProduct(prod) {
     return "Description is required";
   if (prod.rating !== undefined && (typeof prod.rating !== "number" || prod.rating < 0 || prod.rating > 5))
     return "Rating must be between 0 and 5";
+  if (!Array.isArray(prod.mainCategories) || prod.mainCategories.length === 0)
+    return "At least one main category is required";
+  for (const mc of prod.mainCategories) {
+    if (!VALID_MAIN_CATEGORIES.includes(mc))
+      return `Invalid main category: ${mc}. Must be one of: ${VALID_MAIN_CATEGORIES.join(", ")}`;
+  }
   return null;
 }
 
@@ -64,7 +95,14 @@ export default async function handler(req, res) {
           try { return JSON.parse(item); }
           catch { return null; }
         })
-        .filter(Boolean);
+        .filter(Boolean)
+        .map(p => {
+          // Auto-fill mainCategories for legacy products
+          if (!Array.isArray(p.mainCategories) || p.mainCategories.length === 0) {
+            p.mainCategories = deriveMainCategories(p.category);
+          }
+          return p;
+        });
 
       if (category) {
         products = products.filter(p => p.category === category);
@@ -89,18 +127,24 @@ export default async function handler(req, res) {
 
   if (req.method === "POST") {
     try {
-      const { id, name, price, description, category, images, rating, popular, recommended, originalPrice, inStock } = req.body;
+      const { id, name, price, description, category, images, rating, popular, recommended, originalPrice, inStock, mainCategories } = req.body;
 
       if (!id || isNaN(parseInt(id))) {
         return res.status(400).json({ error: "Valid numeric product ID is required" });
       }
+
+      const catValue = String(category).toLowerCase();
+      const resolvedMainCategories = Array.isArray(mainCategories) && mainCategories.length > 0
+        ? mainCategories.filter(mc => VALID_MAIN_CATEGORIES.includes(mc))
+        : deriveMainCategories(catValue);
 
       const product = {
         id: parseInt(id),
         name: String(name).trim().substring(0, 200),
         price: Number(price),
         description: String(description).trim().substring(0, 500),
-        category: String(category).toLowerCase(),
+        category: catValue,
+        mainCategories: resolvedMainCategories.length > 0 ? resolvedMainCategories : deriveMainCategories(catValue),
         images:   Array.isArray(images) ? images.filter(img => typeof img === "string").slice(0, 10) : [],
         rating:   typeof rating === "number" ? Math.min(5, Math.max(0, rating)) : 0,
         popular:  Boolean(popular),
@@ -131,7 +175,7 @@ export default async function handler(req, res) {
 
   if (req.method === "PUT") {
     try {
-      const { id, name, price, description, category, images, rating, popular, recommended, originalPrice, inStock } = req.body;
+      const { id, name, price, description, category, images, rating, popular, recommended, originalPrice, inStock, mainCategories } = req.body;
 
       if (!id) return res.status(400).json({ error: "Product ID is required" });
 
@@ -139,12 +183,30 @@ export default async function handler(req, res) {
       if (!raw) return res.status(404).json({ error: "Product not found" });
 
       const existing = JSON.parse(raw);
+
+      // Resolve mainCategories: use provided array, or re-derive from category if category changed
+      let resolvedMainCategories = existing.mainCategories || [];
+      if (mainCategories !== undefined) {
+        resolvedMainCategories = Array.isArray(mainCategories)
+          ? mainCategories.filter(mc => VALID_MAIN_CATEGORIES.includes(mc))
+          : [];
+      }
+      if (category !== undefined && mainCategories === undefined) {
+        resolvedMainCategories = deriveMainCategories(String(category).toLowerCase());
+      }
+      // Fallback: ensure at least auto-derived
+      if (resolvedMainCategories.length === 0) {
+        const cat = category !== undefined ? String(category).toLowerCase() : existing.category;
+        resolvedMainCategories = deriveMainCategories(cat);
+      }
+
       const updated = {
         ...existing,
         ...(name !== undefined && { name: String(name).trim().substring(0, 200) }),
         ...(price !== undefined && { price: Number(price) }),
         ...(description !== undefined && { description: String(description).trim().substring(0, 500) }),
         ...(category !== undefined && { category: String(category).toLowerCase() }),
+        mainCategories: resolvedMainCategories,
         ...(images !== undefined && { images: Array.isArray(images) ? images.filter(img => typeof img === "string").slice(0, 10) : [] }),
         ...(rating !== undefined && { rating: Math.min(5, Math.max(0, Number(rating))) }),
         ...(popular !== undefined && { popular: Boolean(popular) }),

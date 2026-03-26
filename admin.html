@@ -630,6 +630,28 @@ tbody td{padding:12px 14px;vertical-align:middle}
           </select>
         </div>
         <div class="form-group">
+          <label class="lbl">Main Categories</label>
+          <div style="display:flex;gap:14px;flex-wrap:wrap;padding:8px 0">
+            <label style="display:flex;align-items:center;gap:6px">
+              <input type="checkbox" class="main-cat-cb" value="Subscriptions"/>
+              <span style="font-size:12px;color:var(--text)">Subscriptions</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:6px">
+              <input type="checkbox" class="main-cat-cb" value="Games"/>
+              <span style="font-size:12px;color:var(--text)">Games</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:6px">
+              <input type="checkbox" class="main-cat-cb" value="Courses"/>
+              <span style="font-size:12px;color:var(--text)">Courses</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:6px">
+              <input type="checkbox" class="main-cat-cb" value="Apps"/>
+              <span style="font-size:12px;color:var(--text)">Apps</span>
+            </label>
+          </div>
+          <span style="font-size:10px;color:var(--text-muted)">Auto-selected from subcategory if left empty</span>
+        </div>
+        <div class="form-group">
           <label class="lbl">Price (TND)</label>
           <input type="number" id="prod-price" class="field" placeholder="0" step="0.01" required/>
         </div>
@@ -1121,18 +1143,26 @@ function renderProductsTable(){
     return;
   }
   const sorted = applySortToProducts(filteredProducts);
-  tbody.innerHTML = sorted.map(p=>`
+  tbody.innerHTML = sorted.map(p=>{
+    const mainCatBadges = (p.mainCategories||[]).map(mc =>
+      `<span style="font-size:9px;background:var(--primary-dim);color:var(--primary);padding:1px 5px;border-radius:3px;margin-right:2px">${esc(mc)}</span>`
+    ).join('');
+    return `
     <tr onclick="editProduct(${p.id})">
       <td><span class="oid">${esc(String(p.id))}</span></td>
       <td>${esc(p.name||'—')}</td>
-      <td><span style="font-size:10px;background:#1e1e1e;padding:2px 6px;border-radius:4px">${esc(p.category||'—')}</span></td>
+      <td>
+        <span style="font-size:10px;background:#1e1e1e;padding:2px 6px;border-radius:4px">${esc(p.category||'—')}</span>
+        <div style="margin-top:3px">${mainCatBadges}</div>
+      </td>
       <td>${esc(fmtNum(p.price))} TND</td>
       <td><span style="color:${p.inStock?'var(--green)':'var(--red)'}"><i class="fas fa-${p.inStock?'check':'times'}"></i> ${p.inStock?'Yes':'No'}</span></td>
       <td onclick="event.stopPropagation()">
         <button class="btn btn-secondary btn-icon" onclick="editProduct(${p.id})"><i class="fas fa-pencil-alt"></i></button>
         <button class="btn btn-danger btn-icon" onclick="delProduct(${p.id})"><i class="fas fa-trash"></i></button>
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 function openProductModal(isNew=true){
@@ -1143,6 +1173,8 @@ function openProductModal(isNew=true){
   idField.disabled = !isNew;
   if (isNew) {
     document.getElementById('product-form').reset();
+    // Reset main category checkboxes
+    document.querySelectorAll('.main-cat-cb').forEach(cb => { cb.checked = false; });
     // Auto-set next available ID
     const nextId = allProducts.reduce((max, p) => Math.max(max, p.id || 0), 0) + 1;
     idField.value = nextId;
@@ -1171,6 +1203,11 @@ function editProduct(id){
   document.getElementById('prod-popular').checked = curProduct.popular || false;
   document.getElementById('prod-recommended').checked = curProduct.recommended || false;
   document.getElementById('prod-in-stock').checked = curProduct.inStock !== false;
+  // Set main category checkboxes
+  const mainCats = curProduct.mainCategories || [];
+  document.querySelectorAll('.main-cat-cb').forEach(cb => {
+    cb.checked = mainCats.includes(cb.value);
+  });
   openProductModal(false);
 }
 
@@ -1188,6 +1225,9 @@ async function saveProduct(){
   const recommended = document.getElementById('prod-recommended').checked;
   const inStock = document.getElementById('prod-in-stock').checked;
 
+  // Collect main categories from checkboxes
+  const mainCategories = [...document.querySelectorAll('.main-cat-cb:checked')].map(cb => cb.value);
+
   if (!id || !name || !category || isNaN(price)) {
     toast('Please fill all required fields','err');
     return;
@@ -1199,7 +1239,7 @@ async function saveProduct(){
     const method = isEditingProduct ? 'PUT' : 'POST';
     const data = await apiFetch('/api/products',{
       method, body:JSON.stringify({
-        id: parseInt(id), name, category, price, originalPrice, description, images, rating, popular, recommended, inStock
+        id: parseInt(id), name, category, price, originalPrice, description, images, rating, popular, recommended, inStock, mainCategories
       })
     });
     if (data.success){
