@@ -127,6 +127,8 @@ export function createProductCard(product) {
   if (product.recommended) {
     badgesHTML += '<span class="badge badge-recommended">Recommended</span>';
   }
+  // Add instant delivery badge
+  badgesHTML += '<span class="badge badge-instant">⚡ Instant</span>';
   
   const badgesContainer = badgesHTML ? `<div class="product-badges">${badgesHTML}</div>` : '';
 
@@ -157,7 +159,7 @@ export function createProductCard(product) {
   if (isOutOfStock) {
     buttonHTML = `<button class="buy-now-button" disabled><i class="fas fa-ban"></i> Out of Stock</button>`;
   } else {
-    buttonHTML = `<button class="buy-now-button" onclick="handleBuyClick(${product.id}); event.stopPropagation();">Buy Now for ${product.price} TND</button>`;
+    buttonHTML = `<button class="buy-now-button" onclick="handleBuyClick(${product.id}); event.stopPropagation();"><i class="fas fa-shopping-bag"></i> Get Access Now</button>`;
   }
 
   return `
