@@ -62,7 +62,7 @@ async function handlePostMessage(req, res) {
       });
     }
 
-    res.json({
+    res.status(200).json({
       success: true,
       message: 'Message received! We will contact you soon.',
       data: messageData
@@ -96,7 +96,7 @@ async function handleGetMessages(req, res) {
       // Sort by date descending
       allMessages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-      res.json({
+      res.status(200).json({
         success: true,
         total: allMessages.length,
         messages: allMessages
@@ -150,7 +150,7 @@ async function handleDeleteMessage(req, res) {
       }
 
       await redis.set(MESSAGES_KEY, JSON.stringify(filtered));
-      res.json({
+      res.status(200).json({
         success: true,
         message: 'Message deleted'
       });
