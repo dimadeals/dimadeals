@@ -429,6 +429,14 @@ body {
   transition: var(--transition);
   font-weight: 500;
   font-size: 14px;
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
 }
 
 .filter-btn:hover,
@@ -546,6 +554,10 @@ body {
     min-height: 32px;
     display: flex;
     align-items: center;
+    pointer-events: auto;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
   }
 
   .filter-btn:active,

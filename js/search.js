@@ -3,6 +3,9 @@ import { PRODUCTS_DATABASE, getAllProducts } from './api.js';
 import { getProductBroadCategory, getMainCategories, sortProducts } from './products.js';
 import { initSearchPagination } from './ui.js';
 
+// ============ SINGLE SOURCE OF TRUTH FOR FILTERING ============
+let selectedMainCategory = null; // 'all', 'subscriptions', 'games', 'courses', 'apps', or null
+
 // ============ SEARCH FUNCTIONALITY ============
 
 export function searchProducts(query) {
@@ -110,15 +113,35 @@ export function displaySearchResults(results, containerId) {
 }
 
 function filterSearchResults(results, category) {
-  if (category === 'all') return results;
+  // category is 'all', 'subscriptions', 'games', 'courses', 'apps', etc.
+  if (category === 'all' || !category) {
+    console.log('[Filter] Showing all products');
+    return results;
+  }
+
+  console.log('[Filter] Filtering by category:', category);
+  
   return results.filter(product => {
-    // Check mainCategories first (case-insensitive)
     const mains = getMainCategories(product);
-    if (mains.length > 0) {
-      return mains.some(mc => mc.toLowerCase() === category.toLowerCase());
+    
+    // Check if any mainCategory matches (case-insensitive)
+    if (mains && mains.length > 0) {
+      const hasMatch = mains.some(mc => 
+        mc.toLowerCase() === category.toLowerCase()
+      );
+      if (hasMatch) {
+        console.debug(`[Filter] Product "${product.name}" matches mainCategories:`, mains);
+        return true;
+      }
     }
-    // Fallback to broad category
-    return getProductBroadCategory(product) === category;
+    
+    // Fallback to broad category (getProductBroadCategory should be lowercase)
+    const broadCat = getProductBroadCategory(product);
+    const matches = broadCat && broadCat.toLowerCase() === category.toLowerCase();
+    if (matches) {
+      console.debug(`[Filter] Product "${product.name}" matches broad category: ${broadCat}`);
+    }
+    return matches;
   });
 }
 
@@ -216,34 +239,67 @@ function initializeSearchFilters(allResults) {
   const filterButtons = document.querySelectorAll('.filter-btn');
   const sortSelect = document.getElementById('sort-select');
 
+  // Initialize with 'all' category by default
+  selectedMainCategory = 'all';
+
   // Handle sort change
   if (sortSelect) {
     sortSelect.addEventListener('change', function() {
-      const activeButton = document.querySelector('.filter-btn.active');
-      const category = activeButton ? activeButton.dataset.filter : 'all';
-      let filteredResults = filterSearchResults(allResults, category);
-      
-      // Apply sorting
+      // Re-apply current filter with new sort
+      let filteredResults = filterSearchResults(allResults, selectedMainCategory);
       filteredResults = sortProducts(filteredResults, this.value);
-      initSearchPagination(filteredResults);
-    });
-  }
-
-  filterButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      filterButtons.forEach(btn => btn.classList.remove('active'));
-      this.classList.add('active');
-
-      const category = this.dataset.filter;
-      let filteredResults = filterSearchResults(allResults, category);
-      const sortValue = sortSelect ? sortSelect.value : 'relevance';
-      filteredResults = sortProducts(filteredResults, sortValue);
-      initSearchPagination(filteredResults);
-
+      
+      // Update results count
       const resultsCount = document.getElementById('results-count');
       if (resultsCount) {
         resultsCount.textContent = `${filteredResults.length} result${filteredResults.length !== 1 ? 's' : ''} found`;
       }
+      
+      console.log('[Sort] Applied sort:', this.value, 'Results:', filteredResults.length);
+      initSearchPagination(filteredResults);
+    });
+  }
+
+  // Handle filter button clicks
+  filterButtons.forEach(button => {
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Update single source of truth
+      selectedMainCategory = this.dataset.filter;
+      console.log('[Category Click] Selected category:', selectedMainCategory);
+
+      // Update UI - remove active from all, add to clicked
+      filterButtons.forEach(btn => {
+        btn.classList.remove('active');
+        btn.setAttribute('aria-pressed', 'false');
+      });
+      this.classList.add('active');
+      this.setAttribute('aria-pressed', 'true');
+
+      // Apply filter
+      let filteredResults = filterSearchResults(allResults, selectedMainCategory);
+      
+      // Apply current sort
+      const sortValue = sortSelect ? sortSelect.value : 'relevance';
+      filteredResults = sortProducts(filteredResults, sortValue);
+      
+      // Update results count
+      const resultsCount = document.getElementById('results-count');
+      if (resultsCount) {
+        resultsCount.textContent = `${filteredResults.length} result${filteredResults.length !== 1 ? 's' : ''} found`;
+      }
+      
+      console.log('[Category Click] Filtered to:', filteredResults.length, 'products');
+      initSearchPagination(filteredResults);
     });
   });
+
+  // Set initial 'all' button as active
+  const allButton = document.querySelector('[data-filter="all"]');
+  if (allButton) {
+    allButton.classList.add('active');
+    allButton.setAttribute('aria-pressed', 'true');
+  }
 }
