@@ -1,7 +1,7 @@
 // ============ MESSAGES API ============
 // Handles contact form submissions with guaranteed JSON responses
 
-const { getRedis } = require('./redis.js');
+import { getRedis } from './redis.js';
 
 const ADMIN_KEY = process.env.ADMIN_KEY || 'your-secret-admin-key-here';
 const MESSAGES_KEY = 'contact:messages';
@@ -20,7 +20,7 @@ function validateAdmin(req) {
  * Main handler - routes requests based on HTTP method
  * ALL responses are guaranteed to be valid JSON
  */
-async function handler(req, res) {
+export default async function handler(req, res) {
   try {
     // Set JSON content type header
     res.setHeader('Content-Type', 'application/json');
@@ -237,6 +237,4 @@ async function handleDelete(req, res) {
   }
 }
 
-// Export main handler (works with both Express and Vercel)
-module.exports = handler;
-module.exports.handler = handler; // For Vercel compatibility
+
