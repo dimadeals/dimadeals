@@ -150,6 +150,40 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
   }
 
+  // Mobile search toggle for mobile devices
+  const searchButton = document.getElementById('search-button');
+  const searchInput = document.getElementById('search-input');
+  const searchContainer = document.querySelector('.search-container');
+
+  if (searchButton && searchInput && searchContainer) {
+    searchButton.addEventListener('click', function(e) {
+      // On mobile, toggle the expanded search state
+      if (window.innerWidth <= 768) {
+        e.preventDefault();
+        searchContainer.classList.toggle('expanded');
+        if (searchContainer.classList.contains('expanded')) {
+          searchInput.focus();
+        }
+      }
+    });
+
+    // Close expanded search when clicking outside
+    document.addEventListener('click', function(e) {
+      if (searchContainer && window.innerWidth <= 768) {
+        if (!searchContainer.contains(e.target)) {
+          searchContainer.classList.remove('expanded');
+        }
+      }
+    });
+
+    // Close expanded search on escape key
+    searchInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && window.innerWidth <= 768) {
+        searchContainer.classList.remove('expanded');
+      }
+    });
+  }
+
   // Dropdown menu hover behavior with improved performance
   const navItems = document.querySelectorAll('.nav-item');
 

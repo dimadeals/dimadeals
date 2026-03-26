@@ -517,36 +517,42 @@ body {
     font-size: 13px;
   }
 
-  .search-filters-container {
-    display: block;
-    overflow-x: auto;
-    padding: 0;
-  }
-
-  .filter-group {
-    display: block;
-  }
-
-  .filter-group h3 {
-    font-size: 13px;
-    margin-bottom: 8px;
-  }
-
   .search-filters {
+    display: flex;
     gap: 8px;
     overflow-x: auto;
+    overflow-y: hidden;
     padding-bottom: 8px;
+    padding-right: 8px;
     -webkit-overflow-scrolling: touch;
     flex-wrap: nowrap;
-    display: flex;
+    align-items: center;
+    position: relative;
+    z-index: 10;
   }
 
   .filter-btn {
     padding: 8px 12px;
-    font-size: 12px;
+    font-size: 11px;
+    font-weight: 500;
     white-space: nowrap;
     flex-shrink: 0;
     cursor: pointer;
+    border: 2px solid var(--gray-light);
+    background: var(--white);
+    color: var(--dark);
+    border-radius: 20px;
+    transition: all 0.2s ease;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+  }
+
+  .filter-btn:active,
+  .filter-btn.active {
+    background: var(--primary);
+    color: var(--white);
+    border-color: var(--primary);
   }
 
   .sort-select {
@@ -2809,14 +2815,15 @@ h2 {
   }
 
   .search-container {
-    display: flex;
-    width: 40px;
-    min-width: 40px;
+    position: relative;
+    width: 44px;
+    min-width: 44px;
     border-radius: 50%;
     padding: 8px;
     justify-content: center;
     border: 2px solid var(--gray-light);
     background: var(--white);
+    display: flex;
   }
 
   .search-input {
@@ -2825,10 +2832,14 @@ h2 {
 
   .search-button {
     background: transparent;
-    border: none;
     color: var(--primary);
-    font-size: 14px;
+    border: none;
     cursor: pointer;
+    font-size: 18px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .mobile-menu-toggle {
@@ -3032,8 +3043,8 @@ h2 {
 
   .product-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-top: 25px;
+    gap: 12px;
+    margin-top: 20px;
     margin-bottom: 15px;
   }
 
@@ -3146,6 +3157,29 @@ h2 {
   .thumbnail {
     width: 50px;
     height: 50px;
+  }
+
+  /* Mobile search expanded state */
+  .search-container.expanded {
+    width: 100%;
+    border-radius: 25px;
+    max-width: calc(100% - 80px);
+    padding: 6px 12px;
+    border: 2px solid var(--primary);
+    margin: 0 8px;
+  }
+
+  .search-container.expanded .search-input {
+    display: block;
+    width: 100%;
+    padding: 0 8px;
+    font-size: 14px;
+  }
+
+  .search-container.expanded .search-button {
+    background: transparent;
+    border-radius: 50%;
+    padding: 6px;
   }
 }
 
