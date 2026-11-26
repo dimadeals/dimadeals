@@ -47,7 +47,7 @@ function createSuggestionItem(product) {
 
   return `
     <div class="suggestion-item" onclick="selectSuggestion(${jsArg(product.id)})">
-      <img src="${escapeHTML(imageSrc) || 'images/placeholder.png'}" alt="${escapeHTML(product.name)}" class="suggestion-image" onerror="this.onerror=null;this.src='images/placeholder.png'">
+      <img src="${escapeHTML(imageSrc) || 'images/brand.png'}" alt="${escapeHTML(product.name)}" class="suggestion-image" onerror="this.onerror=null;this.src='images/brand.png'">
       <div class="suggestion-content">
         <div class="suggestion-name">${escapeHTML(product.name)}</div>
         <div class="suggestion-price">${product.price} TND</div>

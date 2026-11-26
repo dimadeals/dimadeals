@@ -155,10 +155,10 @@ export function displayCart() {
   cartItems.forEach(item => {
     const itemElement = document.createElement('div');
     itemElement.className = 'cart-item';
-    const image = item.image || 'images/placeholder.png';
+    const image = item.image || 'images/brand.png';
     itemElement.innerHTML = `
       <div class="item-image">
-        <img src="${escapeHTML(image)}" alt="${escapeHTML(item.name)}" onerror="this.src='images/placeholder.png'">
+        <img src="${escapeHTML(image)}" alt="${escapeHTML(item.name)}" onerror="this.src='images/brand.png'">
       </div>
       <div class="item-details">
         <h3>${escapeHTML(item.name)}</h3>

@@ -1,5 +1,4 @@
-import { getRedis } from "./redis.js";
-import { ensureSeeded } from "./seed.js";
+import { getRedis, ensureSeeded } from "./redis.js";
 
 const MAX_ITEMS = 50;
 const MAX_LINE_QUANTITY = 99;

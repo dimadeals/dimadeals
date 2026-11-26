@@ -8,11 +8,7 @@
   "scripts": {
     "dev": "node dev-server.js",
     "start": "node dev-server.js",
-    "build": "echo 'Static site - no build step required'",
-    "check": "node scripts/check.js",
-    "test:e2e": "node scripts/browser-test.mjs",
-    "test:admin": "node scripts/admin-test.mjs",
-    "test:pages": "node scripts/page-sweep.mjs"
+    "build": "echo 'Static site - no build step required'"
   },
   "keywords": [
     "subscriptions",
@@ -24,9 +20,6 @@
   "license": "MIT",
   "dependencies": {
     "redis": "^4.6.7"
-  },
-  "devDependencies": {
-    "playwright-core": "^1.65.1"
   },
   "engines": {
     "node": ">=18.17"

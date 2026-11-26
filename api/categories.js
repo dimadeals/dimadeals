@@ -1,6 +1,4 @@
-import { getRedis } from "./redis.js";
-import { SEED_CATEGORIES, ensureSeeded } from "./seed.js";
-import { isAdminRequest } from "./auth.js";
+import { getRedis, SEED_CATEGORIES, ensureSeeded, isAdminRequest } from "./redis.js";
 
 const CATEGORIES_KEY = "config:categories";
 

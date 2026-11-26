@@ -1,6 +1,4 @@
-import { getRedis } from "./redis.js";
-import { deriveMainCategories, ensureSeeded, isValidCategorySlug } from "./seed.js";
-import { isAdminRequest } from "./auth.js";
+import { getRedis, deriveMainCategories, ensureSeeded, isValidCategorySlug, isAdminRequest } from "./redis.js";
 
 const MAX_PRICE = 10_000_000;
 const MAX_MAIN_CATEGORIES = 8;

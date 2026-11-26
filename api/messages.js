@@ -3,8 +3,7 @@
 // Messages are stored one key per message (race-free) with backward-compatible
 // reading of the old single-blob format.
 
-import { getRedis } from "./redis.js";
-import { isAdminRequest } from "./auth.js";
+import { getRedis, isAdminRequest } from "./redis.js";
 
 const LEGACY_MESSAGES_KEY = "contact:messages";
 const MESSAGE_KEY_PREFIX = "contact:message:";
