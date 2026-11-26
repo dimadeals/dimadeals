@@ -2,54 +2,90 @@
 
 import { showToast } from './utils.js';
 
-export let PRODUCTS_DATABASE = {}; // Will be populated from API
+export let PRODUCTS_DATABASE = {}; // populated from /api/products
+
+// Cached flattened product list — invalidated whenever the database changes
+let _allProductsCache = null;
+
+function normalizeProduct(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+
+  const idNumber = Number(raw.id);
+  const id = Number.isFinite(idNumber) ? idNumber : raw.id;
+  if (id === undefined || id === null || id === '') return null;
+
+  const price = Number(raw.price);
+  const rating = Number(raw.rating);
+
+  return {
+    ...raw,
+    id,
+    name: String(raw.name ?? ''),
+    price: Number.isFinite(price) ? price : 0,
+    rating: Number.isFinite(rating) ? Math.min(5, Math.max(0, rating)) : 0,
+    description: String(raw.description ?? ''),
+    category: String(raw.category ?? '').toLowerCase(),
+    images: Array.isArray(raw.images) ? raw.images.filter((img) => typeof img === 'string' && img.trim()) : [],
+    mainCategories: Array.isArray(raw.mainCategories) ? raw.mainCategories : [],
+    popular: Boolean(raw.popular),
+    recommended: Boolean(raw.recommended),
+    inStock: raw.inStock !== false,
+  };
+}
+
+function rebuildDatabase(products) {
+  const next = {};
+  for (const product of products) {
+    const normalized = normalizeProduct(product);
+    if (!normalized) continue;
+    if (!next[normalized.category]) next[normalized.category] = [];
+    next[normalized.category].push(normalized);
+  }
+  PRODUCTS_DATABASE = next;
+  _allProductsCache = null;
+}
 
 export async function loadProductsFromAPI() {
   try {
-    const res = await fetch("/api/products");
-
+    const res = await fetch('/api/products', { cache: 'no-store' });
     const text = await res.text();
-    let data;
 
+    let data;
     try {
       data = JSON.parse(text);
     } catch {
-      console.error("Invalid JSON from API:", text);
+      console.error('Invalid JSON from /api/products:', text.slice(0, 300));
       showToast('Failed to load products. Please refresh the page.', 'error');
       return false;
     }
-    
-    if (data && data.success && Array.isArray(data.products)) {
-      // Rebuild category-keyed structure
-      PRODUCTS_DATABASE = {};
-      data.products.forEach(prod => {
-        if (!PRODUCTS_DATABASE[prod.category]) {
-          PRODUCTS_DATABASE[prod.category] = [];
-        }
-        PRODUCTS_DATABASE[prod.category].push(prod);
-      });
-      _allProductsCache = null;
-      return true;
-    } else {
-      PRODUCTS_DATABASE = {};
-      _allProductsCache = null;
-    }
-  } catch (e) {
-  console.error("API failed:", e);
-  showToast('Failed to load products. Please refresh the page.', 'error');
-  PRODUCTS_DATABASE = {};
-  _allProductsCache = null;
-}
-  // Use fallback if API responds but no products
-  return false;
-}
 
-// Cached flattened product list — invalidated when PRODUCTS_DATABASE changes
-let _allProductsCache = null;
+    if (!res.ok || !data || data.success !== true || !Array.isArray(data.products)) {
+      console.error('Products API error:', data);
+      showToast('Failed to load products. Please refresh the page.', 'error');
+      PRODUCTS_DATABASE = {};
+      _allProductsCache = null;
+      return false;
+    }
+
+    rebuildDatabase(data.products);
+    return true;
+  } catch (error) {
+    console.error('API failed:', error);
+    showToast('Failed to load products. Please check your connection and refresh.', 'error');
+    PRODUCTS_DATABASE = {};
+    _allProductsCache = null;
+    return false;
+  }
+}
 
 export function getAllProducts() {
   if (!_allProductsCache) {
     _allProductsCache = Object.values(PRODUCTS_DATABASE).flat();
   }
   return _allProductsCache;
+}
+
+export function getProductById(id) {
+  const target = String(id);
+  return getAllProducts().find((product) => String(product.id) === target) || null;
 }

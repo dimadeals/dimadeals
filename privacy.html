@@ -106,20 +106,20 @@
                     <li class="nav-item">
                         <a href="#" class="nav-link">Apps <i class="fas fa-chevron-down"></i></a>
                         <ul class="dropdown">
-                            <li><a href="/browse?category=mobile">Mobile Apps</a></li>
+                            <li><a href="/browse?category=mobile_apps">Mobile Apps</a></li>
                             <li><a href="/browse?category=software">Software</a></li>
                         </ul>
                     </li>
                 </ul>
             </nav>
             <div class="nav-right">
-                <a href="/cart" class="cart-icon-link">
+                <a href="/cart" class="cart-icon-link" aria-label="Shopping cart">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-count" id="cart-count">0</span>
                 </a>
                 <div class="search-container">
-                    <input type="text" id="search-input" placeholder="Search products..." class="search-input">
-                    <button id="search-button" class="search-button">
+                    <input type="text" id="search-input" placeholder="Search products..." class="search-input" aria-label="Search products">
+                    <button id="search-button" class="search-button" aria-label="Search">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
@@ -128,7 +128,7 @@
                     <option value="fr">FR</option>
                     <option value="ar">AR</option>
                 </select>
-                <label class="theme-toggle-container" title="Toggle dark mode">
+                <label class="theme-toggle-container" title="Toggle dark mode" aria-label="Toggle dark mode">
                     <input type="checkbox" id="theme-toggle" class="theme-toggle-input">
                     <span class="theme-toggle-slider"></span>
                 </label>
@@ -337,11 +337,6 @@
     </a>
 
     <script>
-        function updateCartCount() {
-            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            document.getElementById('cart-count').textContent = cart.length;
-        }
-        updateCartCount();
     </script>
     <script type="module" src="js/main.js?v=4.0"></script>
 </body>

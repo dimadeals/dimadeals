@@ -18,6 +18,10 @@
   --border-radius: 16px;
   --border-radius-sm: 12px;
   --border-radius-lg: 20px;
+  /* Aliases used by checkout/product components */
+  --text-color: var(--dark);
+  --card-bg: var(--white);
+  --border-color: var(--gray-light);
 }
 
 /* Dark mode theme variables */
@@ -185,8 +189,14 @@ body {
   }
 }
 
-.nav-item:hover .dropdown {
-  /* Handled by JavaScript */
+.nav-item:hover .dropdown,
+.nav-item:focus-within .dropdown {
+  display: block;
+}
+
+/* Click / keyboard opened dropdown (also used on touch devices) */
+.nav-item.open .dropdown {
+  display: block;
 }
 
 .dropdown:hover {
@@ -225,7 +235,7 @@ body {
   padding: 0;
   border: 2px solid var(--gray-light);
   transition: var(--transition);
-  overflow: hidden;
+  overflow: visible;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
@@ -601,7 +611,16 @@ body {
 }
 
 .theme-toggle-input {
-  display: none;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.theme-toggle-input:focus-visible + .theme-toggle-slider {
+  outline: 3px solid rgba(255, 0, 110, 0.45);
+  outline-offset: 2px;
 }
 
 .theme-toggle-slider {
@@ -916,6 +935,13 @@ body {
   padding: 0 40px;
 }
 
+/* Generic page wrapper used by about/contact/faq/help/legal pages */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 40px 80px;
+}
+
 .platforms,
 .products,
 .features {
@@ -1062,6 +1088,12 @@ h2 {
   transform: translateY(-10px);
   box-shadow: 0 15px 40px rgba(255, 0, 110, 0.2);
   border-color: var(--primary);
+}
+
+.product-card:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+  transform: translateY(-4px);
 }
 
 .product-card img {
@@ -1580,9 +1612,10 @@ h2 {
 #main-image {
   width: 100%;
   height: 500px;
-  object-fit: cover;
+  object-fit: contain;
+  padding: 20px;
   border-radius: var(--border-radius);
-  background: linear-gradient(135deg, var(--gray-light), var(--light));
+  background: var(--white);
   box-shadow: var(--shadow);
   transition: var(--transition);
 }
@@ -1596,7 +1629,9 @@ h2 {
 .thumbnails img {
   width: 100px;
   height: 100px;
-  object-fit: cover;
+  object-fit: contain;
+  padding: 6px;
+  background: var(--white);
   border-radius: 12px;
   cursor: pointer;
   border: 3px solid transparent;
@@ -1710,11 +1745,23 @@ h2 {
   align-self: stretch;
 }
 
+.product-info h1,
 .product-info h2 {
   text-align: left;
   font-size: 36px;
   color: var(--dark);
   margin: 0;
+  line-height: 1.25;
+}
+
+.product-info .product-description {
+  color: var(--gray);
+  font-size: 16px;
+  line-height: 1.8;
+  border-top: 1px solid var(--light);
+  border-bottom: 1px solid var(--light);
+  padding: 20px 0;
+  white-space: normal;
 }
 
 .product-info .price {
@@ -3404,4 +3451,108 @@ h2 {
 
 .empty-state .cta-button {
   display: inline-block;
+}
+
+/* ============================================================================
+   RESPONSIVE FIXES (kept last so they win the cascade)
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  /* The hamburger must be able to actually open the menu. */
+  .nav-menu:not(.active) { display: none !important; }
+  .nav-menu.active { display: flex !important; }
+
+  /* Touch-friendly submenus: toggled by JS with .open */
+  .nav-item { padding-bottom: 0; }
+  .nav-item .dropdown {
+    position: static;
+    min-width: 0;
+    margin: 0;
+    padding-left: 10px;
+    border-radius: 0;
+    box-shadow: none;
+    animation: none;
+  }
+  .nav-item.open .dropdown { display: block; }
+
+  /* Compact search pill that expands on tap (works at 481-768 too). */
+  .search-container {
+    width: 44px;
+    min-width: 44px;
+    padding: 8px;
+    border-radius: 50%;
+    overflow: visible;
+  }
+  .search-input { display: none; }
+  .search-container.expanded {
+    width: calc(100vw - 170px);
+    max-width: 260px;
+    min-width: 0;
+    padding: 4px 8px;
+    border-radius: 25px;
+    border: 2px solid var(--primary);
+    background: var(--white);
+    margin: 0 2px;
+  }
+  .search-container.expanded .search-input {
+    display: block;
+    width: 100%;
+    padding: 6px 8px;
+    font-size: 14px;
+  }
+  .search-container.expanded .search-button {
+    background: transparent;
+    border: none;
+    padding: 6px;
+    border-radius: 50%;
+  }
+  .search-suggestions {
+    left: auto;
+    right: 0;
+    min-width: min(300px, calc(100vw - 24px));
+  }
+
+  .hero { padding: 40px 20px; }
+  .hero h1 { font-size: 30px; }
+  .hero p { font-size: 16px; }
+}
+
+@media (max-width: 600px) {
+  /* Cart rows were a fixed 5-column grid and overflowed small screens. */
+  .cart-item {
+    grid-template-columns: 64px 1fr auto;
+    grid-template-areas:
+      "img details total"
+      "img qty remove";
+    gap: 10px 12px;
+    padding: 12px;
+  }
+  .item-image { grid-area: img; }
+  .item-image img { width: 64px; height: 64px; }
+  .item-details { grid-area: details; min-width: 0; }
+  .item-details h3 { font-size: 14px; word-break: break-word; }
+  .item-quantity { grid-area: qty; justify-self: start; }
+  .item-total { grid-area: total; align-self: start; }
+  .remove-btn { grid-area: remove; justify-self: end; }
+}
+
+@media (max-width: 480px) {
+  .nav-menu:not(.active) { display: none !important; }
+  .nav-menu.active { display: flex !important; }
+
+  .search-container { width: 36px; min-width: 36px; padding: 6px; }
+  .search-container.expanded {
+    width: calc(100vw - 170px);
+    max-width: 260px;
+    margin: 0 2px;
+  }
+
+  .hero { padding: 25px 12px; min-height: 280px; }
+  .hero h1 { font-size: 22px; line-height: 1.3; }
+  .hero p { font-size: 13px; }
+
+  .product-info h1,
+  .product-info h2 { font-size: 26px; }
+
+  .trust-badges { grid-template-columns: 1fr; }
 }

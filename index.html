@@ -47,20 +47,20 @@
         <li class="nav-item">
           <a href="javascript:void(0)" class="nav-link">Apps <i class="fas fa-chevron-down"></i></a>
           <ul class="dropdown">
-            <li><a href="/browse?category=mobile">Mobile Apps</a></li>
+            <li><a href="/browse?category=mobile_apps">Mobile Apps</a></li>
             <li><a href="/browse?category=software">Software</a></li>
           </ul>
         </li>
       </ul>
     </nav>
     <div class="nav-right">
-      <a href="/cart" class="cart-icon-link">
+      <a href="/cart" class="cart-icon-link" aria-label="Shopping cart">
         <i class="fas fa-shopping-cart"></i>
         <span class="cart-count" id="cart-count">0</span>
       </a>
       <div class="search-container">
-        <input type="text" id="search-input" placeholder="Search products..." class="search-input">
-        <button id="search-button" class="search-button">
+        <input type="text" id="search-input" placeholder="Search products..." class="search-input" aria-label="Search products">
+        <button id="search-button" class="search-button" aria-label="Search">
           <i class="fas fa-search"></i>
         </button>
       </div>
@@ -69,11 +69,11 @@
         <option value="fr">FR</option>
         <option value="ar">AR</option>
       </select>
-      <label class="theme-toggle-container" title="Toggle dark mode">
+      <label class="theme-toggle-container" title="Toggle dark mode" aria-label="Toggle dark mode">
         <input type="checkbox" id="theme-toggle" class="theme-toggle-input">
         <span class="theme-toggle-slider"></span>
       </label>
-      <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+      <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle menu" aria-expanded="false">
         <i class="fas fa-bars"></i>
       </button>
     </div>
@@ -85,8 +85,8 @@
   <div class="hero-content">
     <h1 data-i18n="hero-title">Premium Digital Subscriptions for Tunisia</h1>
     <p data-i18n="hero-subtitle">Netflix, Spotify, Games & Courses – Instant Delivery & Secure Payments</p>
-    <button class="cta-button" onclick="document.querySelector('.platforms').scrollIntoView({behavior: 'smooth'})" data-i18n="browse-deals">
-      <i class="fas fa-play-circle"></i> Browse Deals
+    <button class="cta-button" onclick="document.querySelector('.platforms').scrollIntoView({behavior: 'smooth'})">
+      <i class="fas fa-play-circle"></i> <span data-i18n="browse-deals">Browse Deals</span>
     </button>
   </div>
   <div class="hero-background">

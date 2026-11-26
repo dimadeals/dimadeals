@@ -1,4 +1,4 @@
-import { PRODUCTS_DATABASE, getAllProducts } from './api.js';
+import { getAllProducts } from './api.js';
 
 // ============ CATEGORY-TO-MAIN MAPPING ============
 
@@ -23,16 +23,22 @@ export const CATEGORY_TO_MAIN = {
 };
 
 export function getMainCategories(product) {
+  if (!product) return [];
   if (Array.isArray(product.mainCategories) && product.mainCategories.length > 0) {
     return product.mainCategories;
   }
-  const cat = product.category || getProductCategory(product);
+  const cat = String(product.category || getProductCategory(product)).toLowerCase();
   return CATEGORY_TO_MAIN[cat] || [];
 }
 
 // ============ CATALOG METADATA ============
 
 export const CATALOG_METADATA = {
+  // Main categories (used by /browse?category=games etc.)
+  subscriptions: { title: 'Premium Subscriptions', subtitle: 'Netflix, Spotify, Canva, Shahid and more — delivered instantly' },
+  games:         { title: 'Games & Digital Content', subtitle: 'PC, console, mobile games and gift cards at the best prices' },
+  courses:       { title: 'Online Courses', subtitle: 'Learn programming, design and business from top platforms' },
+  apps:          { title: 'Apps & Software', subtitle: 'Premium apps and software licenses for work and creativity' },
   // Subscriptions
   netflix:      { title: 'Netflix Subscriptions',   subtitle: 'Choose the perfect Netflix plan for your entertainment needs' },
   spotify:      { title: 'Spotify Subscriptions',   subtitle: 'Stream unlimited music and podcasts with Spotify Premium' },
@@ -52,6 +58,7 @@ export const CATALOG_METADATA = {
   design:       { title: 'Design Courses',          subtitle: 'Master design tools and creativity' },
   business:     { title: 'Business Courses',        subtitle: 'Develop your business and leadership skills' },
   // Apps
+  mobile_apps:  { title: 'Mobile Apps',             subtitle: 'Premium apps and gift cards for your phone' },
   software:     { title: 'Software',                subtitle: 'Premium software solutions for your computer' }
 };
 
@@ -70,34 +77,34 @@ function _seededShuffle(arr) {
 
 // Get all popular products
 export function getAllPopularProducts() {
-  if (!PRODUCTS_DATABASE || Object.keys(PRODUCTS_DATABASE).length === 0) {
-    return [];
-  }
-  const allProducts = getAllProducts();
-  return _seededShuffle(allProducts.filter(p => p && p.popular && p.inStock !== false)).slice(0, 8);
+  const allProducts = getAllProducts().filter(p => p && p.inStock !== false);
+  if (allProducts.length === 0) return [];
+
+  const featured = allProducts.filter(p => p.popular);
+  // If the owner has not flagged anything as popular yet, show the catalog
+  // instead of an empty homepage section.
+  return _seededShuffle(featured.length > 0 ? featured : allProducts).slice(0, 8);
 }
 
 // Get all recommended products
 export function getAllRecommendedProducts() {
-  if (!PRODUCTS_DATABASE || Object.keys(PRODUCTS_DATABASE).length === 0) {
-    return [];
-  }
-  const allProducts = getAllProducts();
-  return _seededShuffle(allProducts.filter(p => p && p.recommended && p.inStock !== false)).slice(0, 8);
+  const allProducts = getAllProducts().filter(p => p && p.inStock !== false);
+  if (allProducts.length === 0) return [];
+
+  const featured = allProducts.filter(p => p.recommended);
+  return _seededShuffle(featured.length > 0 ? featured : allProducts).slice(0, 8);
 }
 
 // Get related products (same category or similar price range)
 export function getRelatedProducts(productId, limit = 4) {
-  if (!PRODUCTS_DATABASE || Object.keys(PRODUCTS_DATABASE).length === 0) {
-    return [];
-  }
   const allProducts = getAllProducts();
-  const currentProduct = allProducts.find(p => p.id === productId);
+  if (allProducts.length === 0) return [];
 
+  const currentProduct = allProducts.find(p => String(p.id) === String(productId));
   if (!currentProduct) return [];
 
   return allProducts
-    .filter(p => p.id !== productId && p.inStock !== false)
+    .filter(p => String(p.id) !== String(productId) && p.inStock !== false)
     .map(p => ({
       ...p,
       relevance: calculateRelevance(currentProduct, p)
@@ -115,7 +122,9 @@ function calculateRelevance(product1, product2) {
   }
 
   // Similar price range
-  const priceDiff = Math.abs(product1.price - product2.price);
+  const price1 = Number(product1.price) || 0;
+  const price2 = Number(product2.price) || 0;
+  const priceDiff = Math.abs(price1 - price2);
   const priceScore = Math.max(0, 5 - (priceDiff / 10));
   score += priceScore;
 

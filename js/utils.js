@@ -59,11 +59,10 @@ export function preloadImage(src) {
 export function debounce(func, wait) {
   let timeout;
   return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
+    const context = this;
     clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
+    // Preserve the caller's `this` (event handlers in strict ES modules
+    // otherwise receive undefined) and only run after the quiet period.
+    timeout = setTimeout(() => func.apply(context, args), wait);
   };
 }

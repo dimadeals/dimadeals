@@ -125,20 +125,20 @@
                     <li class="nav-item">
                         <a href="#" class="nav-link">Apps <i class="fas fa-chevron-down"></i></a>
                         <ul class="dropdown">
-                            <li><a href="/browse?category=mobile">Mobile Apps</a></li>
+                            <li><a href="/browse?category=mobile_apps">Mobile Apps</a></li>
                             <li><a href="/browse?category=software">Software</a></li>
                         </ul>
                     </li>
                 </ul>
             </nav>
             <div class="nav-right">
-                <a href="/cart" class="cart-icon-link">
+                <a href="/cart" class="cart-icon-link" aria-label="Shopping cart">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-count" id="cart-count">0</span>
                 </a>
                 <div class="search-container">
-                    <input type="text" id="search-input" placeholder="Search products..." class="search-input">
-                    <button id="search-button" class="search-button">
+                    <input type="text" id="search-input" placeholder="Search products..." class="search-input" aria-label="Search products">
+                    <button id="search-button" class="search-button" aria-label="Search">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
@@ -147,7 +147,7 @@
                     <option value="fr">FR</option>
                     <option value="ar">AR</option>
                 </select>
-                <label class="theme-toggle-container" title="Toggle dark mode">
+                <label class="theme-toggle-container" title="Toggle dark mode" aria-label="Toggle dark mode">
                     <input type="checkbox" id="theme-toggle" class="theme-toggle-input">
                     <span class="theme-toggle-slider"></span>
                 </label>
@@ -167,7 +167,7 @@
 
         <div class="faq-container">
             <div class="faq-item">
-                <div class="faq-question">
+                <div class="faq-question" role="button" tabindex="0" aria-expanded="false">
                     <i class="fas fa-chevron-down"></i>
                     How does instant delivery work?
                 </div>
@@ -179,7 +179,7 @@
             </div>
 
             <div class="faq-item">
-                <div class="faq-question">
+                <div class="faq-question" role="button" tabindex="0" aria-expanded="false">
                     <i class="fas fa-chevron-down"></i>
                     What payment methods do you accept?
                 </div>
@@ -198,7 +198,7 @@
             </div>
 
             <div class="faq-item">
-                <div class="faq-question">
+                <div class="faq-question" role="button" tabindex="0" aria-expanded="false">
                     <i class="fas fa-chevron-down"></i>
                     What is your refund policy?
                 </div>
@@ -211,7 +211,7 @@
             </div>
 
             <div class="faq-item">
-                <div class="faq-question">
+                <div class="faq-question" role="button" tabindex="0" aria-expanded="false">
                     <i class="fas fa-chevron-down"></i>
                     Is my account safe with DIMA Deals?
                 </div>
@@ -230,7 +230,7 @@
             </div>
 
             <div class="faq-item">
-                <div class="faq-question">
+                <div class="faq-question" role="button" tabindex="0" aria-expanded="false">
                     <i class="fas fa-chevron-down"></i>
                     Can I use the same product on multiple accounts?
                 </div>
@@ -243,7 +243,7 @@
             </div>
 
             <div class="faq-item">
-                <div class="faq-question">
+                <div class="faq-question" role="button" tabindex="0" aria-expanded="false">
                     <i class="fas fa-chevron-down"></i>
                     What if I don't receive my credentials?
                 </div>
@@ -262,7 +262,7 @@
             </div>
 
             <div class="faq-item">
-                <div class="faq-question">
+                <div class="faq-question" role="button" tabindex="0" aria-expanded="false">
                     <i class="fas fa-chevron-down"></i>
                     Are you officially affiliated with these services?
                 </div>
@@ -274,7 +274,7 @@
             </div>
 
             <div class="faq-item">
-                <div class="faq-question">
+                <div class="faq-question" role="button" tabindex="0" aria-expanded="false">
                     <i class="fas fa-chevron-down"></i>
                     Do you offer bulk/discounts for multiple purchases?
                 </div>
@@ -341,16 +341,21 @@
     </a>
 
     <script>
-        function updateCartCount() {
-            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            document.getElementById('cart-count').textContent = cart.length;
-        }
-        updateCartCount();
 
-        // FAQ accordion
+        // FAQ accordion (click + keyboard accessible)
         document.querySelectorAll('.faq-item').forEach(item => {
-            item.querySelector('.faq-question').addEventListener('click', () => {
+            const question = item.querySelector('.faq-question');
+            if (!question) return;
+            const toggle = () => {
                 item.classList.toggle('open');
+                question.setAttribute('aria-expanded', String(item.classList.contains('open')));
+            };
+            question.addEventListener('click', toggle);
+            question.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    toggle();
+                }
             });
         });
     </script>

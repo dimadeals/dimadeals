@@ -664,23 +664,8 @@ tbody td{padding:12px 14px;vertical-align:middle}
         </div>
         <div class="form-group">
           <label class="lbl">Main Categories</label>
-          <div style="display:flex;gap:14px;flex-wrap:wrap;padding:8px 0">
-            <label style="display:flex;align-items:center;gap:6px">
-              <input type="checkbox" class="main-cat-cb" value="Subscriptions"/>
-              <span style="font-size:12px;color:var(--text)">Subscriptions</span>
-            </label>
-            <label style="display:flex;align-items:center;gap:6px">
-              <input type="checkbox" class="main-cat-cb" value="Games"/>
-              <span style="font-size:12px;color:var(--text)">Games</span>
-            </label>
-            <label style="display:flex;align-items:center;gap:6px">
-              <input type="checkbox" class="main-cat-cb" value="Courses"/>
-              <span style="font-size:12px;color:var(--text)">Courses</span>
-            </label>
-            <label style="display:flex;align-items:center;gap:6px">
-              <input type="checkbox" class="main-cat-cb" value="Apps"/>
-              <span style="font-size:12px;color:var(--text)">Apps</span>
-            </label>
+          <div id="main-cat-checkboxes" style="display:flex;gap:14px;flex-wrap:wrap;padding:8px 0">
+            <!-- rendered from the category config -->
           </div>
           <span style="font-size:10px;color:var(--text-muted)">Auto-selected from subcategory if left empty</span>
         </div>
@@ -869,6 +854,12 @@ function esc(v) {
     .replace(/'/g,'&#39;');
 }
 
+// Safe argument for an inline onclick attribute. JSON-stringifies first, then
+// HTML-escapes, so quotes in admin data cannot break out of the JS string.
+function jsq(v) {
+  return esc(JSON.stringify(String(v ?? '')));
+}
+
 function fmtDate(iso) {
   if (!iso) return '—';
   const d = new Date(iso);
@@ -909,19 +900,45 @@ function confirmDialog(title, msg){
 }
 
 // ── API helper ───────────────────────────────
-async function apiFetch(url, opts={}) {
-  const res = await fetch(url, {
+async function apiFetch(url, opts={}) {  const res = await fetch(url, {
     ...opts,
     headers: { 'Content-Type': 'application/json', Authorization: adminKey, ...opts.headers }
   });
   if (res.status === 401) { logout(); throw new Error('Unauthorized'); }
+
   const text = await res.text();
+  let data;
   try {
-    return JSON.parse(text);
+    data = JSON.parse(text);
   } catch(e) {
     console.error('Invalid JSON from server:', text);
     throw new Error('Invalid JSON from server');
   }
+
+  // A 400/404/409/500 response is still valid JSON — never treat it as success.
+  if (!res.ok || data.success === false) {
+    throw new Error(data.error || `Request failed (${res.status})`);
+  }
+  return data;
+}
+
+// ── Load the full order history (the API caps each page at 200) ─────────────
+async function fetchAllOrders() {
+  const all = [];
+  let stats = null;
+  let page = 1;
+  let pages = 1;
+  const HARD_PAGE_CAP = 50; // 10,000 orders
+
+  do {
+    const data = await apiFetch(`/api/orders?limit=200&page=${page}`);
+    if (Array.isArray(data.orders)) all.push(...data.orders);
+    if (!stats && data.stats) stats = data.stats;
+    pages = Number(data.pages) || 0;
+    page += 1;
+  } while (page <= pages && page <= HARD_PAGE_CAP);
+
+  return { orders: all, stats, total: all.length };
 }
 
 // ── Login / Logout ──────────────────────────
@@ -932,17 +949,18 @@ async function login() {
   btn.innerHTML = '<span class="spinner" style="width:14px;height:14px"></span> Verifying…';
   btn.disabled  = true;
   try {
-    const res = await fetch('/api/orders?limit=500', { headers: { Authorization: key } });
+    // A single unauthorized check is enough; the full list is loaded after login.
+    const res = await fetch('/api/orders?limit=1', { headers: { Authorization: key } });
     const text = await res.text();
     let data;
     try { data = JSON.parse(text); } catch(e) { throw new Error('Invalid JSON response'); }
-    if (!data.success) throw new Error('bad key');
+    if (!res.ok || data.success === false) throw new Error(data.error || 'bad key');
     adminKey = key;
     sessionStorage.setItem('ak', key);
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('dashboard').classList.add('vis');
     _resetIdleTimer();
-    initDash(data);
+    await initDash(data);
   } catch(e) {
     console.error(e);
     const el = document.getElementById('login-err');
@@ -964,14 +982,28 @@ function logout() {
 }
 
 // ── Init dashboard with fetched data ────────
-function initDash(data) {
-  allOrders = data.orders || [];
+async function initDash(data) {
+  let orderData;
+  try {
+    orderData = await fetchAllOrders();
+  } catch (error) {
+    console.error(error);
+    orderData = { orders: data.orders || [], stats: data.stats, total: 0 };
+    toast(error.message || 'Failed to load orders', 'err');
+  }
+
+  allOrders = orderData.orders || [];
   filtered  = [...allOrders];
-  updateKPIs(data.stats);
+  const stats = orderData.stats || data.stats;
+
+  // Categories must exist before the product form / filters are populated.
+  await loadCategories();
+  await loadProducts();
+
+  updateKPIs(stats);
   renderRecent();
   renderOrdersTable();
-  buildCharts(data.stats);
-  loadProducts();
+  buildCharts(stats);
 }
 
 // ── Refresh ─────────────────────────────────
@@ -979,16 +1011,15 @@ async function refresh(){
   const btn = document.getElementById('refresh-btn');
   btn.classList.add('spin');
   try {
-    const data = await apiFetch('/api/orders?limit=500');
-    if (data.success){
-      allOrders = data.orders || [];
-      applyFilters();
-      updateKPIs(data.stats);
-      renderRecent();
-      buildCharts(data.stats);
-      toast('Refreshed', 'ok');
-    }
-  } catch(e){ console.error(e); toast('Refresh failed','err'); }
+    const data = await fetchAllOrders();
+    allOrders = data.orders || [];
+    applyFilters();
+    updateKPIs(data.stats);
+    renderRecent();
+    buildCharts(data.stats);
+    if (!allCategories.length) await loadCategories();
+    toast('Refreshed', 'ok');
+  } catch(e){ console.error(e); toast(e.message || 'Refresh failed','err'); }
   finally { btn.classList.remove('spin'); }
 }
 
@@ -1065,7 +1096,7 @@ function renderRecent(){
     return;
   }
   tbody.innerHTML = rows.map(o=>`
-    <tr onclick="openModal('${esc(o.orderId)}')">
+    <tr onclick="openModal(${jsq(o.orderId)})">
       <td><span class="oid">${esc(o.orderId)}</span></td>
       <td><div class="cname">${esc(o.fullname||'—')}</div><div class="cemail">${esc(o.email||'—')}</div></td>
       <td>${esc(String(o.items?.length??0))}</td>
@@ -1100,7 +1131,7 @@ function renderOrdersTable(){
   const sortedFiltered = applySortToOrders(filtered);
   const page  = sortedFiltered.slice(start, start+PER_PAGE);
   tbody.innerHTML = page.map(o=>`
-    <tr onclick="openModal('${esc(o.orderId)}')">
+    <tr onclick="openModal(${jsq(o.orderId)})">
       <td><span class="oid">${esc(o.orderId)}</span></td>
       <td><div class="cname">${esc(o.fullname||'—')}</div><div class="cemail">${esc(o.email||'—')}</div></td>
       <td>${esc(String(o.items?.length??0))}</td>
@@ -1109,7 +1140,7 @@ function renderOrdersTable(){
       <td>${badge(o.status)}</td>
       <td>${esc(fmtDate(o.createdAt))}</td>
       <td onclick="event.stopPropagation()">
-        <button class="btn btn-secondary btn-icon" onclick="openModal('${esc(o.orderId)}')"><i class="fas fa-eye"></i></button>
+        <button class="btn btn-secondary btn-icon" onclick="openModal(${jsq(o.orderId)})"><i class="fas fa-eye"></i></button>
       </td>
     </tr>`).join('');
   renderPagination(filtered.length);
@@ -1206,11 +1237,11 @@ function switchSec(name){
 async function loadCategories() {
   try {
     const data = await apiFetch('/api/categories');
-    if (data.success) {
-      allCategories = data.categories || [];
-      renderCategories();
-    }
-  } catch(e) { console.error(e); toast('Failed to load categories','err'); }
+    allCategories = data.categories || [];
+    renderCategories();
+    populateCategoryDropdown();
+    populateCategoryFilter();
+  } catch(e) { console.error(e); toast(e.message || 'Failed to load categories','err'); }
 }
 
 function renderCategories(){
@@ -1225,10 +1256,10 @@ function renderCategories(){
       <div class="subcat-item">
         <span class="subcat-name">${esc(subcat)}</span>
         <div class="subcat-actions">
-          <button class="btn btn-secondary btn-icon btn-sm" onclick="editSubcat('${esc(mainCat.mainCategory)}','${esc(subcat)}')">
+          <button class="btn btn-secondary btn-icon btn-sm" onclick="editSubcat(${jsq(mainCat.mainCategory)},${jsq(subcat)})">
             <i class="fas fa-pencil-alt"></i>
           </button>
-          <button class="btn btn-danger btn-icon btn-sm" onclick="delSubcat('${esc(mainCat.mainCategory)}','${esc(subcat)}')">
+          <button class="btn btn-danger btn-icon btn-sm" onclick="delSubcat(${jsq(mainCat.mainCategory)},${jsq(subcat)})">
             <i class="fas fa-trash"></i>
           </button>
         </div>
@@ -1239,7 +1270,7 @@ function renderCategories(){
       <div class="main-cat-card">
         <div class="main-cat-header">
           <h4>${esc(mainCat.mainCategory)}</h4>
-          <button class="btn btn-secondary btn-sm" onclick="openAddSubcatModal('${esc(mainCat.mainCategory)}')">
+          <button class="btn btn-secondary btn-sm" onclick="openAddSubcatModal(${jsq(mainCat.mainCategory)})">
             <i class="fas fa-plus"></i> Add Subcategory
           </button>
         </div>
@@ -1299,10 +1330,19 @@ async function saveMainCat(){
   const btn = document.getElementById('save-main-cat-btn');
   btn.disabled = true;
   try {
-    // Main categories are created implicitly when first subcategory is added
-    // So we just show a message
-    toast('Main categories are created automatically when you add a subcategory','inf');
+    const data = await apiFetch('/api/categories', {
+      method: 'POST',
+      body: JSON.stringify({ mainCategory: name })
+    });
+    allCategories = data.categories || allCategories;
+    renderCategories();
+    populateCategoryDropdown();
+    populateCategoryFilter();
     closeMainCatModal();
+    toast('Main category created','ok');
+  } catch(e) {
+    console.error(e);
+    toast(e.message || 'Failed to create category','err');
   } finally { btn.disabled = false; }
 }
 
@@ -1347,36 +1387,39 @@ async function saveSubcat(){
         toast(data.error || 'Failed to update','err');
       }
     }
-  } catch(e) { console.error(e); toast('Failed to save','err'); }
+  } catch(e) { console.error(e); toast(e.message || 'Failed to save','err'); }
   finally { btn.disabled = false; }
 }
 
 async function delSubcat(mainCat, subcat) {
-  const ok = await confirmDialog('Delete Subcategory', `Delete "${subcat}"? Products using this category will not be affected.`);
+  const ok = await confirmDialog(
+    'Delete Subcategory',
+    `Delete "${subcat}"? This cannot be undone. Products using this category must be moved or deleted first.`
+  );
   if (!ok) return;
   try {
     const data = await apiFetch(`/api/categories?mainCategory=${encodeURIComponent(mainCat)}&subcategory=${encodeURIComponent(subcat)}`, { method: 'DELETE' });
-    if (data.success) {
-      allCategories = data.categories;
-      renderCategories();
-      toast('Subcategory deleted','ok');
-    } else {
-      toast(data.error || 'Delete failed','err');
-    }
-  } catch(e) { console.error(e); toast('Delete failed','err'); }
+    allCategories = data.categories || allCategories;
+    renderCategories();
+    populateCategoryDropdown();
+    populateCategoryFilter();
+    toast('Subcategory deleted','ok');
+  } catch(e) {
+    console.error(e);
+    toast(e.message || 'Delete failed','err');
+  }
 }
 
 // ── PRODUCT MANAGEMENT ──────────────────────
 async function loadProducts() {
   try {
+    if (!allCategories.length) await loadCategories();
     const data = await apiFetch('/api/products');
-    if (data.success) {
-      allProducts = data.products || [];
-      filteredProducts = [...allProducts];
-      populateCategoryFilter();
-      renderProductsTable();
-    }
-  } catch(e) { console.error(e); toast('Failed to load products','err'); }
+    allProducts = data.products || [];
+    filteredProducts = [...allProducts];
+    populateCategoryFilter();
+    renderProductsTable();
+  } catch(e) { console.error(e); toast(e.message || 'Failed to load products','err'); }
 }
 
 function applyProductFilters(){
@@ -1404,7 +1447,7 @@ function renderProductsTable(){
       `<span style="font-size:9px;background:var(--primary-dim);color:var(--primary);padding:1px 5px;border-radius:3px;margin-right:2px">${esc(mc)}</span>`
     ).join('');
     return `
-    <tr onclick="editProduct(${p.id})">
+    <tr onclick="editProduct(${Number(p.id)})">
       <td><span class="oid">${esc(String(p.id))}</span></td>
       <td>${esc(p.name||'—')}</td>
       <td>
@@ -1414,14 +1457,35 @@ function renderProductsTable(){
       <td>${esc(fmtNum(p.price))} TND</td>
       <td><span style="color:${p.inStock?'var(--green)':'var(--red)'}"><i class="fas fa-${p.inStock?'check':'times'}"></i> ${p.inStock?'Yes':'No'}</span></td>
       <td onclick="event.stopPropagation()">
-        <button class="btn btn-secondary btn-icon" onclick="editProduct(${p.id})"><i class="fas fa-pencil-alt"></i></button>
-        <button class="btn btn-danger btn-icon" onclick="delProduct(${p.id})"><i class="fas fa-trash"></i></button>
+        <button class="btn btn-secondary btn-icon" onclick="editProduct(${Number(p.id)})"><i class="fas fa-pencil-alt"></i></button>
+        <button class="btn btn-danger btn-icon" onclick="delProduct(${Number(p.id)})"><i class="fas fa-trash"></i></button>
       </td>
     </tr>`;
   }).join('');
 }
 
-function openProductModal(isNew=true){
+function renderMainCategoryCheckboxes(selected = []){
+  const container = document.getElementById('main-cat-checkboxes');
+  if (!container) return;
+
+  let names = allCategories.map(c => c.mainCategory);
+  if (!names.length) names = ['Subscriptions', 'Games', 'Courses', 'Apps'];
+  // Preserve legacy main-category names that are no longer in the config so
+  // editing an old product does not silently drop them.
+  for (const name of selected.map(String)) {
+    if (name && !names.includes(name)) names.push(name);
+  }
+  const selectedSet = new Set(selected.map(String));
+
+  container.innerHTML = names.map(name => `
+    <label style="display:flex;align-items:center;gap:6px">
+      <input type="checkbox" class="main-cat-cb" value="${esc(name)}" ${selectedSet.has(name) ? 'checked' : ''}/>
+      <span style="font-size:12px;color:var(--text)">${esc(name)}</span>
+    </label>
+  `).join('');
+}
+
+function openProductModal(isNew=true, selectedMainCats=[]){
   isEditingProduct = !isNew;
   const title = document.getElementById('product-modal-title');
   const idField = document.getElementById('prod-id');
@@ -1429,49 +1493,64 @@ function openProductModal(isNew=true){
   idField.disabled = !isNew;
   if (isNew) {
     document.getElementById('product-form').reset();
-    // Reset main category checkboxes
-    document.querySelectorAll('.main-cat-cb').forEach(cb => { cb.checked = false; });
     // Auto-set next available ID
-    const nextId = allProducts.reduce((max, p) => Math.max(max, p.id || 0), 0) + 1;
+    const nextId = allProducts.reduce((max, p) => Math.max(max, Number(p.id) || 0), 0) + 1;
     idField.value = nextId;
   }
-  // Populate category dropdown
+  // Populate category dropdown first, then reflect the current selection.
   populateCategoryDropdown();
+  renderMainCategoryCheckboxes(selectedMainCats);
+  if (isNew) document.getElementById('prod-category').value = '';
   document.getElementById('product-modal').classList.add('open');
 }
 
 function populateCategoryDropdown(){
   const select = document.getElementById('prod-category');
+  if (!select) return;
   const currentValue = select.value;
   select.innerHTML = '<option value="">Select Category</option>';
-  
+
+  const seen = new Set();
   allCategories.forEach(mainCat => {
-    mainCat.subcategories.forEach(subcat => {
+    (mainCat.subcategories || []).forEach(subcat => {
+      if (seen.has(subcat)) return;
+      seen.add(subcat);
       const option = document.createElement('option');
       option.value = subcat;
       option.textContent = subcat.charAt(0).toUpperCase() + subcat.slice(1).replace(/-/g, ' ');
       select.appendChild(option);
     });
   });
-  
+
+  // Keep a legacy/unknown category selectable when editing an old product.
+  if (currentValue && !seen.has(currentValue)) {
+    const option = document.createElement('option');
+    option.value = currentValue;
+    option.textContent = currentValue;
+    select.appendChild(option);
+  }
   select.value = currentValue;
 }
 
 function populateCategoryFilter(){
   const select = document.getElementById('category-filter');
+  if (!select) return;
   const currentValue = select.value;
   select.innerHTML = '<option value="all">All Categories</option>';
-  
+
+  const seen = new Set();
   allCategories.forEach(mainCat => {
-    mainCat.subcategories.forEach(subcat => {
+    (mainCat.subcategories || []).forEach(subcat => {
+      if (seen.has(subcat)) return;
+      seen.add(subcat);
       const option = document.createElement('option');
       option.value = subcat;
       option.textContent = subcat.charAt(0).toUpperCase() + subcat.slice(1).replace(/-/g, ' ');
       select.appendChild(option);
     });
   });
-  
-  if (currentValue && currentValue !== 'all') {
+
+  if (currentValue && currentValue !== 'all' && seen.has(currentValue)) {
     select.value = currentValue;
   }
 }
@@ -1482,36 +1561,34 @@ function closeProductModal(){
 }
 
 function editProduct(id){
-  curProduct = allProducts.find(p=>p.id===id);
-  if (!curProduct) return;
+  curProduct = allProducts.find(p => String(p.id) === String(id));
+  if (!curProduct) { toast('Product not found','err'); return; }
+
   document.getElementById('prod-id').value = curProduct.id;
-  document.getElementById('prod-name').value = curProduct.name;
-  // Set category from fixed list
+  document.getElementById('prod-name').value = curProduct.name || '';
   const catSelect = document.getElementById('prod-category');
   catSelect.value = curProduct.category || '';
-  document.getElementById('prod-price').value = curProduct.price;
-  document.getElementById('prod-original-price').value = curProduct.originalPrice||'';
-  document.getElementById('prod-description').value = curProduct.description;
-  document.getElementById('prod-images').value = (curProduct.images||[]).join('\n');
+  document.getElementById('prod-price').value = curProduct.price ?? '';
+  document.getElementById('prod-original-price').value = curProduct.originalPrice || '';
+  document.getElementById('prod-description').value = curProduct.description || '';
+  document.getElementById('prod-images').value = (curProduct.images || []).join('\n');
   document.getElementById('prod-rating').value = curProduct.rating || 0;
-  document.getElementById('prod-popular').checked = curProduct.popular || false;
-  document.getElementById('prod-recommended').checked = curProduct.recommended || false;
+  document.getElementById('prod-popular').checked = Boolean(curProduct.popular);
+  document.getElementById('prod-recommended').checked = Boolean(curProduct.recommended);
   document.getElementById('prod-in-stock').checked = curProduct.inStock !== false;
-  // Set main category checkboxes
-  const mainCats = curProduct.mainCategories || [];
-  document.querySelectorAll('.main-cat-cb').forEach(cb => {
-    cb.checked = mainCats.includes(cb.value);
-  });
-  openProductModal(false);
+
+  openProductModal(false, curProduct.mainCategories || []);
 }
 
 async function saveProduct(){
-  const id = document.getElementById('prod-id').value;
-  const name = document.getElementById('prod-name').value;
-  let category = document.getElementById('prod-category').value;
+  const id = Number(document.getElementById('prod-id').value);
+  const name = document.getElementById('prod-name').value.trim();
+  const category = document.getElementById('prod-category').value;
   const price = parseFloat(document.getElementById('prod-price').value);
-  const originalPrice = document.getElementById('prod-original-price').value ? parseFloat(document.getElementById('prod-original-price').value) : undefined;
-  const description = document.getElementById('prod-description').value;
+  const originalPrice = document.getElementById('prod-original-price').value
+    ? parseFloat(document.getElementById('prod-original-price').value)
+    : undefined;
+  const description = document.getElementById('prod-description').value.trim();
   const images = (document.getElementById('prod-images').value || '')
     .split('\n').map(s => s.trim()).filter(s => s.length > 0);
   const rating = parseFloat(document.getElementById('prod-rating').value) || 0;
@@ -1519,10 +1596,10 @@ async function saveProduct(){
   const recommended = document.getElementById('prod-recommended').checked;
   const inStock = document.getElementById('prod-in-stock').checked;
 
-  // Collect main categories from checkboxes
+  // Collect main categories from the dynamically rendered checkboxes
   const mainCategories = [...document.querySelectorAll('.main-cat-cb:checked')].map(cb => cb.value);
 
-  if (!id || !name || !category || isNaN(price)) {
+  if (!Number.isInteger(id) || id <= 0 || !name || !category || isNaN(price) || !description) {
     toast('Please fill all required fields','err');
     return;
   }
@@ -1531,20 +1608,18 @@ async function saveProduct(){
   btn.disabled = true;
   try {
     const method = isEditingProduct ? 'PUT' : 'POST';
-    const data = await apiFetch('/api/products',{
+    await apiFetch('/api/products',{
       method, body:JSON.stringify({
-        id: parseInt(id), name, category, price, originalPrice, description, images, rating, popular, recommended, inStock, mainCategories
+        id, name, category, price, originalPrice, description, images, rating, popular, recommended, inStock, mainCategories
       })
     });
-    if (data.success){
-      await loadProducts();
-      closeProductModal();
-      toast(isEditingProduct ? 'Product updated' : 'Product created','ok');
-    } else {
-      toast(data.error || 'Save failed','err');
-    }
-  } catch(e){ console.error(e); toast('Save failed','err'); }
-  finally { btn.disabled=false; }
+    await loadProducts();
+    closeProductModal();
+    toast(isEditingProduct ? 'Product updated' : 'Product created','ok');
+  } catch(e) {
+    console.error(e);
+    toast(e.message || 'Save failed','err');
+  } finally { btn.disabled=false; }
 }
 
 async function delProduct(id) {
@@ -1646,6 +1721,18 @@ document.addEventListener('DOMContentLoaded', ()=>{
   document.getElementById('category-filter').addEventListener('change', applyProductFilters);
   document.getElementById('product-modal').addEventListener('click', e=>{ if(e.target.id==='product-modal') closeProductModal(); });
 
+  // When choosing a subcategory, pre-check its main category if nothing is selected yet.
+  document.getElementById('prod-category').addEventListener('change', function(){
+    const category = this.value;
+    if (!category) return;
+    const main = allCategories.find(c => Array.isArray(c.subcategories) && c.subcategories.includes(category));
+    if (!main) return;
+    const checkboxes = [...document.querySelectorAll('.main-cat-cb')];
+    if (checkboxes.some(cb => cb.checked)) return;
+    const match = checkboxes.find(cb => cb.value === main.mainCategory);
+    if (match) match.checked = true;
+  });
+
   // Sort controls
   document.getElementById('order-sort').addEventListener('change', ()=>renderOrdersTable());
   document.getElementById('product-sort').addEventListener('change', ()=>renderProductsTable());
@@ -1656,12 +1743,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
   async function loadMessages(){
     try {
       const data = await apiFetch('/api/messages');
-      if (data.success) {
-        allMessages = data.messages || [];
-        renderMessagesTable();
-        document.getElementById('messages-count').textContent = `(${allMessages.length})`;
-      }
-    } catch(e) { console.error(e); toast('Failed to load messages','err'); }
+      allMessages = data.messages || [];
+      renderMessagesTable();
+      document.getElementById('messages-count').textContent = `(${allMessages.length})`;
+    } catch(e) { console.error(e); toast(e.message || 'Failed to load messages','err'); }
   }
   
   function renderMessagesTable(){
@@ -1674,16 +1759,18 @@ document.addEventListener('DOMContentLoaded', ()=>{
     }
     
     tbody.innerHTML = allMessages.map(msg => {
-      const date = new Date(msg.date).toLocaleDateString();
-      const preview = msg.message.substring(0, 50) + (msg.message.length > 50 ? '...' : '');
+      const dateValue = new Date(msg.date);
+      const date = Number.isNaN(dateValue.getTime()) ? '—' : dateValue.toLocaleDateString();
+      const text = String(msg.message || '');
+      const preview = text.substring(0, 50) + (text.length > 50 ? '...' : '');
       return `
-        <tr onclick="showMessageDetail('${esc(msg.id)}')">
+        <tr onclick="showMessageDetail(${jsq(msg.id)})">
           <td>${date}</td>
           <td style="font-weight:500">${esc(msg.name)}</td>
           <td style="font-size:11px;color:var(--text-muted)">${esc(msg.email)}</td>
           <td style="font-size:12px">${esc(preview)}</td>
           <td style="text-align:right">
-            <button class="btn btn-danger btn-icon btn-sm" onclick="deleteMessage('${esc(msg.id)}',event)" title="Delete">
+            <button class="btn btn-danger btn-icon btn-sm" onclick="deleteMessage(${jsq(msg.id)},event)" title="Delete">
               <i class="fas fa-trash"></i>
             </button>
           </td>
@@ -1730,7 +1817,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   document.getElementById('main-cat-modal').addEventListener('click', e=>{ if(e.target.id==='main-cat-modal') closeMainCatModal(); });
   document.getElementById('subcat-modal').addEventListener('click', e=>{ if(e.target.id==='subcat-modal') closeSubcatModal(); });
 
-  // Idle auto-logout (1 minute)
+  // Idle auto-logout (10 minutes)
   ['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(evt =>
     document.addEventListener(evt, _resetIdleTimer, { passive: true })
   );

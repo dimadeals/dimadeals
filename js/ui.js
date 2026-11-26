@@ -1,5 +1,5 @@
 import { escapeHTML, showToast } from './utils.js';
-import { PRODUCTS_DATABASE, getAllProducts } from './api.js';
+import { getProductById, getAllProducts, PRODUCTS_DATABASE } from './api.js';
 import { CATALOG_METADATA, getMainCategories } from './products.js';
 import { addToCart } from './cart.js';
 
@@ -25,6 +25,8 @@ const TRANSLATIONS = {
     '24-7-support-desc': 'Dedicated customer support team ready to help anytime',
     '100-guarantee': '100% Guarantee',
     '100-guarantee-desc': 'Satisfaction guaranteed or your money back',
+    'Related-Products': 'Related Products',
+    'also-like': 'You might also like these',
   },
   fr: {
     'hero-title': 'Abonnements numériques premium pour la Tunisie',
@@ -73,63 +75,72 @@ const TRANSLATIONS = {
 };
 
 export function applyLanguage(lang) {
+  const safeLang = ['en', 'fr', 'ar'].includes(lang) ? lang : 'en';
+
   // Save language preference
-  localStorage.setItem('language', lang);
-  
+  try { localStorage.setItem('language', safeLang); } catch { /* ignore */ }
+
   // Set HTML lang attribute and direction
-  document.documentElement.lang = lang;
-  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-  
+  document.documentElement.lang = safeLang;
+  document.documentElement.dir = safeLang === 'ar' ? 'rtl' : 'ltr';
+
   // Apply translations to all elements with data-i18n attribute
   document.querySelectorAll('[data-i18n]').forEach(element => {
     const key = element.getAttribute('data-i18n');
-    if (TRANSLATIONS[lang] && TRANSLATIONS[lang][key]) {
-      element.textContent = TRANSLATIONS[lang][key];
+    if (TRANSLATIONS[safeLang] && TRANSLATIONS[safeLang][key]) {
+      element.textContent = TRANSLATIONS[safeLang][key];
     }
   });
-  
 }
 
 export function initializeLanguage() {
-  const savedLanguage = localStorage.getItem('language') || 'en';
+  let savedLanguage = 'en';
+  try { savedLanguage = localStorage.getItem('language') || 'en'; } catch { /* ignore */ }
+  if (!['en', 'fr', 'ar'].includes(savedLanguage)) savedLanguage = 'en';
+
   const languageSelect = document.getElementById('language-select');
-  
-  // Set the initial selection
-  if (languageSelect) {
-    languageSelect.value = savedLanguage;
-  }
-  
-  // Apply the saved language
+  if (languageSelect) languageSelect.value = savedLanguage;
+
   applyLanguage(savedLanguage);
 }
 
 // ============ ENHANCED PRODUCT RENDERING ============
 
+function inlineArg(value) {
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+  return escapeHTML(JSON.stringify(String(value ?? '')));
+}
+
+function formatPrice(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return '0';
+  return Number.isInteger(number) ? String(number) : number.toFixed(2);
+}
+
 export function createProductCard(product) {
+  if (!product) return '';
+
   // Handle image with fallback
   const imageSrc = product.images && product.images.length > 0 ? product.images[0] : product.image;
   const imageHTML = imageSrc
-    ? `<img src="${escapeHTML(imageSrc)}" alt="${escapeHTML(product.name)}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`
+    ? `<img src="${escapeHTML(imageSrc)}" alt="${escapeHTML(product.name)}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.onerror=null;this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='flex';">`
     : '';
 
   const noImageHTML = `<div class="no-image-card-message"${imageSrc ? ' style="display:none"' : ''}>🚫 No Image Available</div>`;
 
   // Create rating stars
-  const rating = product.rating || 0;
+  const rating = Number(product.rating) || 0;
   const stars = '★'.repeat(Math.floor(rating)) + (rating % 1 ? '✦' : '');
-  const ratingHTML = rating ? `<div class="product-rating"><span class="stars">${stars}</span> <span class="rating-value">${rating.toFixed(1)}</span></div>` : '';
+  const ratingHTML = rating
+    ? `<div class="product-rating"><span class="stars">${stars}</span> <span class="rating-value">${rating.toFixed(1)}</span></div>`
+    : '';
 
   // Create badges
   let badgesHTML = '';
-  if (product.popular) {
-    badgesHTML += '<span class="badge badge-popular">Popular</span>';
-  }
-  if (product.recommended) {
-    badgesHTML += '<span class="badge badge-recommended">Recommended</span>';
-  }
-  // Add instant delivery badge
+  if (product.popular) badgesHTML += '<span class="badge badge-popular">Popular</span>';
+  if (product.recommended) badgesHTML += '<span class="badge badge-recommended">Recommended</span>';
   badgesHTML += '<span class="badge badge-instant">⚡ Instant</span>';
-  
+
   const badgesContainer = badgesHTML ? `<div class="product-badges">${badgesHTML}</div>` : '';
 
   // Main categories display
@@ -140,30 +151,34 @@ export function createProductCard(product) {
 
   // Check if product is out of stock
   const isOutOfStock = product.inStock === false;
-  const outOfStockOverlay = isOutOfStock ? `<div class="out-of-stock-overlay"><div class="out-of-stock-label">OUT OF STOCK</div></div>` : '';
+  const outOfStockOverlay = isOutOfStock ? '<div class="out-of-stock-overlay"><div class="out-of-stock-label">OUT OF STOCK</div></div>' : '';
   const outOfStockClass = isOutOfStock ? 'out-of-stock' : '';
 
   // Create price HTML with discount if applicable
-  let priceHTML = `<p class="price">${product.price} TND</p>`;
-  if (product.originalPrice && product.originalPrice > product.price) {
+  const price = formatPrice(product.price);
+  let priceHTML = `<p class="price">${price} TND</p>`;
+  if (product.originalPrice && Number(product.originalPrice) > Number(product.price)) {
     priceHTML = `
       <div class="price-container">
-        <p class="price">${product.price} TND</p>
-        <p class="original-price"><strike>${product.originalPrice} TND</strike></p>
+        <p class="price">${price} TND</p>
+        <p class="original-price"><strike>${formatPrice(product.originalPrice)} TND</strike></p>
       </div>
     `;
   }
 
-  // Create action button - Buy Now with price (not clickable when out of stock)
+  // Create action button
   let buttonHTML = '';
   if (isOutOfStock) {
-    buttonHTML = `<button class="buy-now-button" disabled><i class="fas fa-ban"></i> Out of Stock</button>`;
+    buttonHTML = '<button class="buy-now-button" disabled><i class="fas fa-ban"></i> Out of Stock</button>';
   } else {
-    buttonHTML = `<button class="buy-now-button" onclick="handleBuyClick(${product.id}); event.stopPropagation();"><i class="fas fa-shopping-bag"></i> Get Access Now</button>`;
+    buttonHTML = `<button class="buy-now-button" onclick="event.stopPropagation(); handleBuyClick(${inlineArg(product.id)});"><i class="fas fa-shopping-bag"></i> Get Access Now</button>`;
   }
 
   return `
-    <div class="product-card ${outOfStockClass}" onclick="viewProductDetails(${product.id})">
+    <div class="product-card ${outOfStockClass}" role="button" tabindex="0"
+         aria-label="View ${escapeHTML(product.name)}"
+         onclick="viewProductDetails(${inlineArg(product.id)})"
+         onkeydown="if(event.target!==event.currentTarget)return; if(event.key==='Enter'||event.key===' '){event.preventDefault();viewProductDetails(${inlineArg(product.id)});}">
       ${badgesContainer}
       <div class="product-image-container">
         ${imageHTML}
@@ -182,8 +197,7 @@ export function createProductCard(product) {
 
 // Handle Buy Now button clicks from product cards and product detail page
 export function handleBuyClick(productId) {
-  const allProducts = getAllProducts();
-  const product = allProducts.find(p => p.id === productId);
+  const product = getProductById(productId);
   if (product) {
     addToCart(product, 1);
   } else {
@@ -228,18 +242,29 @@ function _updateSeeMoreBtn(total, shown, gridId, loadMoreFn) {
 
 // ── Browse page ──────────────────────────────
 export function initBrowsePagination(products) {
-  allBrowseProducts = products;
-  browseShownCount  = 0;
+  allBrowseProducts = Array.isArray(products) ? products : [];
+  browseShownCount = 0;
   const grid = document.getElementById('products-grid');
   if (!grid) return;
   // Remove any existing see-more container
   const old = grid.parentNode.querySelector('.see-more-container');
   if (old) old.remove();
-  grid.innerHTML = '';
-  const batch = products.slice(0, INITIAL_LOAD);
+
+  if (allBrowseProducts.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <i class="fas fa-box-open"></i>
+        <h3>No products here yet</h3>
+        <p>This category is empty right now. Check out our other deals!</p>
+        <a href="/browse" class="cta-button">Browse All Products</a>
+      </div>`;
+    return;
+  }
+
+  const batch = allBrowseProducts.slice(0, INITIAL_LOAD);
   grid.innerHTML = batch.map(p => createProductCard(p)).join('');
   browseShownCount = batch.length;
-  _updateSeeMoreBtn(products.length, browseShownCount, 'products-grid', 'loadMoreBrowse');
+  _updateSeeMoreBtn(allBrowseProducts.length, browseShownCount, 'products-grid', 'loadMoreBrowse');
 }
 
 export function loadMoreBrowse() {
@@ -331,16 +356,17 @@ export function renderProducts(containerId, products) {
 // ============ PRODUCT DETAILS & NAVIGATION ============
 
 export function viewProductDetails(productId) {
-  if (!productId || (typeof productId !== 'number' && isNaN(parseInt(productId)))) {
+  if (productId === undefined || productId === null || productId === '') {
     console.error('Invalid product ID:', productId);
     showToast('Error: Invalid product selected', 'error');
     return;
   }
 
   try {
-    // Store the product ID in localStorage to be retrieved on the product page
-    localStorage.setItem('selectedProductId', parseInt(productId));
-    window.location.href = '/product';
+    // Keep the id in localStorage for backwards compatibility, but put it in
+    // the URL too so product pages can be shared, bookmarked, and refreshed.
+    localStorage.setItem('selectedProductId', String(productId));
+    window.location.href = `/product?id=${encodeURIComponent(productId)}`;
   } catch (error) {
     console.error('Error navigating to product details:', error);
     showToast('Error: Could not load product details', 'error');
@@ -349,28 +375,27 @@ export function viewProductDetails(productId) {
 
 export function loadProductDetails() {
   try {
-    const productId = localStorage.getItem('selectedProductId');
+    const params = new URLSearchParams(window.location.search);
+    const urlId = params.get('id');
+    let productId = urlId;
+
     if (!productId) {
-      console.error('No product ID found in localStorage');
+      try { productId = localStorage.getItem('selectedProductId'); } catch { productId = null; }
+    }
+
+    if (!productId) {
+      console.error('No product ID found in URL or localStorage');
       showProductNotFound();
       return;
     }
 
-    const parsedId = parseInt(productId);
-    if (isNaN(parsedId)) {
-      console.error('Invalid product ID format:', productId);
-      showProductNotFound();
-      return;
-    }
+    try { localStorage.setItem('selectedProductId', String(productId)); } catch { /* ignore */ }
 
-    // Find product in database
-    const allProducts = getAllProducts();
-    const product = allProducts.find(p => p.id === parsedId);
-
+    const product = getProductById(productId);
     if (product) {
       displayProductDetails(product);
     } else {
-      console.error('Product not found with ID:', parsedId);
+      console.error('Product not found with ID:', productId);
       showProductNotFound();
     }
   } catch (error) {
@@ -423,12 +448,8 @@ function displayProductDetails(product) {
     }
 
     if (mainImage) {
-      // Show the image with error handling
-      mainImageElement.src = mainImage;
-      mainImageElement.style.display = 'block';
-      mainImageElement.alt = product.name;
-
-      // Add error handler for broken images
+      // Set handlers BEFORE src so a cached image cannot finish loading before
+      // the .loaded class is attached (which would leave it at opacity: 0).
       mainImageElement.onerror = function() {
         this.style.display = 'none';
         showNoImageMessage();
@@ -438,6 +459,14 @@ function displayProductDetails(product) {
         this.style.display = 'block';
         this.classList.add('loaded');
       };
+
+      mainImageElement.src = mainImage;
+      mainImageElement.style.display = 'block';
+      mainImageElement.alt = product.name;
+
+      if (mainImageElement.complete && mainImageElement.naturalWidth > 0) {
+        mainImageElement.classList.add('loaded');
+      }
     } else {
       // No image available
       mainImageElement.style.display = 'none';
@@ -474,16 +503,17 @@ function displayProductDetails(product) {
     const statusClass = isOutOfStock ? 'out-of-stock-status' : 'in-stock-status';
     
     // Check if product has a discount
-    let priceDisplayHTML = `<p class="price"><i class="fas fa-tag"></i> ${product.price} TND</p>`;
-    
-    if (product.originalPrice && product.originalPrice > product.price) {
+    const price = formatPrice(product.price);
+    let priceDisplayHTML = `<p class="price"><i class="fas fa-tag"></i> ${price} TND</p>`;
+
+    if (product.originalPrice && Number(product.originalPrice) > Number(product.price)) {
       priceDisplayHTML = `
         <div class="price-detail">
-          <p class="price"><i class="fas fa-tag"></i> ${product.price} TND <strike>${product.originalPrice} TND</strike></p>
+          <p class="price"><i class="fas fa-tag"></i> ${price} TND <strike>${formatPrice(product.originalPrice)} TND</strike></p>
         </div>
       `;
     }
-    
+
     // Create button HTML based on stock status
     let buttonHTML = '';
     if (isOutOfStock) {
@@ -494,17 +524,17 @@ function displayProductDetails(product) {
       `;
     } else {
       buttonHTML = `
-        <button class="buy-button" onclick="handleBuyClick(${product.id})">
-          <i class="fas fa-shopping-cart"></i> Buy Now for ${product.price} TND
+        <button class="buy-button" onclick="handleBuyClick(${inlineArg(product.id)})">
+          <i class="fas fa-shopping-cart"></i> Buy Now for ${price} TND
         </button>
       `;
     }
 
     productInfo.innerHTML = `
       <h1>${escapeHTML(product.name)}</h1>
-      <p class="stock-status ${statusClass}"><i class="fas fa-circle"></i> ${escapeHTML(statusText)}</p>
+      <p class="availability ${statusClass}">${escapeHTML(statusText)}</p>
       ${priceDisplayHTML}
-      <p class="product-description">${escapeHTML(product.description)}</p>
+      <p class="product-description">${escapeHTML(product.description).replace(/\n/g, '<br>')}</p>
       ${buttonHTML}
       <div class="product-trust-section">
         <div class="trust-badges">
@@ -527,11 +557,13 @@ function displayProductDetails(product) {
       // Show thumbnails for all available images
       product.images.forEach((imgSrc, index) => {
         const thumbImg = document.createElement('img');
-        thumbImg.src = imgSrc;
         thumbImg.alt = `Image ${index + 1}`;
         thumbImg.loading = 'lazy';
         thumbImg.className = 'thumbnail';
         thumbImg.onload = function() { this.classList.add('loaded'); };
+        thumbImg.onerror = function() { this.style.display = 'none'; };
+        thumbImg.src = imgSrc;
+        if (thumbImg.complete && thumbImg.naturalWidth > 0) thumbImg.classList.add('loaded');
         thumbnails.appendChild(thumbImg);
       });
     }
@@ -540,43 +572,57 @@ function displayProductDetails(product) {
 
 // ============ UNIFIED BROWSE PAGE HANDLER ============
 
+const MAIN_CATEGORY_KEYS = ['subscriptions', 'games', 'courses', 'apps'];
+
 export function loadBrowsePage() {
   const productsGrid = document.getElementById('products-grid');
   if (!productsGrid) return false; // Not on browse page
 
   const urlParams = new URLSearchParams(window.location.search);
-  const category = urlParams.get('category') || 'subscriptions';
-  // If ?type= is absent (new URL format: ?category=netflix), use category as the product key
-  const type = urlParams.get('type') || category;
+  let category = (urlParams.get('category') || '').toLowerCase().trim();
+  let type = (urlParams.get('type') || '').toLowerCase().trim();
+  let key = type || category;
 
-  const products = PRODUCTS_DATABASE[type] || [];
-  
+  // Older links use "mobile-apps"; the catalog slug is "mobile_apps".
+  if (key.includes('-')) {
+    const alternative = key.replace(/-/g, '_');
+    if (PRODUCTS_DATABASE[alternative]) key = alternative;
+  }
+
+  let products;
+  if (!key) {
+    // /browse with no filter: show the entire catalog instead of a blank page.
+    products = getAllProducts();
+  } else if (MAIN_CATEGORY_KEYS.includes(key)) {
+    products = getAllProducts().filter(product =>
+      getMainCategories(product).some(main => main.toLowerCase() === key)
+    );
+  } else {
+    products = PRODUCTS_DATABASE[key] || [];
+  }
+
   // Initialize paginated display
   initBrowsePagination(products);
 
-  // Title and subtitle configuration
-  const categoryTitles = {
-    subscriptions: 'Premium Subscriptions',
-    games: 'Games & Digital Content',
-    courses: 'Online Learning',
-    apps: 'Applications & Software'
-  };
-
   const pageTitle = document.getElementById('page-title');
   const pageSubtitle = document.getElementById('page-subtitle');
+  const metadata = key ? CATALOG_METADATA[key] : null;
 
-  if (CATALOG_METADATA[type]) {
-    if (pageTitle) pageTitle.textContent = CATALOG_METADATA[type].title;
-    if (pageSubtitle) pageSubtitle.textContent = CATALOG_METADATA[type].subtitle;
+  if (!key) {
+    if (pageTitle) pageTitle.textContent = 'All Products';
+    if (pageSubtitle) pageSubtitle.textContent = 'Browse every deal available at DIMA Deals';
+  } else if (metadata) {
+    if (pageTitle) pageTitle.textContent = metadata.title;
+    if (pageSubtitle) pageSubtitle.textContent = metadata.subtitle;
   } else {
-    if (pageTitle) pageTitle.textContent = categoryTitles[category] || 'Browse Products';
+    if (pageTitle) pageTitle.textContent = 'Browse Products';
     if (pageSubtitle) pageSubtitle.textContent = 'Discover amazing digital products';
   }
 
-  // Show platforms section only for PC games
+  // Show the platform shortcuts for PC games / the games section.
   const platformsSection = document.getElementById('platforms-section');
   if (platformsSection) {
-    platformsSection.style.display = (category === 'games') ? 'block' : 'none';
+    platformsSection.style.display = (key === 'pc' || key === 'games') ? 'block' : 'none';
   }
 
   return true;

@@ -1,12 +1,29 @@
 {
-  "routes": [
-    { "src": "^/$", "dest": "/index.html" },
-    { "src": "^/product$", "dest": "/product.html" },
-    { "src": "^/browse$", "dest": "/browse.html" },
-    { "src": "^/cart$", "dest": "/cart.html" },
-    { "src": "^/checkout$", "dest": "/checkout.html" },
-    { "src": "^/confirmation$", "dest": "/confirmation.html" },
-    { "src": "^/search$", "dest": "/search.html" },
-    { "src": "^/admin$", "dest": "/admin.html" }
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/product", "destination": "/product.html" },
+    { "source": "/browse", "destination": "/browse.html" },
+    { "source": "/cart", "destination": "/cart.html" },
+    { "source": "/checkout", "destination": "/checkout.html" },
+    { "source": "/confirmation", "destination": "/confirmation.html" },
+    { "source": "/search", "destination": "/search.html" },
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/about", "destination": "/about.html" },
+    { "source": "/contact", "destination": "/contact.html" },
+    { "source": "/faq", "destination": "/faq.html" },
+    { "source": "/help", "destination": "/help.html" },
+    { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/terms", "destination": "/terms.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
+      ]
+    }
   ]
 }

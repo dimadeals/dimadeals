@@ -1,5 +1,5 @@
 import { escapeHTML, debounce } from './utils.js';
-import { PRODUCTS_DATABASE, getAllProducts } from './api.js';
+import { getAllProducts } from './api.js';
 import { getProductBroadCategory, getMainCategories, sortProducts } from './products.js';
 import { initSearchPagination } from './ui.js';
 
@@ -9,22 +9,23 @@ let selectedMainCategory = null; // 'all', 'subscriptions', 'games', 'courses', 
 // ============ SEARCH FUNCTIONALITY ============
 
 export function searchProducts(query) {
-  if (!query || query.trim() === '') {
+  if (!query || String(query).trim() === '') {
     return [];
   }
 
-  if (!PRODUCTS_DATABASE || Object.keys(PRODUCTS_DATABASE).length === 0) {
-    return [];
-  }
-
-  const searchTerm = query.toLowerCase().trim();
+  const searchTerm = String(query).toLowerCase().trim();
   const allProducts = getAllProducts();
 
-  return allProducts.filter(product =>
-    product.name.toLowerCase().includes(searchTerm) ||
-    product.description.toLowerCase().includes(searchTerm) ||
-    product.price.toString().includes(searchTerm)
-  );
+  return allProducts.filter(product => {
+    const name = String(product.name || '').toLowerCase();
+    const description = String(product.description || '').toLowerCase();
+    const category = String(product.category || '').toLowerCase();
+    const price = String(product.price ?? '');
+    return name.includes(searchTerm)
+      || description.includes(searchTerm)
+      || category.includes(searchTerm)
+      || price.includes(searchTerm);
+  });
 }
 
 function getTopSearchSuggestions(query, limit = 3) {
@@ -32,20 +33,26 @@ function getTopSearchSuggestions(query, limit = 3) {
   return results.slice(0, limit);
 }
 
+function jsArg(value) {
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+  return escapeHTML(JSON.stringify(String(value ?? '')));
+}
+
 function createSuggestionItem(product) {
   const imageSrc = product.images && product.images.length > 0 ? product.images[0] : product.image;
-  const rating = product.rating || 0;
+  const rating = Number(product.rating) || 0;
   const stars = '★'.repeat(Math.floor(rating)) + (rating % 1 ? '✦' : '');
   const ratingHTML = rating ? `<div class="suggestion-rating">${stars} ${rating.toFixed(1)}</div>` : '';
+  const description = String(product.description || '');
 
   return `
-    <div class="suggestion-item" onclick="selectSuggestion(${product.id})">
-      <img src="${escapeHTML(imageSrc) || 'images/placeholder.png'}" alt="${escapeHTML(product.name)}" class="suggestion-image" onerror="this.src='images/placeholder.png'">
+    <div class="suggestion-item" onclick="selectSuggestion(${jsArg(product.id)})">
+      <img src="${escapeHTML(imageSrc) || 'images/placeholder.png'}" alt="${escapeHTML(product.name)}" class="suggestion-image" onerror="this.onerror=null;this.src='images/placeholder.png'">
       <div class="suggestion-content">
         <div class="suggestion-name">${escapeHTML(product.name)}</div>
         <div class="suggestion-price">${product.price} TND</div>
         ${ratingHTML}
-        <div class="suggestion-description">${escapeHTML(product.description.substring(0, 50))}${product.description.length > 50 ? '...' : ''}</div>
+        <div class="suggestion-description">${escapeHTML(description.substring(0, 50))}${description.length > 50 ? '...' : ''}</div>
       </div>
     </div>
   `;
@@ -80,17 +87,19 @@ function hideSearchSuggestions() {
 }
 
 export function selectSuggestion(productId) {
-  // Store the selected product ID and navigate to product page
-  localStorage.setItem('selectedProductId', productId);
-  window.location.href = '/product';
+  // Store the selected product ID and navigate to the shareable product URL.
+  try { localStorage.setItem('selectedProductId', String(productId)); } catch { /* ignore */ }
+  window.location.href = `/product?id=${encodeURIComponent(productId)}`;
 }
 
 export function performSearch(query) {
-  if (!query || query.trim() === '') return;
+  const trimmed = String(query || '').trim();
+  if (!trimmed) return;
 
-  // Store search query and navigate to search results page
-  localStorage.setItem('searchQuery', query.trim());
-  window.location.href = '/search';
+  // Store search query and navigate to search results page. The query is in
+  // the URL so results are shareable and the back button behaves correctly.
+  try { localStorage.setItem('searchQuery', trimmed); } catch { /* ignore */ }
+  window.location.href = `/search?q=${encodeURIComponent(trimmed)}`;
 }
 
 export function displaySearchResults(results, containerId) {
@@ -161,10 +170,10 @@ export function initializeSearch() {
     searchInput.parentNode.appendChild(suggestionsContainer);
   }
 
-  // Simple input event listener
+  // Simple input event listener (debounce preserves `this`; we read the input
+  // directly so it also works if the handler is called without a receiver).
   searchInput.addEventListener('input', debounce(function() {
-    const query = this.value.trim();
-
+    const query = searchInput.value.trim();
     if (query.length > 0) {
       showSearchSuggestions(query);
     } else {
@@ -188,9 +197,10 @@ export function initializeSearch() {
   });
 
   // Enter key support
-  searchInput.addEventListener('keypress', function(e) {
+  searchInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
-      const query = this.value;
+      e.preventDefault();
+      const query = searchInput.value;
       if (query.trim() !== '') {
         performSearch(query);
       }
@@ -209,17 +219,30 @@ export function initializeSearch() {
 // ============ SEARCH RESULTS PAGE FUNCTIONALITY ============
 
 export function loadSearchResults() {
-  const searchQuery = localStorage.getItem('searchQuery');
+  const urlQuery = new URLSearchParams(window.location.search).get('q');
+  let searchQuery = urlQuery ? String(urlQuery).trim() : '';
+
+  if (!searchQuery) {
+    try { searchQuery = (localStorage.getItem('searchQuery') || '').trim(); } catch { searchQuery = ''; }
+  }
+
   if (!searchQuery) {
     window.location.href = '/';
     return;
   }
 
-  // Display search query
-  const queryDisplay = document.getElementById('search-query-display');
-  if (queryDisplay) {
-    queryDisplay.textContent = `Searching for: "${searchQuery}"`;
+  // Keep the URL and the stored query in sync so refreshes/back work.
+  try { localStorage.setItem('searchQuery', searchQuery); } catch { /* ignore */ }
+  if (!urlQuery) {
+    const nextUrl = `/search?q=${encodeURIComponent(searchQuery)}`;
+    window.history.replaceState({}, '', nextUrl);
   }
+
+  // Display search query in the heading and restore it in the header input.
+  const queryDisplay = document.getElementById('search-query-display');
+  if (queryDisplay) queryDisplay.textContent = `Searching for: "${searchQuery}"`;
+  const searchInput = document.getElementById('search-input');
+  if (searchInput) searchInput.value = searchQuery;
 
   // Get and display search results
   const results = searchProducts(searchQuery);
