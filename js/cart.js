@@ -129,6 +129,9 @@ export function updateCartCount() {
   document.querySelectorAll('#cart-count, .cart-count').forEach(el => {
     el.textContent = totalItems;
   });
+  document.querySelectorAll('.cart-icon-link').forEach(link => {
+    link.setAttribute('aria-label', `Shopping cart, ${totalItems} item${totalItems === 1 ? '' : 's'}`);
+  });
 }
 
 // Display cart on cart page
@@ -141,6 +144,7 @@ export function displayCart() {
   if (!cartItemsContainer) return;
 
   if (cartItems.length === 0) {
+    cartItemsContainer.innerHTML = '';
     cartItemsContainer.style.display = 'none';
     if (cartSummary) cartSummary.style.display = 'none';
     if (emptyCartMsg) emptyCartMsg.style.display = 'flex';

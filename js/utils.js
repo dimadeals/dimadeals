@@ -19,6 +19,8 @@ export function showToast(message, type = 'success') {
   if (!container) {
     container = document.createElement('div');
     container.id = 'toast-container';
+    container.setAttribute('role', 'status');
+    container.setAttribute('aria-live', 'polite');
     document.body.appendChild(container);
   }
   const toast = document.createElement('div');

@@ -241,7 +241,7 @@ async function serveStatic(req, res, url) {
 }
 
 // ── Server ──────────────────────────────────────────────────────────────────
-const server = http.createServer(async (req, res) => {
+async function handleRequest(req, res) {
   setSecurityHeaders(res);
   let url;
   try { url = new URL(req.url, "http://localhost"); } catch {
@@ -252,12 +252,15 @@ const server = http.createServer(async (req, res) => {
     return handleApi(req, res, url);
   }
   return serveStatic(req, res, url);
-});
+}
 
 function listen(port, attemptsLeft) {
+  const server = http.createServer(handleRequest);
+
   server.once("error", (error) => {
     if (error.code === "EADDRINUSE" && attemptsLeft > 0) {
       console.log(`Port ${port} is busy, trying ${port + 1}…`);
+      try { server.close(); } catch { /* already closed */ }
       setImmediate(() => listen(port + 1, attemptsLeft - 1));
       return;
     }
@@ -272,10 +275,12 @@ function listen(port, attemptsLeft) {
       : production
         ? "unavailable (REDIS_URL is required in production)"
         : "in-memory (seeded catalog)";
+    const address = server.address();
+    const activePort = typeof address === "object" && address ? address.port : port;
     console.log("");
     console.log("  DIMA Deals dev server");
-    console.log(`  → http://127.0.0.1:${port}`);
-    console.log(`  → admin: http://127.0.0.1:${port}/admin`);
+    console.log(`  → http://127.0.0.1:${activePort}`);
+    console.log(`  → admin: http://127.0.0.1:${activePort}/admin`);
     console.log(`  → store: ${store}`);
     if (!process.env.REDIS_URL && !production) {
       console.log(`  → admin key: ${process.env.ADMIN_KEY}`);

@@ -1,7 +1,25 @@
 # DIMA Deals
 
-Premium digital subscriptions store for Tunisia — static storefront + Vercel
-serverless API + Redis.
+Premium digital marketplace for Tunisia — games, streaming subscriptions, courses
+and software. Dark-first storefront with Vercel serverless API and Redis.
+
+## Storefront design
+
+The storefront was rebuilt as a dark gaming marketplace rather than a generic
+template:
+
+- Deep charcoal surfaces, one controlled pink accent, restrained cyan/yellow.
+- Space Grotesk headings and Inter UI text; consistent spacing and type scale.
+- Compact header with dropdown navigation, search, cart, language and theme.
+- Editorial hero with real product artwork, category navigation and product grids.
+- Product cards with media, category, rating, price/discount and a clear action.
+- Detailed product pages with breadcrumbs, gallery, pricing and assurance points.
+- Consistent cart, checkout, confirmation, search, browse, support and legal pages.
+- Dark and light themes; English, French and Arabic direction support.
+- Responsive layouts for desktop, laptop, tablet and phone.
+
+The visual system lives in [style.css](style.css); storefront behaviour lives in
+[js/](js/) and the shared API runtime in [api/redis.js](api/redis.js).
 
 ## Quick start (no Redis required)
 
@@ -106,4 +124,7 @@ Product pages use `?id=<productId>` so they can be linked, refreshed, and shared
   customer-facing fields (no IP/user-agent).
 - All admin write endpoints require `Authorization: <ADMIN_KEY>` and compare it
   in constant time. Without `ADMIN_KEY` every write endpoint fails closed.
+- Existing Redis products that point at older high-resolution image variants are
+  transparently mapped to the compressed assets that ship in this repository
+  ([js/api.js](js/api.js)), so older catalog records keep working.
 - Optional syntax check: `node --check dev-server.js` (repeat for any JS file).

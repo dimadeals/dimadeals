@@ -254,6 +254,8 @@ export function loadSearchResults() {
     resultsCount.textContent = `${results.length} result${results.length !== 1 ? 's' : ''} found`;
   }
 
+  document.title = `Search: ${searchQuery} — DIMA Deals`;
+
   // Initialize filter buttons
   initializeSearchFilters(results);
 }

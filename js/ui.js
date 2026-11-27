@@ -7,84 +7,156 @@ import { addToCart } from './cart.js';
 
 const TRANSLATIONS = {
   en: {
-    'hero-title': 'Premium Digital Subscriptions for Tunisia',
-    'hero-subtitle': 'Netflix, Spotify, Games & Courses – Instant Delivery & Secure Payments',
-    'browse-deals': 'Browse Deals',
-    'popular-platforms': 'Popular Platforms',
-    'popular-platforms-subtitle': 'Choose from the most popular streaming services',
-    'most-popular': 'Most Popular',
-    'most-popular-subtitle': 'Top-selling subscriptions this month',
-    'recommended': 'Recommended',
-    'recommended-subtitle': 'Curated picks for you',
-    'why-choose': 'Why Choose DIMA Deals?',
-    'instant-delivery': 'Instant Delivery',
-    'instant-delivery-desc': 'Get your subscription codes immediately via email after purchase',
-    'secure-payment': 'Secure Payment',
-    'secure-payment-desc': 'Safe and encrypted transactions for your peace of mind',
-    '24-7-support': '24/7 Support',
-    '24-7-support-desc': 'Dedicated customer support team ready to help anytime',
-    '100-guarantee': '100% Guarantee',
-    '100-guarantee-desc': 'Satisfaction guaranteed or your money back',
-    'Related-Products': 'Related Products',
-    'also-like': 'You might also like these',
+    'hero-title': 'Games, subscriptions and software.',
+    'hero-title-accent': 'Delivered in minutes.',
+    'hero-subtitle': 'PC and console titles, streaming plans, courses and software — chosen for gamers, creators and students in Tunisia. Pay in TND and get your access digitally.',
+    'explore-games': 'Explore games',
+    'browse-deals': 'Browse the catalog',
+    'eyebrow-store': "Tunisia's digital store",
+    'eyebrow-browse': 'Browse the catalog',
+    'eyebrow-trending': 'Trending this month',
+    'eyebrow-offers': 'Selected offers',
+    'eyebrow-standard': 'The DIMA standard',
+    'shop-category': 'Shop by category',
+    'view-everything': 'View everything',
+    'shop-all': 'Shop all',
+    'see-game-deals': 'See game deals',
+    'cat-subs': 'Subscriptions',
+    'cat-subs-desc': 'Netflix, Spotify, Canva & more',
+    'cat-games': 'Games',
+    'cat-games-desc': 'PC, console, mobile & gift cards',
+    'cat-courses': 'Courses',
+    'cat-courses-desc': 'Programming, design & business',
+    'cat-apps': 'Apps & software',
+    'cat-apps-desc': 'Tools, licenses & mobile apps',
+    'hero-point-1': 'Instant digital delivery',
+    'hero-point-2': 'Verified before delivery',
+    'hero-point-3': 'Local WhatsApp support',
+    'cta-title': 'Not sure which plan or platform to pick?',
+    'cta-desc': 'Tell us what you need and we will point you to the right product — no pressure.',
+    'cta-button': 'Chat on WhatsApp',
+    'popular-platforms': 'Popular platforms',
+    'popular-platforms-subtitle': 'The services customers ask for most',
+    'most-popular': 'Most popular',
+    'most-popular-subtitle': 'The products our customers keep coming back for',
+    'recommended': 'Featured deals',
+    'recommended-subtitle': 'Hand-picked offers with clear savings',
+    'why-choose': 'Why buy from DIMA Deals',
+    'instant-delivery': 'Instant delivery',
+    'instant-delivery-desc': 'Digital codes and access sent as soon as your order is verified.',
+    'secure-payment': 'Secure checkout',
+    'secure-payment-desc': 'Your details are handled carefully and payment is confirmed manually.',
+    '24-7-support': 'Local support',
+    '24-7-support-desc': 'Message us on WhatsApp and talk to a real person in Tunisia.',
+    '100-guarantee': 'Working or refunded',
+    '100-guarantee-desc': 'If a product does not work as described, we make it right.',
+    'Related-Products': 'Related products',
+    'also-like': 'More from the same part of the store',
   },
   fr: {
-    'hero-title': 'Abonnements numériques premium pour la Tunisie',
-    'hero-subtitle': 'Netflix, Spotify, Jeux et Cours – Livraison instantanée et paiements sécurisés',
-    'browse-deals': 'Parcourir les offres',
+    'hero-title': 'Jeux, abonnements et logiciels.',
+    'hero-title-accent': 'Livrés en quelques minutes.',
+    'hero-subtitle': 'Jeux PC et console, abonnements streaming, cours et logiciels — choisis pour les gamers, créateurs et étudiants en Tunisie. Payez en TND et recevez votre accès en ligne.',
+    'explore-games': 'Explorer les jeux',
+    'browse-deals': 'Parcourir le catalogue',
+    'eyebrow-store': 'La boutique numérique en Tunisie',
+    'eyebrow-browse': 'Parcourir le catalogue',
+    'eyebrow-trending': 'Tendances du mois',
+    'eyebrow-offers': 'Offres sélectionnées',
+    'eyebrow-standard': 'Le standard DIMA',
+    'shop-category': 'Acheter par catégorie',
+    'view-everything': 'Tout voir',
+    'shop-all': 'Voir tout',
+    'see-game-deals': 'Voir les offres jeux',
+    'cat-subs': 'Abonnements',
+    'cat-subs-desc': 'Netflix, Spotify, Canva et plus',
+    'cat-games': 'Jeux',
+    'cat-games-desc': 'PC, console, mobile et cartes cadeaux',
+    'cat-courses': 'Cours',
+    'cat-courses-desc': 'Programmation, design et business',
+    'cat-apps': 'Applications et logiciels',
+    'cat-apps-desc': 'Outils, licences et apps mobiles',
+    'hero-point-1': 'Livraison numérique instantanée',
+    'hero-point-2': 'Vérifié avant livraison',
+    'hero-point-3': 'Support WhatsApp local',
+    'cta-title': 'Vous hésitez entre une offre ou une plateforme ?',
+    'cta-desc': 'Dites-nous ce qu’il vous faut et nous vous orienterons vers le bon produit — sans pression.',
+    'cta-button': 'Discuter sur WhatsApp',
     'popular-platforms': 'Plateformes populaires',
-    'popular-platforms-subtitle': 'Choisissez parmi les services de diffusion les plus populaires',
-    'most-popular': 'Plus populaire',
-    'most-popular-subtitle': 'Abonnements les plus vendus ce mois-ci',
-    'recommended': 'Recommandé',
-    'recommended-subtitle': 'Sélections curées pour vous',
-    'why-choose': 'Pourquoi choisir DIMA Deals?',
+    'popular-platforms-subtitle': 'Les services les plus demandés par nos clients',
+    'most-popular': 'Les plus populaires',
+    'most-popular-subtitle': 'Les produits que nos clients reviennent chercher',
+    'recommended': 'Offres à la une',
+    'recommended-subtitle': 'Une sélection d’offres aux économies claires',
+    'why-choose': 'Pourquoi acheter chez DIMA Deals',
     'instant-delivery': 'Livraison instantanée',
-    'instant-delivery-desc': 'Recevez vos codes d\'abonnement immédiatement par email après votre achat',
+    'instant-delivery-desc': 'Codes et accès numériques envoyés dès que votre commande est vérifiée.',
     'secure-payment': 'Paiement sécurisé',
-    'secure-payment-desc': 'Transactions sûres et cryptées pour votre tranquillité d\'esprit',
-    '24-7-support': 'Support 24h/24 7j/7',
-    '24-7-support-desc': 'Équipe de support client dédiée prête à aider à tout moment',
-    '100-guarantee': '100% Garantie',
-    '100-guarantee-desc': 'Satisfaction garantie ou argent remboursé',
-    'Related-Products': 'produits connexes',
-    'also-like': 'Vous aimerez peut-être aussi'
+    'secure-payment-desc': 'Vos informations sont traitées avec soin et le paiement est confirmé manuellement.',
+    '24-7-support': 'Support local',
+    '24-7-support-desc': 'Écrivez-nous sur WhatsApp et parlez à une vraie personne en Tunisie.',
+    '100-guarantee': 'Fonctionnel ou remboursé',
+    '100-guarantee-desc': 'Si un produit ne fonctionne pas comme décrit, nous corrigeons le problème.',
+    'Related-Products': 'Produits connexes',
+    'also-like': 'D’autres produits du même univers',
   },
   ar: {
-    'hero-title': 'اشتراكات رقمية فاخرة لتونس',
-    'hero-subtitle': 'Netflix وSpotify والألعاب والدورات – التسليم الفوري والدفع الآمن',
-    'browse-deals': 'تصفح الصفقات',
+    'hero-title': 'ألعاب واشتراكات وبرامج.',
+    'hero-title-accent': 'تُسلّم في دقائق.',
+    'hero-subtitle': 'ألعاب الكمبيوتر والكونسول، اشتراكات البث، الدورات والبرامج — مختارة للاعبين والمبدعين والطلاب في تونس. ادفع بالدينار التونسي واستلم وصولك رقمياً.',
+    'explore-games': 'استكشف الألعاب',
+    'browse-deals': 'تصفح المتجر',
+    'eyebrow-store': 'متجر تونس الرقمي',
+    'eyebrow-browse': 'تصفح المتجر',
+    'eyebrow-trending': 'الأكثر رواجاً هذا الشهر',
+    'eyebrow-offers': 'عروض مختارة',
+    'eyebrow-standard': 'معيار DIMA',
+    'shop-category': 'تسوق حسب الفئة',
+    'view-everything': 'عرض الكل',
+    'shop-all': 'تسوق الكل',
+    'see-game-deals': 'شاهد عروض الألعاب',
+    'cat-subs': 'الاشتراكات',
+    'cat-subs-desc': 'نتفليكس، سبوتيفاي، كانفا والمزيد',
+    'cat-games': 'الألعاب',
+    'cat-games-desc': 'كمبيوتر، كونسول، موبايل وبطاقات هدايا',
+    'cat-courses': 'الدورات',
+    'cat-courses-desc': 'البرمجة، التصميم والأعمال',
+    'cat-apps': 'التطبيقات والبرامج',
+    'cat-apps-desc': 'أدوات وتراخيص وتطبيقات موبايل',
+    'hero-point-1': 'تسليم رقمي فوري',
+    'hero-point-2': 'تم التحقق قبل التسليم',
+    'hero-point-3': 'دعم واتساب محلي',
+    'cta-title': 'لست متأكداً من الخطة أو المنصة المناسبة؟',
+    'cta-desc': 'أخبرنا بما تحتاجه وسنوجهك إلى المنتج المناسب — دون ضغط.',
+    'cta-button': 'تحدث على واتساب',
     'popular-platforms': 'المنصات الشهيرة',
-    'popular-platforms-subtitle': 'اختر من بين خدمات البث الأكثر شهرة',
-    'most-popular': 'الأكثر شهرة',
-    'most-popular-subtitle': 'الاشتراكات الأكثر مبيعًا هذا الشهر',
-    'recommended': 'موصى به',
-    'recommended-subtitle': 'خيارات مختارة لك',
-    'why-choose': 'لماذا تختار DIMA Deals؟',
-    'instant-delivery': 'التسليم الفوري',
-    'instant-delivery-desc': 'احصل على رموز الاشتراك الخاصة بك فوراً عبر البريد الإلكتروني بعد الشراء',
+    'popular-platforms-subtitle': 'الخدمات الأكثر طلباً من عملائنا',
+    'most-popular': 'الأكثر رواجاً',
+    'most-popular-subtitle': 'المنتجات التي يعود إليها عملاؤنا دائماً',
+    'recommended': 'عروض مميزة',
+    'recommended-subtitle': 'مجموعة مختارة من العروض بتوفير واضح',
+    'why-choose': 'لماذا تشتري من DIMA Deals',
+    'instant-delivery': 'تسليم فوري',
+    'instant-delivery-desc': 'أكواد الوصول الرقمية تُرسل فور التحقق من طلبك.',
     'secure-payment': 'دفع آمن',
-    'secure-payment-desc': 'معاملات آمنة ومشفرة لراحتك النفسية',
-    '24-7-support': 'الدعم 24/7',
-    '24-7-support-desc': 'فريق دعم عملاء مخصص جاهز للمساعدة في أي وقت',
-    '100-guarantee': '100% ضمان',
-    '100-guarantee-desc': 'الرضا مضمون أو استرد أموالك',
-    'Related-Products': 'المنتجات ذات الصلة',
-    'also-like': 'قد تعجبك أيضًا هذه'
-  }
+    'secure-payment-desc': 'معلوماتك تُعالج بعناية ويتم تأكيد الدفع يدوياً.',
+    '24-7-support': 'دعم محلي',
+    '24-7-support-desc': 'راسلنا على واتساب وتحدث مع شخص حقيقي في تونس.',
+    '100-guarantee': 'يعمل أو نعيد المال',
+    '100-guarantee-desc': 'إذا لم يعمل المنتج كما هو موضح، نصحح الأمر.',
+    'Related-Products': 'منتجات ذات صلة',
+    'also-like': 'المزيد من نفس القسم',
+  },
 };
 
 export function applyLanguage(lang) {
   const safeLang = ['en', 'fr', 'ar'].includes(lang) ? lang : 'en';
 
-  // Save language preference
   try { localStorage.setItem('language', safeLang); } catch { /* ignore */ }
 
-  // Set HTML lang attribute and direction
   document.documentElement.lang = safeLang;
   document.documentElement.dir = safeLang === 'ar' ? 'rtl' : 'ltr';
 
-  // Apply translations to all elements with data-i18n attribute
   document.querySelectorAll('[data-i18n]').forEach(element => {
     const key = element.getAttribute('data-i18n');
     if (TRANSLATIONS[safeLang] && TRANSLATIONS[safeLang][key]) {
@@ -104,7 +176,46 @@ export function initializeLanguage() {
   applyLanguage(savedLanguage);
 }
 
-// ============ ENHANCED PRODUCT RENDERING ============
+// ============ PRODUCT CARD HELPERS ============
+
+const CATEGORY_LABELS = {
+  netflix: 'Netflix',
+  spotify: 'Spotify',
+  canva: 'Canva',
+  shahid: 'Shahid',
+  capcut: 'CapCut',
+  pc: 'PC Games',
+  console: 'Console Games',
+  mobile: 'Mobile Games',
+  steam: 'Steam',
+  epic_games: 'Epic Games',
+  ea_games: 'EA Play',
+  xbox_pc: 'Xbox Game Pass',
+  programming: 'Programming',
+  design: 'Design',
+  business: 'Business',
+  mobile_apps: 'Mobile Apps',
+  software: 'Software',
+};
+
+const LOGO_CATEGORIES = new Set([
+  'netflix', 'spotify', 'canva', 'shahid', 'capcut',
+  'programming', 'design', 'business',
+  'mobile_apps', 'software',
+  'steam', 'epic_games', 'ea_games', 'xbox_pc',
+]);
+
+function usesLogoArtwork(product) {
+  return LOGO_CATEGORIES.has(String(product?.category || '').toLowerCase());
+}
+
+function getCategoryLabel(product) {
+  const category = String(product?.category || '').toLowerCase();
+  if (CATEGORY_LABELS[category]) return CATEGORY_LABELS[category];
+  if (category) return category.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  const main = getMainCategories(product)[0];
+  return main || 'Digital product';
+}
 
 function inlineArg(value) {
   if (typeof value === 'number' && Number.isFinite(value)) return String(value);
@@ -117,85 +228,80 @@ function formatPrice(value) {
   return Number.isInteger(number) ? String(number) : number.toFixed(2);
 }
 
+function getDiscountPercent(product) {
+  const price = Number(product?.price);
+  const original = Number(product?.originalPrice);
+  if (!Number.isFinite(price) || !Number.isFinite(original) || original <= price || price < 0) return 0;
+  return Math.round(((original - price) / original) * 100);
+}
+
+function ratingHTML(product, large = false) {
+  const rating = Number(product?.rating) || 0;
+  if (!rating) return '';
+  const stars = '★'.repeat(Math.floor(rating)) + (rating % 1 ? '✦' : '');
+  return `<span class="${large ? 'product-rating-large' : 'product-rating'}" aria-label="Rated ${rating.toFixed(1)} out of 5"><span class="stars">${stars}</span> <span class="rating-value">${rating.toFixed(1)}</span></span>`;
+}
+
 export function createProductCard(product) {
   if (!product) return '';
 
-  // Handle image with fallback
   const imageSrc = product.images && product.images.length > 0 ? product.images[0] : product.image;
   const imageHTML = imageSrc
     ? `<img src="${escapeHTML(imageSrc)}" alt="${escapeHTML(product.name)}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.onerror=null;this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='flex';">`
     : '';
+  const noImageHTML = `<div class="no-image-card-message"${imageSrc ? ' style="display:none"' : ''}>No image available</div>`;
 
-  const noImageHTML = `<div class="no-image-card-message"${imageSrc ? ' style="display:none"' : ''}>🚫 No Image Available</div>`;
+  const discount = getDiscountPercent(product);
+  const badges = [];
+  if (product.popular) badges.push('<span class="badge badge-popular">Popular</span>');
+  if (product.recommended) badges.push('<span class="badge badge-recommended">Recommended</span>');
+  if (discount > 0) badges.push(`<span class="badge badge-discount">-${discount}%</span>`);
 
-  // Create rating stars
-  const rating = Number(product.rating) || 0;
-  const stars = '★'.repeat(Math.floor(rating)) + (rating % 1 ? '✦' : '');
-  const ratingHTML = rating
-    ? `<div class="product-rating"><span class="stars">${stars}</span> <span class="rating-value">${rating.toFixed(1)}</span></div>`
-    : '';
-
-  // Create badges
-  let badgesHTML = '';
-  if (product.popular) badgesHTML += '<span class="badge badge-popular">Popular</span>';
-  if (product.recommended) badgesHTML += '<span class="badge badge-recommended">Recommended</span>';
-  badgesHTML += '<span class="badge badge-instant">⚡ Instant</span>';
-
-  const badgesContainer = badgesHTML ? `<div class="product-badges">${badgesHTML}</div>` : '';
-
-  // Main categories display
-  const mainCats = getMainCategories(product);
-  const mainCatHTML = mainCats.length > 0
-    ? `<div class="product-main-categories">${mainCats.map(mc => `<span class="main-cat-badge">${escapeHTML(mc)}</span>`).join('')}</div>`
-    : '';
-
-  // Check if product is out of stock
   const isOutOfStock = product.inStock === false;
-  const outOfStockOverlay = isOutOfStock ? '<div class="out-of-stock-overlay"><div class="out-of-stock-label">OUT OF STOCK</div></div>' : '';
-  const outOfStockClass = isOutOfStock ? 'out-of-stock' : '';
+  const overlay = isOutOfStock
+    ? '<div class="out-of-stock-overlay"><span class="out-of-stock-label">Out of stock</span></div>'
+    : '';
 
-  // Create price HTML with discount if applicable
   const price = formatPrice(product.price);
-  let priceHTML = `<p class="price">${price} TND</p>`;
-  if (product.originalPrice && Number(product.originalPrice) > Number(product.price)) {
-    priceHTML = `
-      <div class="price-container">
-        <p class="price">${price} TND</p>
-        <p class="original-price"><strike>${formatPrice(product.originalPrice)} TND</strike></p>
-      </div>
-    `;
-  }
+  const hasOriginal = Number(product.originalPrice) > Number(product.price);
+  const priceRow = `
+    <div class="product-price-row">
+      <span class="price">${price} TND</span>
+      ${hasOriginal ? `<span class="original-price">${formatPrice(product.originalPrice)} TND</span>` : ''}
+    </div>`;
 
-  // Create action button
-  let buttonHTML = '';
-  if (isOutOfStock) {
-    buttonHTML = '<button class="buy-now-button" disabled><i class="fas fa-ban"></i> Out of Stock</button>';
-  } else {
-    buttonHTML = `<button class="buy-now-button" onclick="event.stopPropagation(); handleBuyClick(${inlineArg(product.id)});"><i class="fas fa-shopping-bag"></i> Get Access Now</button>`;
-  }
+  const buttonHTML = isOutOfStock
+    ? '<button class="buy-now-button" disabled><i class="fas fa-ban"></i> Out of stock</button>'
+    : `<button class="buy-now-button" onclick="event.stopPropagation(); handleBuyClick(${inlineArg(product.id)});"><i class="fas fa-shopping-bag"></i> Add to cart</button>`;
 
   return `
-    <div class="product-card ${outOfStockClass}" role="button" tabindex="0"
-         aria-label="View ${escapeHTML(product.name)}"
-         onclick="viewProductDetails(${inlineArg(product.id)})"
-         onkeydown="if(event.target!==event.currentTarget)return; if(event.key==='Enter'||event.key===' '){event.preventDefault();viewProductDetails(${inlineArg(product.id)});}">
-      ${badgesContainer}
-      <div class="product-image-container">
+    <article class="product-card ${isOutOfStock ? 'out-of-stock' : ''} ${usesLogoArtwork(product) ? 'product-card--contain' : ''}"
+             role="button" tabindex="0"
+             aria-label="View ${escapeHTML(product.name)}"
+             onclick="viewProductDetails(${inlineArg(product.id)})"
+             onkeydown="if(event.target!==event.currentTarget)return; if(event.key==='Enter'||event.key===' '){event.preventDefault();viewProductDetails(${inlineArg(product.id)});}">
+      <div class="product-card-media">
         ${imageHTML}
         ${noImageHTML}
-        ${outOfStockOverlay}
+        ${overlay}
+        ${badges.length ? `<div class="product-card-badges">${badges.join('')}</div>` : ''}
       </div>
-      <h3>${escapeHTML(product.name)}</h3>
-      ${mainCatHTML}
-      ${priceHTML}
-      ${ratingHTML}
-      <p class="product-description-preview">${escapeHTML(product.description)}</p>
-      ${buttonHTML}
-    </div>
+      <div class="product-card-body">
+        <div class="product-card-meta">
+          <span class="product-category">${escapeHTML(getCategoryLabel(product))}</span>
+          ${ratingHTML(product)}
+        </div>
+        <h3 class="product-card-title">${escapeHTML(product.name)}</h3>
+        <p class="product-card-description">${escapeHTML(product.description)}</p>
+        <div class="product-card-footer">
+          ${priceRow}
+          ${buttonHTML}
+        </div>
+      </div>
+    </article>
   `;
 }
 
-// Handle Buy Now button clicks from product cards and product detail page
 export function handleBuyClick(productId) {
   const product = getProductById(productId);
   if (product) {
@@ -207,19 +313,20 @@ export function handleBuyClick(productId) {
 
 // ============ PAGINATION ============
 
-const INITIAL_LOAD    = 8;
+const INITIAL_LOAD = 8;
 const LOAD_MORE_COUNT = 8;
 
 let allBrowseProducts = [];
-let browseShownCount  = 0;
+let browseShownCount = 0;
 let allSearchProducts = [];
-let searchShownCount  = 0;
+let searchShownCount = 0;
 
 function _updateSeeMoreBtn(total, shown, gridId, loadMoreFn) {
   const grid = document.getElementById(gridId);
   if (!grid) return;
   const parent = grid.parentNode;
   let seeMore = parent.querySelector('.see-more-container');
+
   if (shown < total) {
     const remaining = total - shown;
     const next = Math.min(LOAD_MORE_COUNT, remaining);
@@ -230,12 +337,12 @@ function _updateSeeMoreBtn(total, shown, gridId, loadMoreFn) {
     }
     seeMore.innerHTML = `
       <button class="see-more-button" onclick="${loadMoreFn}()">
-        <span class="see-more-icon"><i class="fas fa-th-large"></i></span>
-        <span class="see-more-text">Show ${next} More</span>
+        <span class="see-more-icon"><i class="fas fa-plus"></i></span>
+        <span class="see-more-text">Show ${next} more</span>
         <span class="see-more-pill">${remaining} left</span>
       </button>`;
   } else if (seeMore) {
-    seeMore.innerHTML = `<p class="all-loaded-msg"><i class="fas fa-check-circle"></i> All products loaded</p>`;
+    seeMore.innerHTML = '<p class="all-loaded-msg"><i class="fas fa-check-circle"></i> All products loaded</p>';
     setTimeout(() => seeMore.remove(), 2000);
   }
 }
@@ -244,9 +351,15 @@ function _updateSeeMoreBtn(total, shown, gridId, loadMoreFn) {
 export function initBrowsePagination(products) {
   allBrowseProducts = Array.isArray(products) ? products : [];
   browseShownCount = 0;
+
   const grid = document.getElementById('products-grid');
   if (!grid) return;
-  // Remove any existing see-more container
+
+  const count = document.getElementById('browse-count');
+  if (count) {
+    count.innerHTML = `<strong>${allBrowseProducts.length}</strong> product${allBrowseProducts.length === 1 ? '' : 's'} available`;
+  }
+
   const old = grid.parentNode.querySelector('.see-more-container');
   if (old) old.remove();
 
@@ -255,8 +368,8 @@ export function initBrowsePagination(products) {
       <div class="empty-state">
         <i class="fas fa-box-open"></i>
         <h3>No products here yet</h3>
-        <p>This category is empty right now. Check out our other deals!</p>
-        <a href="/browse" class="cta-button">Browse All Products</a>
+        <p>This category is empty right now. Browse the full catalog for other deals.</p>
+        <a href="/browse" class="cta-button">Browse all products</a>
       </div>`;
     return;
   }
@@ -278,27 +391,30 @@ export function loadMoreBrowse() {
 
 // ── Search page ──────────────────────────────
 export function initSearchPagination(products) {
-  allSearchProducts = products;
-  searchShownCount  = 0;
+  allSearchProducts = Array.isArray(products) ? products : [];
+  searchShownCount = 0;
+
   const grid = document.getElementById('search-results-grid');
   if (!grid) return;
+
   const old = grid.parentNode.querySelector('.see-more-container');
   if (old) old.remove();
-  if (products.length === 0) {
+
+  if (allSearchProducts.length === 0) {
     grid.innerHTML = `
       <div class="empty-state">
         <i class="fas fa-search"></i>
         <h3>No products found</h3>
-        <p>Try a different search or filter</p>
-        <a href="/" class="cta-button">Browse All Products</a>
+        <p>Try a different search term or clear the category filter.</p>
+        <a href="/browse" class="cta-button">Browse the catalog</a>
       </div>`;
     return;
   }
-  grid.innerHTML = '';
-  const batch = products.slice(0, INITIAL_LOAD);
+
+  const batch = allSearchProducts.slice(0, INITIAL_LOAD);
   grid.innerHTML = batch.map(p => createProductCard(p)).join('');
   searchShownCount = batch.length;
-  _updateSeeMoreBtn(products.length, searchShownCount, 'search-results-grid', 'loadMoreSearch');
+  _updateSeeMoreBtn(allSearchProducts.length, searchShownCount, 'search-results-grid', 'loadMoreSearch');
 }
 
 export function loadMoreSearch() {
@@ -310,33 +426,29 @@ export function loadMoreSearch() {
   _updateSeeMoreBtn(allSearchProducts.length, searchShownCount, 'search-results-grid', 'loadMoreSearch');
 }
 
-// ============ END PAGINATION ============
-
 export function renderProducts(containerId, products) {
   const container = document.getElementById(containerId);
-  if (!container) {
-    console.warn(`Container with ID '${containerId}' not found`);
-    return;
-  }
+  if (!container) return;
 
   if (!Array.isArray(products)) {
-    console.error('Products must be an array');
-    container.innerHTML = `<div class="empty-state">
-      <i class="fas fa-exclamation-triangle"></i>
-      <h3>Something went wrong</h3>
-      <p>Could not load products. Please try refreshing.</p>
-      <button class="cta-button" onclick="location.reload()">Refresh Page</button>
-    </div>`;
+    container.innerHTML = `
+      <div class="empty-state">
+        <i class="fas fa-exclamation-triangle"></i>
+        <h3>Something went wrong</h3>
+        <p>Could not load products. Please refresh the page.</p>
+        <button class="cta-button" onclick="location.reload()">Refresh page</button>
+      </div>`;
     return;
   }
 
   if (products.length === 0) {
-    container.innerHTML = `<div class="empty-state">
-      <i class="fas fa-box-open"></i>
-      <h3>No products available</h3>
-      <p>Check back later for new arrivals!</p>
-      <a href="/" class="cta-button">Back to Home</a>
-    </div>`;
+    container.innerHTML = `
+      <div class="empty-state">
+        <i class="fas fa-box-open"></i>
+        <h3>No products available</h3>
+        <p>Check back later for new arrivals.</p>
+        <a href="/browse" class="cta-button">Browse the catalog</a>
+      </div>`;
     return;
   }
 
@@ -344,12 +456,13 @@ export function renderProducts(containerId, products) {
     container.innerHTML = products.map(product => createProductCard(product)).join('');
   } catch (error) {
     console.error('Error rendering products:', error);
-    container.innerHTML = `<div class="empty-state">
-      <i class="fas fa-exclamation-triangle"></i>
-      <h3>Something went wrong</h3>
-      <p>Could not display products. Please try refreshing.</p>
-      <button class="cta-button" onclick="location.reload()">Refresh Page</button>
-    </div>`;
+    container.innerHTML = `
+      <div class="empty-state">
+        <i class="fas fa-exclamation-triangle"></i>
+        <h3>Something went wrong</h3>
+        <p>Could not display products. Please refresh the page.</p>
+        <button class="cta-button" onclick="location.reload()">Refresh page</button>
+      </div>`;
   }
 }
 
@@ -363,8 +476,6 @@ export function viewProductDetails(productId) {
   }
 
   try {
-    // Keep the id in localStorage for backwards compatibility, but put it in
-    // the URL too so product pages can be shared, bookmarked, and refreshed.
     localStorage.setItem('selectedProductId', String(productId));
     window.location.href = `/product?id=${encodeURIComponent(productId)}`;
   } catch (error) {
@@ -376,8 +487,7 @@ export function viewProductDetails(productId) {
 export function loadProductDetails() {
   try {
     const params = new URLSearchParams(window.location.search);
-    const urlId = params.get('id');
-    let productId = urlId;
+    let productId = params.get('id');
 
     if (!productId) {
       try { productId = localStorage.getItem('selectedProductId'); } catch { productId = null; }
@@ -410,10 +520,12 @@ function showProductNotFound() {
 
   if (productInfo) {
     productInfo.innerHTML = `
-      <h2>Product Not Found</h2>
-      <p>Sorry, the product you're looking for doesn't exist or has been removed.</p>
-      <button onclick="window.location.href='/'" class="details-button">Back to Home</button>
-    `;
+      <div class="empty-state">
+        <i class="fas fa-box-open"></i>
+        <h3>Product not found</h3>
+        <p>This product may have been removed or the link is no longer valid.</p>
+        <a href="/browse" class="cta-button">Browse the catalog</a>
+      </div>`;
   }
 
   if (mainImageContainer) {
@@ -422,150 +534,142 @@ function showProductNotFound() {
 
     const messageDiv = document.createElement('div');
     messageDiv.className = 'no-image-message main-image-message';
-    messageDiv.innerHTML = '❌ Product not found';
+    messageDiv.textContent = 'Product not found';
     mainImageContainer.appendChild(messageDiv);
   }
 }
 
 function displayProductDetails(product) {
-  if (!product) {
-    console.error('Product not found');
-    return;
+  if (!product) return;
+
+  document.title = `${product.name} — DIMA Deals`;
+  const metaDescription = document.querySelector('meta[name="description"]');
+  if (metaDescription && product.description) {
+    metaDescription.setAttribute('content', String(product.description).slice(0, 160));
   }
 
-  // Handle image with better error handling
   const mainImage = product.images && product.images.length > 0 ? product.images[0] : product.image;
-
-  // Update main image or show message
   const mainImageElement = document.getElementById('main-image');
   const mainImageContainer = document.querySelector('.product-images');
 
   if (mainImageElement && mainImageContainer) {
-    // Remove any existing messages first
+    mainImageContainer.classList.toggle('is-logo', usesLogoArtwork(product));
     const existingMessage = mainImageContainer.querySelector('.main-image-message');
-    if (existingMessage) {
-      existingMessage.remove();
-    }
+    if (existingMessage) existingMessage.remove();
 
     if (mainImage) {
-      // Set handlers BEFORE src so a cached image cannot finish loading before
-      // the .loaded class is attached (which would leave it at opacity: 0).
-      mainImageElement.onerror = function() {
+      mainImageElement.onerror = function () {
         this.style.display = 'none';
         showNoImageMessage();
       };
-
-      mainImageElement.onload = function() {
+      mainImageElement.onload = function () {
         this.style.display = 'block';
         this.classList.add('loaded');
       };
-
       mainImageElement.src = mainImage;
       mainImageElement.style.display = 'block';
       mainImageElement.alt = product.name;
-
       if (mainImageElement.complete && mainImageElement.naturalWidth > 0) {
         mainImageElement.classList.add('loaded');
       }
     } else {
-      // No image available
       mainImageElement.style.display = 'none';
       showNoImageMessage();
     }
   }
 
   function showNoImageMessage() {
-    // Remove any existing message first
+    if (!mainImageContainer) return;
     const existingMessage = mainImageContainer.querySelector('.main-image-message');
-    if (existingMessage) {
-      existingMessage.remove();
-    }
+    if (existingMessage) existingMessage.remove();
 
-    // Add message before thumbnails
     const thumbnails = document.querySelector('.thumbnails');
     const messageDiv = document.createElement('div');
     messageDiv.className = 'no-image-message main-image-message';
-    messageDiv.innerHTML = '🚫 You got us! We still don\'t have an image for this product';
+    messageDiv.textContent = 'No product image available';
 
-    if (thumbnails) {
-      mainImageContainer.insertBefore(messageDiv, thumbnails);
-    } else {
-      mainImageContainer.appendChild(messageDiv);
-    }
+    if (thumbnails) mainImageContainer.insertBefore(messageDiv, thumbnails);
+    else mainImageContainer.appendChild(messageDiv);
   }
 
-  // Update product info
+  // Breadcrumb
+  const breadcrumb = document.getElementById('product-breadcrumb');
+  if (breadcrumb) {
+    const main = getMainCategories(product)[0] || 'Store';
+    const mainSlug = main.toLowerCase().replace(/\s+/g, '-');
+    breadcrumb.innerHTML = `
+      <a href="/">Home</a><span class="sep">/</span>
+      <a href="/browse?category=${encodeURIComponent(mainSlug)}">${escapeHTML(main)}</a><span class="sep">/</span>
+      <span class="current">${escapeHTML(product.name)}</span>`;
+  }
+
+  // Discount badge on gallery
+  const galleryBadge = document.getElementById('gallery-discount');
+  const discount = getDiscountPercent(product);
+  if (galleryBadge) {
+    galleryBadge.textContent = discount > 0 ? `-${discount}%` : '';
+    galleryBadge.style.display = discount > 0 ? 'inline-flex' : 'none';
+  }
+
+  // Main product information
   const productInfo = document.querySelector('.product-info');
   if (productInfo) {
-    // Check if product is out of stock
     const isOutOfStock = product.inStock === false;
-    const statusText = isOutOfStock ? 'Out of Stock' : (product.availability || 'In Stock');
+    const statusText = isOutOfStock ? 'Out of stock' : 'In stock';
     const statusClass = isOutOfStock ? 'out-of-stock-status' : 'in-stock-status';
-    
-    // Check if product has a discount
     const price = formatPrice(product.price);
-    let priceDisplayHTML = `<p class="price"><i class="fas fa-tag"></i> ${price} TND</p>`;
+    const main = getMainCategories(product)[0] || 'Store';
+    const mainSlug = main.toLowerCase().replace(/\s+/g, '-');
 
-    if (product.originalPrice && Number(product.originalPrice) > Number(product.price)) {
-      priceDisplayHTML = `
-        <div class="price-detail">
-          <p class="price"><i class="fas fa-tag"></i> ${price} TND <strike>${formatPrice(product.originalPrice)} TND</strike></p>
-        </div>
-      `;
-    }
+    const priceHTML = `
+      <div class="product-price-block">
+        <span class="product-price">${price} TND</span>
+        ${Number(product.originalPrice) > Number(product.price) ? `<span class="product-old-price">${formatPrice(product.originalPrice)} TND</span>` : ''}
+        ${discount > 0 ? `<span class="product-save">Save ${discount}%</span>` : ''}
+      </div>`;
 
-    // Create button HTML based on stock status
-    let buttonHTML = '';
-    if (isOutOfStock) {
-      buttonHTML = `
-        <button class="buy-button out-of-stock-button" disabled>
-          <i class="fas fa-ban"></i> Out of Stock - Cannot Purchase
-        </button>
-      `;
-    } else {
-      buttonHTML = `
-        <button class="buy-button" onclick="handleBuyClick(${inlineArg(product.id)})">
-          <i class="fas fa-shopping-cart"></i> Buy Now for ${price} TND
-        </button>
-      `;
-    }
+    const buttonHTML = isOutOfStock
+      ? `<button class="buy-button" disabled><i class="fas fa-ban"></i> Out of stock</button>`
+      : `<button class="buy-button" onclick="handleBuyClick(${inlineArg(product.id)})"><i class="fas fa-shopping-bag"></i> Add to cart — ${price} TND</button>`;
 
     productInfo.innerHTML = `
-      <h1>${escapeHTML(product.name)}</h1>
-      <p class="availability ${statusClass}">${escapeHTML(statusText)}</p>
-      ${priceDisplayHTML}
-      <p class="product-description">${escapeHTML(product.description).replace(/\n/g, '<br>')}</p>
-      ${buttonHTML}
-      <div class="product-trust-section">
-        <div class="trust-badges">
-          <div class="trust-badge"><i class="fas fa-bolt"></i><span>Instant delivery after purchase</span></div>
-          <div class="trust-badge"><i class="fab fa-whatsapp"></i><span>24/7 support via WhatsApp</span></div>
-          <div class="trust-badge"><i class="fas fa-users"></i><span>Trusted by 100+ customers</span></div>
-          <div class="trust-badge"><i class="fas fa-shield-alt"></i><span>100% working or money back</span></div>
-        </div>
+      <div class="product-info-category">
+        <a href="/browse?category=${encodeURIComponent(mainSlug)}">${escapeHTML(main)}</a>
+        <a href="/browse?category=${encodeURIComponent(product.category)}">${escapeHTML(getCategoryLabel(product))}</a>
       </div>
-    `;
+      <h1>${escapeHTML(product.name)}</h1>
+      <div class="product-meta-row">
+        ${ratingHTML(product, true)}
+        <span class="availability ${statusClass}">${statusText}</span>
+      </div>
+      ${priceHTML}
+      <p class="product-description">${escapeHTML(product.description).replace(/\n/g, '<br>')}</p>
+      <div class="product-purchase">${buttonHTML}</div>
+      <ul class="product-assurance">
+        <li><i class="fas fa-bolt"></i> Instant digital delivery after verification</li>
+        <li><i class="fas fa-shield-alt"></i> Working product or money back</li>
+        <li><i class="fab fa-whatsapp"></i> Support on WhatsApp</li>
+        <li><i class="fas fa-receipt"></i> Clear price in Tunisian dinars</li>
+      </ul>`;
   }
 
-  // Generate thumbnail images below the main image
+  // Gallery thumbnails
   const thumbnails = document.querySelector('.thumbnails');
   if (thumbnails) {
-    // Clear existing thumbnails
     thumbnails.innerHTML = '';
-
-    if (product.images && product.images.length > 0) {
-      // Show thumbnails for all available images
+    if (Array.isArray(product.images) && product.images.length > 0) {
       product.images.forEach((imgSrc, index) => {
         const thumbImg = document.createElement('img');
-        thumbImg.alt = `Image ${index + 1}`;
+        thumbImg.alt = `${product.name} — image ${index + 1}`;
         thumbImg.loading = 'lazy';
         thumbImg.className = 'thumbnail';
-        thumbImg.onload = function() { this.classList.add('loaded'); };
-        thumbImg.onerror = function() { this.style.display = 'none'; };
+        thumbImg.onload = function () { this.classList.add('loaded'); };
+        thumbImg.onerror = function () { this.style.display = 'none'; };
         thumbImg.src = imgSrc;
         if (thumbImg.complete && thumbImg.naturalWidth > 0) thumbImg.classList.add('loaded');
         thumbnails.appendChild(thumbImg);
       });
+      if (thumbnails.firstElementChild) thumbnails.firstElementChild.classList.add('active');
     }
   }
 }
@@ -576,14 +680,13 @@ const MAIN_CATEGORY_KEYS = ['subscriptions', 'games', 'courses', 'apps'];
 
 export function loadBrowsePage() {
   const productsGrid = document.getElementById('products-grid');
-  if (!productsGrid) return false; // Not on browse page
+  if (!productsGrid) return false;
 
   const urlParams = new URLSearchParams(window.location.search);
   let category = (urlParams.get('category') || '').toLowerCase().trim();
   let type = (urlParams.get('type') || '').toLowerCase().trim();
   let key = type || category;
 
-  // Older links use "mobile-apps"; the catalog slug is "mobile_apps".
   if (key.includes('-')) {
     const alternative = key.replace(/-/g, '_');
     if (PRODUCTS_DATABASE[alternative]) key = alternative;
@@ -591,7 +694,6 @@ export function loadBrowsePage() {
 
   let products;
   if (!key) {
-    // /browse with no filter: show the entire catalog instead of a blank page.
     products = getAllProducts();
   } else if (MAIN_CATEGORY_KEYS.includes(key)) {
     products = getAllProducts().filter(product =>
@@ -601,7 +703,6 @@ export function loadBrowsePage() {
     products = PRODUCTS_DATABASE[key] || [];
   }
 
-  // Initialize paginated display
   initBrowsePagination(products);
 
   const pageTitle = document.getElementById('page-title');
@@ -609,146 +710,32 @@ export function loadBrowsePage() {
   const metadata = key ? CATALOG_METADATA[key] : null;
 
   if (!key) {
-    if (pageTitle) pageTitle.textContent = 'All Products';
-    if (pageSubtitle) pageSubtitle.textContent = 'Browse every deal available at DIMA Deals';
+    if (pageTitle) pageTitle.textContent = 'All products';
+    if (pageSubtitle) pageSubtitle.textContent = 'Every game, subscription, course and app in one place.';
   } else if (metadata) {
     if (pageTitle) pageTitle.textContent = metadata.title;
     if (pageSubtitle) pageSubtitle.textContent = metadata.subtitle;
   } else {
-    if (pageTitle) pageTitle.textContent = 'Browse Products';
-    if (pageSubtitle) pageSubtitle.textContent = 'Discover amazing digital products';
+    if (pageTitle) pageTitle.textContent = 'Browse products';
+    if (pageSubtitle) pageSubtitle.textContent = 'Discover digital products from DIMA Deals.';
   }
 
-  // Show the platform shortcuts for PC games / the games section.
+  // Highlight the matching top-level category chip.
+  const activeMain = getMainCategories(products[0])[0]?.toLowerCase();
+  document.querySelectorAll('.browse-chip').forEach(chip => {
+    const chipKey = (new URL(chip.href, window.location.origin).searchParams.get('category') || '').toLowerCase();
+    const active = chipKey === key || (chipKey === 'all' && !key) || (activeMain && chipKey === activeMain);
+    chip.classList.toggle('active', Boolean(active));
+    if (active) chip.setAttribute('aria-current', 'page');
+    else chip.removeAttribute('aria-current');
+  });
+
   const platformsSection = document.getElementById('platforms-section');
   if (platformsSection) {
     platformsSection.style.display = (key === 'pc' || key === 'games') ? 'block' : 'none';
   }
 
+  if (pageTitle) document.title = `${pageTitle.textContent} — DIMA Deals`;
+
   return true;
-}
-
-// ============ MOUSE TRACKING FOR HERO BACKGROUND ============
-
-const heroSection = document.querySelector('.hero');
-const gradient1 = document.querySelector('.gradient-1');
-const gradient2 = document.querySelector('.gradient-2');
-const heroBg = document.querySelector('.hero-background');
-const particles = document.querySelectorAll('.particle');
-
-let mouseX = 0;
-let mouseY = 0;
-let targetX1 = 0;
-let targetY1 = 0;
-let targetX2 = 0;
-let targetY2 = 0;
-let currentX1 = 0;
-let currentY1 = 0;
-let currentX2 = 0;
-let currentY2 = 0;
-
-if (heroSection && gradient1 && gradient2) {
-  document.addEventListener('mousemove', (e) => {
-    if (!heroSection) return;
-    
-    const rect = heroSection.getBoundingClientRect();
-    
-    // Only track if mouse is over hero section
-    if (e.clientX < rect.left || e.clientX > rect.right || 
-        e.clientY < rect.top || e.clientY > rect.bottom) {
-      return;
-    }
-    
-    const heroX = rect.left;
-    const heroY = rect.top;
-    const heroWidth = rect.width;
-    const heroHeight = rect.height;
-    
-    // Calculate mouse position relative to hero section
-    mouseX = e.clientX - heroX;
-    mouseY = e.clientY - heroY;
-    
-    // Calculate normalized values (-1 to 1)
-    const normalizedX = (mouseX / heroWidth) * 2 - 1;
-    const normalizedY = (mouseY / heroHeight) * 2 - 1;
-    
-    // Gradient 1 moves toward mouse (attracted)
-    targetX1 = normalizedX * 60;
-    targetY1 = normalizedY * 60;
-    
-    // Gradient 2 moves away from mouse (repelled)
-    targetX2 = normalizedX * -70;
-    targetY2 = normalizedY * -70;
-    
-    // Apply smooth easing
-    currentX1 += (targetX1 - currentX1) * 0.08;
-    currentY1 += (targetY1 - currentY1) * 0.08;
-    currentX2 += (targetX2 - currentX2) * 0.08;
-    currentY2 += (targetY2 - currentY2) * 0.08;
-    
-    gradient1.style.transform = `translate(${currentX1}px, ${currentY1}px)`;
-    gradient2.style.transform = `translate(${currentX2}px, ${currentY2}px)`;
-    
-    // Apply subtle effect to particles
-    particles.forEach((particle, index) => {
-      const particleRect = particle.getBoundingClientRect();
-      const particleX = particleRect.left - heroX;
-      const particleY = particleRect.top - heroY;
-      
-      // Calculate distance from mouse to particle
-      const dx = mouseX - particleX;
-      const dy = mouseY - particleY;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      const maxDistance = 150;
-      
-      if (distance < maxDistance) {
-        // Particles are repelled from mouse
-        const angle = Math.atan2(dy, dx);
-        const force = (1 - distance / maxDistance) * 15;
-        const pushX = Math.cos(angle) * force;
-        const pushY = Math.sin(angle) * force;
-        
-        particle.style.transform = `translate(${pushX}px, ${pushY}px)`;
-      } else {
-        particle.style.transform = 'translate(0px, 0px)';
-      }
-    });
-  });
-  
-  // Reset position when mouse leaves
-  heroSection.addEventListener('mouseleave', () => {
-    targetX1 = 0;
-    targetY1 = 0;
-    targetX2 = 0;
-    targetY2 = 0;
-    
-    // Reset particles
-    particles.forEach(particle => {
-      particle.style.transform = 'translate(0px, 0px)';
-    });
-    
-    // Smooth animation back to center
-    const animate = () => {
-      currentX1 += (targetX1 - currentX1) * 0.1;
-      currentY1 += (targetY1 - currentY1) * 0.1;
-      currentX2 += (targetX2 - currentX2) * 0.1;
-      currentY2 += (targetY2 - currentY2) * 0.1;
-      
-      gradient1.style.transform = `translate(${currentX1}px, ${currentY1}px)`;
-      gradient2.style.transform = `translate(${currentX2}px, ${currentY2}px)`;
-      
-      if (Math.abs(currentX1) > 0.5 || Math.abs(currentY1) > 0.5 || 
-          Math.abs(currentX2) > 0.5 || Math.abs(currentY2) > 0.5) {
-        requestAnimationFrame(animate);
-      } else {
-        currentX1 = 0;
-        currentY1 = 0;
-        currentX2 = 0;
-        currentY2 = 0;
-        gradient1.style.transform = 'translate(0px, 0px)';
-        gradient2.style.transform = 'translate(0px, 0px)';
-      }
-    };
-    animate();
-  });
 }

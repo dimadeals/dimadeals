@@ -1,7 +1,7 @@
 // ============ MAIN INITIALIZATION ============
 
 import { showSkeletons, showToast } from './utils.js';
-import { PRODUCTS_DATABASE, loadProductsFromAPI } from './api.js';
+import { PRODUCTS_DATABASE, loadProductsFromAPI, getProductById } from './api.js';
 import { CATALOG_METADATA, getAllPopularProducts, getAllRecommendedProducts, getRelatedProducts } from './products.js';
 import {
   initializeLanguage, applyLanguage, createProductCard, handleBuyClick,
@@ -41,6 +41,38 @@ window.displayCheckoutSummary = displayCheckoutSummary;
 window.setupCheckoutForm = setupCheckoutForm;
 window.displayConfirmation = displayConfirmation;
 
+// Keep the editorial hero cards in sync with the real product data.
+function hydrateFeaturedProducts() {
+  document.querySelectorAll('[data-featured-product]').forEach(card => {
+    const product = getProductById(card.dataset.featuredProduct);
+    if (!product) return;
+
+    card.setAttribute('href', `/product?id=${encodeURIComponent(product.id)}`);
+
+    // Keep the curated, compressed hero artwork; only the commerce data is
+    // hydrated from the product record.
+    const title = card.querySelector('h2, h3');
+    if (title) title.textContent = product.name;
+
+    const price = card.querySelector('.showcase-price');
+    if (price) {
+      const value = Number(product.price);
+      price.textContent = `${Number.isInteger(value) ? value : value.toFixed(2)} TND`;
+    }
+
+    const oldPrice = card.querySelector('.showcase-old');
+    if (oldPrice) {
+      const original = Number(product.originalPrice);
+      if (Number.isFinite(original) && original > Number(product.price)) {
+        oldPrice.textContent = `${Number.isInteger(original) ? original : original.toFixed(2)} TND`;
+        oldPrice.style.display = '';
+      } else {
+        oldPrice.style.display = 'none';
+      }
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
  try {
   // Initialize language
@@ -75,6 +107,8 @@ document.addEventListener('DOMContentLoaded', async function() {
       if (el) el.innerHTML = fallbackHTML;
     });
   } else {
+    hydrateFeaturedProducts();
+
     // Initialize product grids
     renderProducts('most-popular-grid', getAllPopularProducts());
     renderProducts('recommended-grid', getAllRecommendedProducts());
@@ -140,6 +174,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   function closeMenu() {
     if (navMenu) navMenu.classList.remove('active');
     if (mobileMenuToggle) mobileMenuToggle.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('nav-open');
     document.querySelectorAll('.nav-item.open').forEach(item => {
       item.classList.remove('open');
       item.querySelector('.nav-link')?.setAttribute('aria-expanded', 'false');
@@ -153,6 +188,7 @@ document.addEventListener('DOMContentLoaded', async function() {
       navMenu.classList.toggle('active');
       const isExpanded = navMenu.classList.contains('active');
       this.setAttribute('aria-expanded', String(isExpanded));
+      document.body.classList.toggle('nav-open', isExpanded);
     });
 
     // Close menu when clicking outside
@@ -194,6 +230,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape' && navMenu.classList.contains('active')) closeMenu();
     });
+
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 1140) closeMenu();
+    });
   }
 
   // Mobile search toggle for mobile devices
@@ -203,20 +243,23 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   if (searchButton && searchInput && searchContainer) {
     searchButton.addEventListener('click', function(e) {
-      if (window.innerWidth <= 768) {
+      if (window.innerWidth <= 1140) {
         // First tap expands the search field; once expanded, the normal search
         // handler in search.js performs the search.
         if (!searchContainer.classList.contains('expanded')) {
           e.preventDefault();
           searchContainer.classList.add('expanded');
           searchInput.focus();
+        } else if (!searchInput.value.trim()) {
+          e.preventDefault();
+          searchContainer.classList.remove('expanded');
         }
       }
     });
 
     // Close expanded search when clicking outside
     document.addEventListener('click', function(e) {
-      if (searchContainer && window.innerWidth <= 768) {
+      if (searchContainer && window.innerWidth <= 1140) {
         if (!searchContainer.contains(e.target)) {
           searchContainer.classList.remove('expanded');
         }
@@ -225,7 +268,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Close expanded search on escape key
     searchInput.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && window.innerWidth <= 768) {
+      if (e.key === 'Escape' && window.innerWidth <= 1140) {
         searchContainer.classList.remove('expanded');
       }
     });
@@ -261,13 +304,11 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
   // Theme toggle / Dark mode functionality
-  // Apply the saved theme on every page (not just pages with a toggle) so
-  // dark-mode users do not get a light flash / mismatched checkout pages.
-  let savedTheme = 'light';
+  // DIMA is dark-first: use dark unless the visitor explicitly chose light.
+  let savedTheme = 'dark';
   try {
-    savedTheme = localStorage.getItem('theme')
-      || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  } catch { savedTheme = 'light'; }
+    savedTheme = localStorage.getItem('theme') || 'dark';
+  } catch { savedTheme = 'dark'; }
 
   document.documentElement.setAttribute('data-theme', savedTheme);
 

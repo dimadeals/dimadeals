@@ -3,68 +3,96 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Buy Netflix, Spotify, and digital subscriptions in Tunisia with instant delivery and secure payment.">
-  <title>DIMA Deals - Digital Subscriptions for Tunisia</title>
+  <meta name="description" content="DIMA Deals is Tunisia's digital store for PC and console games, streaming subscriptions, courses and software. Instant digital delivery, clear prices in TND and local support.">
+  <meta name="theme-color" content="#08090c">
+  <title>DIMA Deals — Games, subscriptions and software in Tunisia</title>
   <link rel="icon" type="image/png" href="images/brand.png">
-  <link rel="stylesheet" href="style.css"/>
+  <script>
+    try { document.documentElement.dataset.theme = localStorage.getItem('theme') || 'dark'; }
+    catch (error) { document.documentElement.dataset.theme = 'dark'; }
+  </script>
+  <link rel="stylesheet" href="style.css?v=5.0"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 </head>
 <body>
 
-<!-- Header Navigation -->
 <header class="header">
   <div class="header-container">
-    <div class="logo">
-      <a href="/" class="active"><img src="images/DimaDealsLogo.png" alt="DimaDealsLogo"></a>
-    </div>
-    <nav class="nav-menu">
+    <a class="logo" href="/" aria-label="DIMA Deals home">
+      <img src="images/brand.png" alt="" class="logo-mark">
+      <span class="logo-word">DIMA <span>DEALS</span></span>
+    </a>
+
+    <nav class="nav-menu" aria-label="Main navigation">
       <ul class="nav-links">
         <li class="nav-item">
-          <a href="javascript:void(0)" class="nav-link">Subscriptions <i class="fas fa-chevron-down"></i></a>
+          <a href="/browse?category=subscriptions" class="nav-link">Subscriptions <i class="fas fa-chevron-down"></i></a>
           <ul class="dropdown">
-            <li><a href="/browse?category=netflix"><img src="images/NetflixLogo.png" alt="NetflixLogo" class="small-logo"> Netflix</a></li>
-            <li><a href="/browse?category=spotify"><img src="images/spotify.png" alt="spotify" class="small-logo">Spotify</a></li>
-            <li><a href="/browse?category=canva"><img src="images/canva-icon.png" alt="canva-icon" class="small-logo">Canva Pro</a></li>
-            <li><a href="/browse?category=shahid"><img src="images/ShahidLogo.png" alt="ShahidLogo" class="small-logo"> Shahid</a></li>
+            <li><a class="dropdown-all" href="/browse?category=subscriptions"><i class="fas fa-layer-group"></i> All subscriptions</a></li>
+            <li class="dropdown-separator" role="presentation"></li>
+            <li><a href="/browse?category=netflix"><i class="fas fa-tv"></i> Netflix</a></li>
+            <li><a href="/browse?category=spotify"><i class="fas fa-music"></i> Spotify</a></li>
+            <li><a href="/browse?category=canva"><i class="fas fa-palette"></i> Canva Pro</a></li>
+            <li><a href="/browse?category=shahid"><i class="fas fa-film"></i> Shahid</a></li>
+            <li><a href="/browse?category=capcut"><i class="fas fa-video"></i> CapCut Pro</a></li>
           </ul>
         </li>
+
         <li class="nav-item">
-          <a href="javascript:void(0)" class="nav-link">Games <i class="fas fa-chevron-down"></i></a>
+          <a href="/browse?category=games" class="nav-link">Games <i class="fas fa-chevron-down"></i></a>
           <ul class="dropdown">
-            <li><a href="/browse?category=pc">PC Games</a></li>  
-            <li><a href="/browse?category=console">Console Games</a></li>
-            <li><a href="/browse?category=mobile">Mobile Games</a></li>
+            <li><a class="dropdown-all" href="/browse?category=games"><i class="fas fa-layer-group"></i> All games</a></li>
+            <li class="dropdown-separator" role="presentation"></li>
+            <li><a href="/browse?category=pc"><i class="fas fa-desktop"></i> PC games</a></li>
+            <li><a href="/browse?category=console"><i class="fas fa-gamepad"></i> Console games</a></li>
+            <li><a href="/browse?category=mobile"><i class="fas fa-mobile-alt"></i> Mobile games</a></li>
+            <li class="dropdown-separator" role="presentation"></li>
+            <li><a href="/browse?category=steam"><i class="fab fa-steam"></i> Steam</a></li>
+            <li><a href="/browse?category=epic_games"><i class="fas fa-bolt"></i> Epic Games</a></li>
+            <li><a href="/browse?category=ea_games"><i class="fas fa-gamepad"></i> EA Play</a></li>
+            <li><a href="/browse?category=xbox_pc"><i class="fab fa-xbox"></i> Xbox Game Pass</a></li>
           </ul>
         </li>
+
         <li class="nav-item">
-          <a href="javascript:void(0)" class="nav-link">Courses <i class="fas fa-chevron-down"></i></a>
+          <a href="/browse?category=courses" class="nav-link">Courses <i class="fas fa-chevron-down"></i></a>
           <ul class="dropdown">
-            <li><a href="/browse?category=programming">Programming</a></li>
-            <li><a href="/browse?category=design">Design</a></li>
-            <li><a href="/browse?category=business">Business</a></li>
+            <li><a class="dropdown-all" href="/browse?category=courses"><i class="fas fa-layer-group"></i> All courses</a></li>
+            <li class="dropdown-separator" role="presentation"></li>
+            <li><a href="/browse?category=programming"><i class="fas fa-code"></i> Programming</a></li>
+            <li><a href="/browse?category=design"><i class="fas fa-pen-nib"></i> Design</a></li>
+            <li><a href="/browse?category=business"><i class="fas fa-briefcase"></i> Business</a></li>
           </ul>
         </li>
+
         <li class="nav-item">
-          <a href="javascript:void(0)" class="nav-link">Apps <i class="fas fa-chevron-down"></i></a>
+          <a href="/browse?category=apps" class="nav-link">Apps <i class="fas fa-chevron-down"></i></a>
           <ul class="dropdown">
-            <li><a href="/browse?category=mobile_apps">Mobile Apps</a></li>
-            <li><a href="/browse?category=software">Software</a></li>
+            <li><a class="dropdown-all" href="/browse?category=apps"><i class="fas fa-layer-group"></i> All apps</a></li>
+            <li class="dropdown-separator" role="presentation"></li>
+            <li><a href="/browse?category=mobile_apps"><i class="fas fa-mobile-alt"></i> Mobile apps</a></li>
+            <li><a href="/browse?category=software"><i class="fas fa-window-maximize"></i> Software</a></li>
           </ul>
+        </li>
+
+        <li class="nav-item">
+          <a href="/browse" class="nav-link">All products</a>
         </li>
       </ul>
     </nav>
+
     <div class="nav-right">
-      <a href="/cart" class="cart-icon-link" aria-label="Shopping cart">
-        <i class="fas fa-shopping-cart"></i>
-        <span class="cart-count" id="cart-count">0</span>
-      </a>
       <div class="search-container">
-        <input type="text" id="search-input" placeholder="Search products..." class="search-input" aria-label="Search products">
+        <input type="text" id="search-input" placeholder="Search products" class="search-input" aria-label="Search products">
         <button id="search-button" class="search-button" aria-label="Search">
           <i class="fas fa-search"></i>
         </button>
       </div>
-      <select class="language-select" id="language-select">
+      <a href="/cart" class="cart-icon-link" aria-label="Shopping cart">
+        <i class="fas fa-shopping-bag"></i>
+        <span class="cart-count" id="cart-count">0</span>
+      </a>
+      <select class="language-select" id="language-select" aria-label="Language">
         <option value="en">EN</option>
         <option value="fr">FR</option>
         <option value="ar">AR</option>
@@ -80,169 +108,266 @@
   </div>
 </header>
 
-<!-- Hero Section -->
-<section class="hero">
-  <div class="hero-content">
-    <h1 data-i18n="hero-title">Premium Digital Subscriptions for Tunisia</h1>
-    <p data-i18n="hero-subtitle">Netflix, Spotify, Games & Courses – Instant Delivery & Secure Payments</p>
-    <button class="cta-button" onclick="document.querySelector('.platforms').scrollIntoView({behavior: 'smooth'})">
-      <i class="fas fa-play-circle"></i> <span data-i18n="browse-deals">Browse Deals</span>
-    </button>
-  </div>
-  <div class="hero-background">
-    <div class="gradient-1"></div>
-    <div class="gradient-2"></div>
-    <div class="particles-container">
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-    </div>
-  </div>
-</section>
-
-<!-- Popular Platforms Section -->
-<section class="platforms" id="platforms">
-  <div class="section-container">
-    <h2 data-i18n="popular-platforms">Popular Platforms</h2>
-    <p class="section-subtitle" data-i18n="popular-platforms-subtitle">Choose from the most popular streaming services</p>
-    <div class="platform-grid">
-      <a href="/browse?category=netflix" class="platform netflix">
-        <img src="images/NetflixLogo.png" alt="Netflix" class="med-logo">
-        <span>Netflix</span>
-      </a>
-      <a href="/browse?category=spotify" class="platform spotify">
-        <img src="images/spotify.png" alt="spotify" class="med-logo">
-        <span>Spotify</span>
-      </a>
-      <a href="/browse?category=canva" class="platform prime">
-        <img src="images/canva-icon.png" alt="canva-icon" class="med-logo">
-        <span>Canva Pro</span>
-      </a>
-      <a href="/browse?category=shahid" class="platform shahid">
-        <img src="images/ShahidLogo.png" alt="ShahidLogo" class="med-logo">
-        <span>Shahid</span>
-      </a>
-    </div>
-  </div>
-</section>
-
-<!-- Most Popular Products Section -->
-<section class="products most-popular">
-  <div class="section-container">
-    <h2 data-i18n="most-popular">Most Popular</h2>
-    <p class="section-subtitle" data-i18n="most-popular-subtitle">Top-selling subscriptions this month</p>
-    <div class="product-grid" id="most-popular-grid">
-      <!-- Products loaded by JavaScript -->
-    </div>
-  </div>
-</section>
-
-<!-- Recommended Products Section -->
-<section class="products recommended">
-  <div class="section-container">
-    <h2 data-i18n="recommended">We Recommend</h2>
-    <p class="section-subtitle" data-i18n="recommended-subtitle">Curated picks tailored for you</p>
-    <div class="product-grid" id="recommended-grid">
-      <!-- Products loaded by JavaScript -->
-    </div>
-  </div>
-</section>
-
-<!-- Features Section -->
-<section class="features">
-  <div class="section-container">
-    <h2 data-i18n="why-choose">Why Choose DIMA Deals?</h2>
-    <div class="features-grid">
-      <div class="feature-card">
-        <i class="fas fa-bolt"></i>
-        <h3 data-i18n="instant-delivery">Instant Delivery</h3>
-        <p data-i18n="instant-delivery-desc">Get your subscription codes immediately via email after purchase</p>
-      </div>
-      <div class="feature-card">
-        <i class="fas fa-lock"></i>
-        <h3 data-i18n="secure-payment">Secure Payment</h3>
-        <p data-i18n="secure-payment-desc">Safe and encrypted transactions for your peace of mind</p>
-      </div>
-      <div class="feature-card">
-        <i class="fas fa-headset"></i>
-        <h3 data-i18n="24-7-support">24/7 Support</h3>
-        <p data-i18n="24-7-support-desc">Dedicated customer support team ready to help anytime</p>
-      </div>
-      <div class="feature-card">
-        <i class="fas fa-check-circle"></i>
-        <h3 data-i18n="100-guarantee">100% Guarantee</h3>
-        <p data-i18n="100-guarantee-desc">Satisfaction guaranteed or your money back</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h4><i class="fas fa-store"></i> DIMA Deals</h4>
-                <p>Your trusted source for premium digital subscriptions at unbeatable prices.</p>     
-                <div class="social-links">
-                    <a href="https://www.facebook.com/DimaDeals001/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                    <a href="javascript:void(0)" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                    <a href="https://www.instagram.com/dima_deals_/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="javascript:void(0)" aria-label="Discord"><i class="fab fa-discord"></i></a>
-                </div>
-            </div>
-
-            <div class="footer-section">
-                <h4>Quick Links</h4>
-                <ul>
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/browse?category=netflix">Subscriptions</a></li>
-                    <li><a href="/about.html">About Us</a></li>
-                    <li><a href="/contact.html">Contact</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-section">
-                <h4>Support</h4>
-                <ul>
-                    <li><a href="/faq.html">FAQ</a></li>
-                    <li><a href="/help.html">Help Center</a></li>
-                    <li><a href="/terms.html">Terms of Service</a></li>
-                    <li><a href="/privacy.html">Privacy Policy</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-section">
-                <h4>Contact Info</h4>
-                <a href="mailto:dimadeals0@gmail.com">dimadeals0@gmail.com</a>
-                <p><a href="tel:+21629156007"><i class="fas fa-phone"></i>+216 29 156 007</a></p>
-                
-                <p><i class="fas fa-map-marker-alt"></i> Tunisia</p>
-            </div>
+<main>
+  <!-- Hero -->
+  <section class="home-hero">
+    <div class="section-container">
+      <div class="hero-copy">
+        <span class="eyebrow" data-i18n="eyebrow-store">Tunisia's digital store</span>
+        <h1><span data-i18n="hero-title">Games, subscriptions and software.</span> <em data-i18n="hero-title-accent">Delivered in minutes.</em></h1>
+        <p class="hero-subtitle" data-i18n="hero-subtitle">
+          PC and console titles, streaming plans, courses and software — chosen for gamers,
+          creators and students in Tunisia. Pay in TND and get your access digitally.
+        </p>
+        <div class="hero-actions">
+          <a href="/browse" class="btn btn-primary">
+            <span data-i18n="browse-deals">Browse the catalog</span>
+            <i class="fas fa-arrow-right"></i>
+          </a>
+          <a href="/browse?category=games" class="btn btn-ghost">
+            <span data-i18n="explore-games">Explore games</span> <i class="fas fa-gamepad"></i>
+          </a>
         </div>
+        <ul class="hero-points">
+          <li><i class="fas fa-bolt"></i> <span data-i18n="hero-point-1">Instant digital delivery</span></li>
+          <li><i class="fas fa-shield-alt"></i> <span data-i18n="hero-point-2">Verified before delivery</span></li>
+          <li><i class="fab fa-whatsapp"></i> <span data-i18n="hero-point-3">Local WhatsApp support</span></li>
+        </ul>
+      </div>
 
-        <div class="footer-bottom">
-            <p>&copy; 2026 DIMA Deals. All rights reserved. Made with <i class="fas fa-heart" style="color: var(--primary);"></i> in Tunisia</p>
+      <div class="hero-showcase" aria-label="Featured products">
+        <a href="/product?id=50" class="showcase-main" data-featured-product="50">
+          <img src="images/Arc_Raiders3.png" alt="Arc Raiders" loading="eager">
+          <div class="showcase-overlay">
+            <span class="showcase-label">Featured release</span>
+            <h2>Arc Raiders</h2>
+            <div class="showcase-price-row">
+              <span class="showcase-price">189 TND</span>
+              <span class="showcase-old">220 TND</span>
+            </div>
+          </div>
+        </a>
+
+        <div class="showcase-side">
+          <a href="/product?id=60" class="showcase-mini" data-featured-product="60">
+            <img src="images/fc-26-2.png" alt="EA Sports FC 26" loading="eager">
+            <div class="showcase-overlay">
+              <span class="showcase-label">Console</span>
+              <h3>EA Sports FC 26</h3>
+              <span class="showcase-price">219 TND</span>
+            </div>
+          </a>
+          <a href="/product?id=52" class="showcase-mini" data-featured-product="52">
+            <img src="images/elden-ring-3.png" alt="Elden Ring" loading="eager">
+            <div class="showcase-overlay">
+              <span class="showcase-label">PC</span>
+              <h3>Elden Ring</h3>
+              <span class="showcase-price">149 TND</span>
+            </div>
+          </a>
         </div>
-    </footer>
+      </div>
+    </div>
+  </section>
 
-  <!-- WhatsApp Float -->
-  <a href="https://wa.me/21629156007" target="_blank" rel="noopener" class="whatsapp-float" aria-label="Chat on WhatsApp">
-    <i class="fab fa-whatsapp"></i>
-    <span class="whatsapp-tooltip">Chat with us</span>
-  </a>
+  <!-- Categories -->
+  <section class="section section--tight">
+    <div class="section-container">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow" data-i18n="eyebrow-browse">Browse the catalog</span>
+          <h2 data-i18n="shop-category">Shop by category</h2>
+        </div>
+        <a href="/browse" class="link-arrow"><span data-i18n="view-everything">View everything</span> <i class="fas fa-arrow-right"></i></a>
+      </div>
 
-  <script type="module" src="js/main.js?v=4.0"></script>
+      <div class="category-grid">
+        <a href="/browse?category=subscriptions" class="category-card">
+          <span class="category-icon"><i class="fas fa-tv"></i></span>
+          <span class="category-copy">
+            <strong data-i18n="cat-subs">Subscriptions</strong>
+            <span data-i18n="cat-subs-desc">Netflix, Spotify, Canva &amp; more</span>
+          </span>
+          <i class="fas fa-arrow-right category-arrow"></i>
+        </a>
+        <a href="/browse?category=games" class="category-card">
+          <span class="category-icon"><i class="fas fa-gamepad"></i></span>
+          <span class="category-copy">
+            <strong data-i18n="cat-games">Games</strong>
+            <span data-i18n="cat-games-desc">PC, console, mobile &amp; gift cards</span>
+          </span>
+          <i class="fas fa-arrow-right category-arrow"></i>
+        </a>
+        <a href="/browse?category=courses" class="category-card">
+          <span class="category-icon"><i class="fas fa-graduation-cap"></i></span>
+          <span class="category-copy">
+            <strong data-i18n="cat-courses">Courses</strong>
+            <span data-i18n="cat-courses-desc">Programming, design &amp; business</span>
+          </span>
+          <i class="fas fa-arrow-right category-arrow"></i>
+        </a>
+        <a href="/browse?category=apps" class="category-card">
+          <span class="category-icon"><i class="fas fa-cube"></i></span>
+          <span class="category-copy">
+            <strong data-i18n="cat-apps">Apps &amp; software</strong>
+            <span data-i18n="cat-apps-desc">Tools, licenses &amp; mobile apps</span>
+          </span>
+          <i class="fas fa-arrow-right category-arrow"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Most popular -->
+  <section class="section">
+    <div class="section-container">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow" data-i18n="eyebrow-trending">Trending this month</span>
+          <h2 data-i18n="most-popular">Most popular</h2>
+          <p data-i18n="most-popular-subtitle">The products our customers keep coming back for</p>
+        </div>
+        <a href="/browse" class="link-arrow"><span data-i18n="shop-all">Shop all</span> <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div class="product-grid" id="most-popular-grid">
+        <!-- populated from /api/products -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured deals -->
+  <section class="section section--muted">
+    <div class="section-container">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow" data-i18n="eyebrow-offers">Selected offers</span>
+          <h2 data-i18n="recommended">Featured deals</h2>
+          <p data-i18n="recommended-subtitle">Hand-picked offers with clear savings</p>
+        </div>
+        <a href="/browse?category=games" class="link-arrow"><span data-i18n="see-game-deals">See game deals</span> <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div class="product-grid" id="recommended-grid">
+        <!-- populated from /api/products -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Why choose -->
+  <section class="section">
+    <div class="section-container trust-layout">
+      <div class="trust-copy">
+        <span class="eyebrow" data-i18n="eyebrow-standard">The DIMA standard</span>
+        <h2 data-i18n="why-choose">Why buy from DIMA Deals</h2>
+        <p>
+          We are not a faceless code shop. Every order is handled by a real team in Tunisia,
+          with prices in dinars and support you can actually reach.
+        </p>
+        <a href="/about.html" class="link-arrow">More about us <i class="fas fa-arrow-right"></i></a>
+      </div>
+
+      <div class="trust-grid">
+        <div class="trust-item">
+          <i class="fas fa-bolt"></i>
+          <h3 data-i18n="instant-delivery">Instant delivery</h3>
+          <p data-i18n="instant-delivery-desc">Digital codes and access sent as soon as your order is verified.</p>
+        </div>
+        <div class="trust-item">
+          <i class="fas fa-shield-alt"></i>
+          <h3 data-i18n="secure-payment">Secure checkout</h3>
+          <p data-i18n="secure-payment-desc">Your details are handled carefully and payment is confirmed manually.</p>
+        </div>
+        <div class="trust-item">
+          <i class="fab fa-whatsapp"></i>
+          <h3 data-i18n="24-7-support">Local support</h3>
+          <p data-i18n="24-7-support-desc">Message us on WhatsApp and talk to a real person in Tunisia.</p>
+        </div>
+        <div class="trust-item">
+          <i class="fas fa-check-circle"></i>
+          <h3 data-i18n="100-guarantee">Working or refunded</h3>
+          <p data-i18n="100-guarantee-desc">If a product does not work as described, we make it right.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Support CTA -->
+  <section class="section section--tight">
+    <div class="section-container">
+      <div class="cta-band">
+        <div>
+          <h2 data-i18n="cta-title">Not sure which plan or platform to pick?</h2>
+          <p data-i18n="cta-desc">Tell us what you need and we will point you to the right product — no pressure.</p>
+        </div>
+        <a href="https://wa.me/21629156007" target="_blank" rel="noopener" class="btn btn-primary">
+          <span data-i18n="cta-button">Chat on WhatsApp</span> <i class="fab fa-whatsapp"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-section footer-brand">
+      <a class="footer-logo" href="/" aria-label="DIMA Deals home">
+        <img src="images/brand.png" alt="">
+        <span>DIMA <em>DEALS</em></span>
+      </a>
+      <p>Digital games, subscriptions and software for Tunisia, with clear prices and real local support.</p>
+      <div class="social-links">
+        <a href="https://www.facebook.com/DimaDeals001/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com/dima_deals_/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="https://wa.me/21629156007" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+      </div>
+    </div>
+
+    <div class="footer-section">
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="/browse">All products</a></li>
+        <li><a href="/browse?category=subscriptions">Subscriptions</a></li>
+        <li><a href="/browse?category=games">Games</a></li>
+        <li><a href="/browse?category=courses">Courses</a></li>
+        <li><a href="/browse?category=apps">Apps &amp; software</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-section">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="/faq.html">FAQ</a></li>
+        <li><a href="/help.html">Help center</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/terms.html">Terms of service</a></li>
+        <li><a href="/privacy.html">Privacy policy</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-section">
+      <h4>Contact</h4>
+      <ul>
+        <li><a href="mailto:dimadeals0@gmail.com"><i class="fas fa-envelope"></i> dimadeals0@gmail.com</a></li>
+        <li><a href="tel:+21629156007"><i class="fas fa-phone"></i> +216 29 156 007</a></li>
+        <li><i class="fas fa-map-marker-alt"></i> Tunisia</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>&copy; 2026 DIMA Deals. All rights reserved.</p>
+    <div class="footer-meta">
+      <span><i class="fas fa-bolt"></i> Instant delivery</span>
+      <span><i class="fas fa-lock"></i> Secure checkout</span>
+      <span><i class="fas fa-headset"></i> Local support</span>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/21629156007" target="_blank" rel="noopener" class="whatsapp-float" aria-label="Chat on WhatsApp">
+  <i class="fab fa-whatsapp"></i>
+  <span class="whatsapp-tooltip">Chat with us</span>
+</a>
+
+<script type="module" src="js/main.js?v=5.0"></script>
 </body>
 </html>

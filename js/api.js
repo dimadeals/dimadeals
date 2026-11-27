@@ -7,6 +7,29 @@ export let PRODUCTS_DATABASE = {}; // populated from /api/products
 // Cached flattened product list — invalidated whenever the database changes
 let _allProductsCache = null;
 
+// Older Redis records may still point at image variants that are no longer
+// shipped. Map those paths to the compressed assets that remain.
+const LEGACY_IMAGE_MAP = {
+  'images/arc-raiders.png': 'images/Arc_Raiders3.png',
+  'images/Arc_Raiders2.png': 'images/Arc_Raiders3.png',
+  'images/Cyberpunk2077-2.png': 'images/Cyberpunk2077.png',
+  'images/Cyberpunk2077-3.png': 'images/Cyberpunk2077.png',
+  'images/elden-ring-2.png': 'images/elden-ring-3.png',
+  'images/fc-26.png': 'images/fc-26-2.png',
+  'images/helldivers-2.png': 'images/helldivers-2-2.png',
+  'images/nioh-3.png': 'images/nioh-3-2.png',
+  'images/no-man-s-sky.png': 'images/no-man-s-sky-3.png',
+};
+
+function normalizeImages(images) {
+  if (!Array.isArray(images)) return [];
+  return [...new Set(
+    images
+      .filter((img) => typeof img === 'string' && img.trim())
+      .map((img) => LEGACY_IMAGE_MAP[img] || img)
+  )];
+}
+
 function normalizeProduct(raw) {
   if (!raw || typeof raw !== 'object') return null;
 
@@ -25,7 +48,7 @@ function normalizeProduct(raw) {
     rating: Number.isFinite(rating) ? Math.min(5, Math.max(0, rating)) : 0,
     description: String(raw.description ?? ''),
     category: String(raw.category ?? '').toLowerCase(),
-    images: Array.isArray(raw.images) ? raw.images.filter((img) => typeof img === 'string' && img.trim()) : [],
+    images: normalizeImages(raw.images),
     mainCategories: Array.isArray(raw.mainCategories) ? raw.mainCategories : [],
     popular: Boolean(raw.popular),
     recommended: Boolean(raw.recommended),
