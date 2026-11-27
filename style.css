@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
 
 /* ============================================================================
    DIMA DEALS — storefront design system
@@ -1054,6 +1054,7 @@ button:disabled {
 
 .category-card {
   display: flex;
+  min-width: 0;
   align-items: center;
   gap: 13px;
   min-height: 86px;
@@ -1084,6 +1085,7 @@ button:disabled {
 }
 
 .category-copy {
+  flex: 1;
   min-width: 0;
 }
 
@@ -4320,4 +4322,160 @@ button:disabled {
 
 [dir='rtl'] .whatsapp-float:hover .whatsapp-tooltip {
   transform: translateX(0);
+}
+
+/* ============================================================================
+   Arabic typography and RTL refinements
+   ========================================================================== */
+html[lang='ar'] body,
+html[lang='ar'] button,
+html[lang='ar'] input,
+html[lang='ar'] select,
+html[lang='ar'] textarea {
+  font-family: 'Cairo', 'Tajawal', 'Segoe UI', sans-serif;
+}
+
+html[lang='ar'] h1,
+html[lang='ar'] h2,
+html[lang='ar'] h3,
+html[lang='ar'] h4,
+html[lang='ar'] h5,
+html[lang='ar'] h6,
+html[lang='ar'] .logo-word,
+html[lang='ar'] .footer-brand .footer-logo span {
+  font-family: 'Cairo', 'Tajawal', 'Segoe UI', sans-serif;
+  letter-spacing: 0;
+}
+
+[dir='rtl'] body {
+  text-align: right;
+}
+
+[dir='rtl'] .product-card,
+[dir='rtl'] .product-info,
+[dir='rtl'] .category-copy,
+[dir='rtl'] .footer-section,
+[dir='rtl'] .checkout-form-section,
+[dir='rtl'] .cart-item,
+[dir='rtl'] .order-item,
+[dir='rtl'] .confirmation-content {
+  text-align: right;
+}
+
+[dir='rtl'] .price,
+[dir='rtl'] .product-price,
+[dir='rtl'] .product-old-price,
+[dir='rtl'] .item-price,
+[dir='rtl'] .item-total,
+[dir='rtl'] .showcase-price,
+[dir='rtl'] .showcase-old,
+[dir='rtl'] .checkout-total span:last-child,
+[dir='rtl'] .summary-item span:last-child,
+[dir='rtl'] .order-item-price,
+[dir='rtl'] .order-id,
+[dir='rtl'] .oid {
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline-block;
+}
+
+[dir='rtl'] .form-group input[type='email'],
+[dir='rtl'] .form-group input[type='tel'],
+[dir='rtl'] .form-group input[name='email'],
+[dir='rtl'] .form-group input[name='phone'] {
+  direction: ltr;
+  text-align: left;
+}
+
+[dir='rtl'] .phone-input-wrapper {
+  direction: ltr;
+}
+
+[dir='rtl'] .fa-arrow-right,
+[dir='rtl'] .fa-arrow-left,
+[dir='rtl'] .fa-chevron-right,
+[dir='rtl'] .fa-chevron-left {
+  transform: scaleX(-1);
+}
+
+[dir='rtl'] .link-arrow:hover {
+  gap: 11px;
+}
+
+[dir='rtl'] .product-info-category a + a::before {
+  content: '/';
+}
+
+/* Compact checkout/confirmation header actions */
+.compact-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+@media (max-width: 520px) {
+  .compact-actions {
+    gap: 6px;
+  }
+
+  .compact-actions .checkout-header-info {
+    display: none;
+  }
+}
+
+/* Mobile language selector lives inside the collapsible navigation. */
+.mobile-language {
+  display: none;
+}
+
+@media (max-width: 1140px) {
+  .mobile-language {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 12px 10px 4px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  .mobile-language .language-select {
+    display: block;
+    width: auto;
+    min-width: 76px;
+    margin: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .compact-actions .language-select {
+    display: block;
+  }
+}
+
+@media (max-width: 640px) {
+  .category-copy span {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 380px) {
+  .logo-word span {
+    display: none;
+  }
+
+  .logo-word {
+    font-size: 15px;
+  }
+
+  .nav-right {
+    gap: 4px;
+  }
+
+  .mobile-menu-toggle {
+    width: 36px;
+    height: 36px;
+  }
 }

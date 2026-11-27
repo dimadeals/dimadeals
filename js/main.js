@@ -1,10 +1,10 @@
 // ============ MAIN INITIALIZATION ============
 
-import { showSkeletons, showToast } from './utils.js';
+import { showSkeletons, showToast, escapeHTML } from './utils.js';
 import { PRODUCTS_DATABASE, loadProductsFromAPI, getProductById } from './api.js';
 import { CATALOG_METADATA, getAllPopularProducts, getAllRecommendedProducts, getRelatedProducts } from './products.js';
 import {
-  initializeLanguage, applyLanguage, createProductCard, handleBuyClick,
+  createProductCard, handleBuyClick,
   viewProductDetails, loadMoreBrowse, loadMoreSearch, renderProducts,
   loadProductDetails, loadBrowsePage
 } from './ui.js';
@@ -15,13 +15,17 @@ import {
 } from './cart.js';
 import { initializeSearch, loadSearchResults, selectSuggestion } from './search.js';
 
+const i18n = window.DimaI18n;
+const t = (message, vars) => (i18n ? i18n.t(message, vars) : message);
+const localizeProduct = (product) => (i18n ? i18n.localizeProduct(product) : product);
+
 // Global error handlers
 window.addEventListener('error', function(event) {
   console.error('Uncaught error:', event.error);
 });
 window.addEventListener('unhandledrejection', function(event) {
   console.error('Unhandled promise rejection:', event.reason);
-  showToast('Something went wrong. Please try again.', 'error');
+  showToast(t('Something went wrong. Please try again.'), 'error');
 });
 
 // Register globals for onclick handlers in dynamically generated HTML
@@ -36,7 +40,6 @@ window.selectSuggestion = selectSuggestion;
 
 // Also expose for inline scripts in HTML pages
 window.displayCart = displayCart;
-window.initializeLanguage = initializeLanguage;
 window.displayCheckoutSummary = displayCheckoutSummary;
 window.setupCheckoutForm = setupCheckoutForm;
 window.displayConfirmation = displayConfirmation;
@@ -47,23 +50,27 @@ function hydrateFeaturedProducts() {
     const product = getProductById(card.dataset.featuredProduct);
     if (!product) return;
 
-    card.setAttribute('href', `/product?id=${encodeURIComponent(product.id)}`);
+    const localized = localizeProduct(product);
+    card.setAttribute('href', `/product?id=${encodeURIComponent(localized.id)}`);
 
     // Keep the curated, compressed hero artwork; only the commerce data is
     // hydrated from the product record.
     const title = card.querySelector('h2, h3');
-    if (title) title.textContent = product.name;
+    if (title) {
+      title.textContent = localized.name;
+      title.setAttribute('data-i18n-skip', '');
+    }
 
     const price = card.querySelector('.showcase-price');
     if (price) {
-      const value = Number(product.price);
+      const value = Number(localized.price);
       price.textContent = `${Number.isInteger(value) ? value : value.toFixed(2)} TND`;
     }
 
     const oldPrice = card.querySelector('.showcase-old');
     if (oldPrice) {
-      const original = Number(product.originalPrice);
-      if (Number.isFinite(original) && original > Number(product.price)) {
+      const original = Number(localized.originalPrice);
+      if (Number.isFinite(original) && original > Number(localized.price)) {
         oldPrice.textContent = `${Number.isInteger(original) ? original : original.toFixed(2)} TND`;
         oldPrice.style.display = '';
       } else {
@@ -75,14 +82,13 @@ function hydrateFeaturedProducts() {
 
 document.addEventListener('DOMContentLoaded', async function() {
  try {
-  // Initialize language
-  initializeLanguage();
+  window.DimaI18n?.init();
 
   // Product data is only needed on shopping pages. Legal/about pages should
   // not hit the API (or show a product-load toast if it is down).
   const needsProducts = Boolean(document.querySelector(
     '#products-grid, #most-popular-grid, #recommended-grid, #search-results-grid, ' +
-    '#related-products-grid, .product-detail-container, #checkout-form'
+    '#related-products-grid, .product-detail-container, #checkout-form, #confirmation-info, #cart-items'
   ));
 
   // Show loading skeletons while fetching products
@@ -101,7 +107,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   if (!apiSuccess) {
     // Show a single clear error in every product grid instead of silently
     // rendering "no products" (which looks like an empty shop).
-    const fallbackHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Unable to load products. Please refresh the page.</p></div>';
+    const fallbackHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>${escapeHTML(t('Unable to load products. Please refresh the page.'))}</p></div>`;
     ['most-popular-grid', 'recommended-grid', 'products-grid', 'catalog-grid', 'search-results-grid', 'related-products-grid'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.innerHTML = fallbackHTML;
@@ -124,8 +130,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (metadata) {
           const titleEl = document.getElementById('catalog-title');
           const subEl   = document.getElementById('catalog-subtitle');
-          if (titleEl) titleEl.textContent = metadata.title;
-          if (subEl)   subEl.textContent   = metadata.subtitle;
+          if (titleEl) titleEl.textContent = t(metadata.title);
+          if (subEl)   subEl.textContent   = t(metadata.subtitle);
         }
         catalogGrid.innerHTML = products.map(p => createProductCard(p)).join('');
       } else {
@@ -141,8 +147,8 @@ document.addEventListener('DOMContentLoaded', async function() {
           if (meta) {
             const titleIds = ['games-title', 'courses-title', 'apps-title'];
             const subIds   = ['games-subtitle', 'courses-subtitle', 'apps-subtitle'];
-            for (const id of titleIds) { const el = document.getElementById(id); if (el) el.textContent = meta.title; }
-            for (const id of subIds)   { const el = document.getElementById(id); if (el) el.textContent = meta.subtitle; }
+            for (const id of titleIds) { const el = document.getElementById(id); if (el) el.textContent = t(meta.title); }
+            for (const id of subIds)   { const el = document.getElementById(id); if (el) el.textContent = t(meta.subtitle); }
           }
           const pcPlat = document.getElementById('pc-platforms');
           if (pcPlat) pcPlat.style.display = _tp === 'pc' ? 'block' : 'none';
@@ -277,31 +283,16 @@ document.addEventListener('DOMContentLoaded', async function() {
   // Dropdown menus now use CSS :hover / :focus-within / .open, so the old
   // JS mouseenter/mouseleave timers are no longer needed.
 
-  // Product image gallery for product detail page
-  const mainImg = document.getElementById('main-image');
-  const thumbImgs = document.querySelectorAll('.thumbnails img');
-
-  if (thumbImgs.length > 0) {
-    thumbImgs[0].classList.add('active');
-  }
-
-  thumbImgs.forEach(img => {
-    img.addEventListener('click', function() {
-      if (mainImg) {
-        mainImg.src = this.dataset.full ? this.dataset.full : this.src;
-      }
-      thumbImgs.forEach(t => t.classList.remove('active'));
-      this.classList.add('active');
-    });
+  // Product image gallery (delegated so it survives language re-renders)
+  document.addEventListener('click', function(event) {
+    const thumb = event.target.closest('.thumbnails img');
+    if (!thumb) return;
+    const main = document.getElementById('main-image');
+    if (!main) return;
+    main.src = thumb.dataset.full ? thumb.dataset.full : thumb.src;
+    document.querySelectorAll('.thumbnails img').forEach(t => t.classList.remove('active'));
+    thumb.classList.add('active');
   });
-
-  // Language selector
-  const languageSelect = document.getElementById('language-select');
-  if (languageSelect) {
-    languageSelect.addEventListener('change', function() {
-      applyLanguage(this.value);
-    });
-  }
 
   // Theme toggle / Dark mode functionality
   // DIMA is dark-first: use dark unless the visitor explicitly chose light.
@@ -350,8 +341,38 @@ document.addEventListener('DOMContentLoaded', async function() {
       displayConfirmation().catch((e) => console.error('Confirmation page error:', e));
     }
   }
+
+  // Re-render all data-driven content when the language changes. Static text
+  // is handled by DimaI18n; product names/descriptions need fresh records.
+  if (i18n) {
+    i18n.onLanguageChange(() => {
+      if (!apiSuccess) return;
+      try {
+        hydrateFeaturedProducts();
+        if (document.getElementById('most-popular-grid')) {
+          renderProducts('most-popular-grid', getAllPopularProducts());
+          renderProducts('recommended-grid', getAllRecommendedProducts());
+        }
+        if (document.getElementById('products-grid')) loadBrowsePage();
+        if (document.querySelector('.product-detail-container')) {
+          loadProductDetails();
+          const pid = new URLSearchParams(window.location.search).get('id')
+            || localStorage.getItem('selectedProductId');
+          if (pid) renderProducts('related-products-grid', getRelatedProducts(pid));
+        }
+        if (document.querySelector('.search-results-section')) loadSearchResults();
+        if (document.getElementById('cart-items')) displayCart();
+        if (document.getElementById('checkout-form')) displayCheckoutSummary();
+        if (document.getElementById('confirmation-info')) {
+          displayConfirmation().catch((error) => console.error(error));
+        }
+      } catch (error) {
+        console.error('Language refresh failed:', error);
+      }
+    });
+  }
  } catch (err) {
   console.error('App initialization error:', err);
-  showToast('Something went wrong loading the page. Please refresh.', 'error');
+  showToast(t('Something went wrong loading the page. Please refresh.'), 'error');
  }
 });

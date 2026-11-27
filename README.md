@@ -21,6 +21,32 @@ template:
 The visual system lives in [style.css](style.css); storefront behaviour lives in
 [js/](js/) and the shared API runtime in [api/redis.js](api/redis.js).
 
+## Multilingual support (EN / FR / AR)
+
+All three languages share one runtime, [js/i18n.js](js/i18n.js), loaded by both
+the storefront and the admin dashboard. It provides:
+
+- Central EN/FR/AR dictionaries keyed by the English source message, with
+  interpolation (`{name}`, `{count}`), missing-key fallback to English, and
+  `data-i18n` / `data-i18n-placeholder` support.
+- Runtime DOM translation for static HTML plus a `MutationObserver` for
+  dynamically rendered tables, modals, toasts and product cards.
+- Product name/description translations keyed by product ID. Products without a
+  translation fall back to their stored English data, so existing Redis records
+  and newly created admin products are never broken.
+- `localStorage.language` persistence, English as the first-visit default,
+  `document.documentElement.lang` / `dir` updates, and live re-rendering of
+  product grids, product detail, search, cart, checkout and confirmation.
+- Arabic typography (Cairo) and mirrored navigation, directional icons, forms,
+  headers, footers and admin layout. Prices, currency codes, IDs, emails,
+  phone numbers and brand names stay readable and are not translated.
+- Language selectors in the desktop header, the mobile navigation, the compact
+  checkout/confirmation headers and the admin login/dashboard.
+
+Translations live entirely in `js/i18n.js`; no backend schema or API contract
+was changed. Elements holding user/product data can opt out with
+`data-i18n-skip`.
+
 ## Quick start (no Redis required)
 
 ```bash
@@ -44,9 +70,11 @@ confirmation, and admin dashboard work out of the box. Local in-memory data
 
 > **Consolidated layout:** all shared backend runtime code — Redis client,
 > in-memory fallback, admin auth, and the starter catalog — lives in
-> [api/redis.js](api/redis.js). There are no test scripts, screenshots, or build
+> [api/redis.js](api/redis.js). Shared frontend translation data lives in
+> [js/i18n.js](js/i18n.js). There are no test scripts, screenshots, or build
 > artifacts in the project; the only added runtime files are
-> [dev-server.js](dev-server.js), [README.md](README.md), and [.gitignore](.gitignore).
+> [dev-server.js](dev-server.js), [js/i18n.js](js/i18n.js), [README.md](README.md),
+> and [.gitignore](.gitignore).
 
 ## Production deployment (Vercel)
 
@@ -97,6 +125,7 @@ js/                                           # storefront ES modules
   api.js        product loading/normalisation
   products.js   catalog helpers, categories, sorting
   ui.js         product cards, browse, product detail
+  i18n.js       EN/FR/AR dictionaries, product translations, RTL runtime
   search.js     suggestions, search page, filters
   cart.js       cart, checkout, confirmation
   utils.js      toasts, escaping, skeletons, debounce

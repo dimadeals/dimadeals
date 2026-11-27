@@ -3,6 +3,10 @@ import { getAllProducts } from './api.js';
 import { getProductBroadCategory, getMainCategories, sortProducts } from './products.js';
 import { initSearchPagination } from './ui.js';
 
+const i18n = window.DimaI18n;
+const t = (message, vars) => (i18n ? i18n.t(message, vars) : message);
+const localizeProduct = (product) => (i18n ? i18n.localizeProduct(product) : product);
+
 // ============ SINGLE SOURCE OF TRUTH FOR FILTERING ============
 let selectedMainCategory = null; // 'all', 'subscriptions', 'games', 'courses', 'apps', or null
 
@@ -14,7 +18,7 @@ export function searchProducts(query) {
   }
 
   const searchTerm = String(query).toLowerCase().trim();
-  const allProducts = getAllProducts();
+  const allProducts = getAllProducts().map(localizeProduct);
 
   return allProducts.filter(product => {
     const name = String(product.name || '').toLowerCase();
@@ -49,10 +53,10 @@ function createSuggestionItem(product) {
     <div class="suggestion-item" onclick="selectSuggestion(${jsArg(product.id)})">
       <img src="${escapeHTML(imageSrc) || 'images/brand.png'}" alt="${escapeHTML(product.name)}" class="suggestion-image" onerror="this.onerror=null;this.src='images/brand.png'">
       <div class="suggestion-content">
-        <div class="suggestion-name">${escapeHTML(product.name)}</div>
-        <div class="suggestion-price">${product.price} TND</div>
+        <div class="suggestion-name" data-i18n-skip>${escapeHTML(product.name)}</div>
+        <div class="suggestion-price" dir="ltr">${product.price} TND</div>
         ${ratingHTML}
-        <div class="suggestion-description">${escapeHTML(description.substring(0, 50))}${description.length > 50 ? '...' : ''}</div>
+        <div class="suggestion-description" data-i18n-skip>${escapeHTML(description.substring(0, 50))}${description.length > 50 ? '...' : ''}</div>
       </div>
     </div>
   `;
@@ -110,9 +114,9 @@ export function displaySearchResults(results, containerId) {
     container.innerHTML = `
       <div class="empty-state">
         <i class="fas fa-search"></i>
-        <h3>No products found</h3>
-        <p>Try searching with different keywords</p>
-        <a href="/" class="cta-button">Browse All Products</a>
+        <h3>${escapeHTML(t('No products found'))}</h3>
+        <p>${escapeHTML(t('Try a different search term or clear the category filter.'))}</p>
+        <a href="/browse" class="cta-button">${escapeHTML(t('Browse the catalog'))}</a>
       </div>
     `;
     return;
@@ -240,7 +244,7 @@ export function loadSearchResults() {
 
   // Display search query in the heading and restore it in the header input.
   const queryDisplay = document.getElementById('search-query-display');
-  if (queryDisplay) queryDisplay.textContent = `Searching for: "${searchQuery}"`;
+  if (queryDisplay) queryDisplay.textContent = t('Searching for: "{query}"', { query: searchQuery });
   const searchInput = document.getElementById('search-input');
   if (searchInput) searchInput.value = searchQuery;
 
@@ -251,10 +255,10 @@ export function loadSearchResults() {
   // Update results count
   const resultsCount = document.getElementById('results-count');
   if (resultsCount) {
-    resultsCount.textContent = `${results.length} result${results.length !== 1 ? 's' : ''} found`;
+    resultsCount.textContent = t('{count} result(s) found', { count: results.length });
   }
 
-  document.title = `Search: ${searchQuery} — DIMA Deals`;
+  document.title = t('Search: {query} — DIMA Deals', { query: searchQuery });
 
   // Initialize filter buttons
   initializeSearchFilters(results);
@@ -267,35 +271,30 @@ function initializeSearchFilters(allResults) {
   // Initialize with 'all' category by default
   selectedMainCategory = 'all';
 
-  // Handle sort change
+  // Handle sort change (assign, not add, so language re-renders don't stack)
   if (sortSelect) {
-    sortSelect.addEventListener('change', function() {
+    sortSelect.onchange = function() {
       // Re-apply current filter with new sort
       let filteredResults = filterSearchResults(allResults, selectedMainCategory);
       filteredResults = sortProducts(filteredResults, this.value);
-      
-      // Update results count
+
       const resultsCount = document.getElementById('results-count');
       if (resultsCount) {
-        resultsCount.textContent = `${filteredResults.length} result${filteredResults.length !== 1 ? 's' : ''} found`;
+        resultsCount.textContent = t('{count} result(s) found', { count: filteredResults.length });
       }
-      
-      console.log('[Sort] Applied sort:', this.value, 'Results:', filteredResults.length);
+
       initSearchPagination(filteredResults);
-    });
+    };
   }
 
   // Handle filter button clicks
   filterButtons.forEach(button => {
-    button.addEventListener('click', function(e) {
+    button.onclick = function(e) {
       e.preventDefault();
       e.stopPropagation();
-      
-      // Update single source of truth
-      selectedMainCategory = this.dataset.filter;
-      console.log('[Category Click] Selected category:', selectedMainCategory);
 
-      // Update UI - remove active from all, add to clicked
+      selectedMainCategory = this.dataset.filter;
+
       filterButtons.forEach(btn => {
         btn.classList.remove('active');
         btn.setAttribute('aria-pressed', 'false');
@@ -303,22 +302,18 @@ function initializeSearchFilters(allResults) {
       this.classList.add('active');
       this.setAttribute('aria-pressed', 'true');
 
-      // Apply filter
       let filteredResults = filterSearchResults(allResults, selectedMainCategory);
-      
-      // Apply current sort
+
       const sortValue = sortSelect ? sortSelect.value : 'relevance';
       filteredResults = sortProducts(filteredResults, sortValue);
-      
-      // Update results count
+
       const resultsCount = document.getElementById('results-count');
       if (resultsCount) {
-        resultsCount.textContent = `${filteredResults.length} result${filteredResults.length !== 1 ? 's' : ''} found`;
+        resultsCount.textContent = t('{count} result(s) found', { count: filteredResults.length });
       }
-      
-      console.log('[Category Click] Filtered to:', filteredResults.length, 'products');
+
       initSearchPagination(filteredResults);
-    });
+    };
   });
 
   // Set initial 'all' button as active

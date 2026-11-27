@@ -2,6 +2,8 @@
 
 import { showToast } from './utils.js';
 
+const t = (message, vars) => (window.DimaI18n ? window.DimaI18n.t(message, vars) : message);
+
 export let PRODUCTS_DATABASE = {}; // populated from /api/products
 
 // Cached flattened product list — invalidated whenever the database changes
@@ -78,13 +80,13 @@ export async function loadProductsFromAPI() {
       data = JSON.parse(text);
     } catch {
       console.error('Invalid JSON from /api/products:', text.slice(0, 300));
-      showToast('Failed to load products. Please refresh the page.', 'error');
+      showToast(t('Failed to load products. Please refresh the page.'), 'error');
       return false;
     }
 
     if (!res.ok || !data || data.success !== true || !Array.isArray(data.products)) {
       console.error('Products API error:', data);
-      showToast('Failed to load products. Please refresh the page.', 'error');
+      showToast(t('Failed to load products. Please refresh the page.'), 'error');
       PRODUCTS_DATABASE = {};
       _allProductsCache = null;
       return false;
@@ -94,7 +96,7 @@ export async function loadProductsFromAPI() {
     return true;
   } catch (error) {
     console.error('API failed:', error);
-    showToast('Failed to load products. Please check your connection and refresh.', 'error');
+    showToast(t('Failed to load products. Please check your connection and refresh.'), 'error');
     PRODUCTS_DATABASE = {};
     _allProductsCache = null;
     return false;

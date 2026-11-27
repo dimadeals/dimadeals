@@ -3,9 +3,25 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<script>
+  try {
+    var _lang = localStorage.getItem('language') || 'en';
+    if (!['en', 'fr', 'ar'].includes(_lang)) _lang = 'en';
+    document.documentElement.lang = _lang;
+    document.documentElement.dir = _lang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.dataset.language = _lang;
+    document.documentElement.dataset.theme = localStorage.getItem('theme') || 'dark';
+  } catch (error) {
+    document.documentElement.lang = 'en';
+    document.documentElement.dir = 'ltr';
+    document.documentElement.dataset.language = 'en';
+    document.documentElement.dataset.theme = 'dark';
+  }
+</script>
 <title>DIMA Deals — Admin Dashboard</title>
 <link rel="icon" type="image/png" href="images/brand.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 :root {
@@ -337,6 +353,25 @@ tbody td{padding:12px 14px;vertical-align:middle}
   .kpi-grid{grid-template-columns:repeat(2,1fr)}
   .charts-row{grid-template-columns:1fr}
 }
+
+/* ── Arabic / RTL support ────────────────── */
+html[lang='ar'] body,
+html[lang='ar'] button,
+html[lang='ar'] input,
+html[lang='ar'] select,
+html[lang='ar'] textarea{
+  font-family:'Cairo','Tajawal','Segoe UI',sans-serif;
+}
+[dir='rtl'] .sidebar{left:auto;right:0;border-right:0;border-left:1px solid var(--card-border)}
+[dir='rtl'] .main-wrap{margin-left:0;margin-right:220px;min-width:0;max-width:calc(100% - 220px)}
+@media(max-width:900px){
+  [dir='rtl'] .main-wrap{margin-right:200px;max-width:calc(100% - 200px)}
+}
+[dir='rtl'] th,[dir='rtl'] td{text-align:right}
+[dir='rtl'] .s-nav li a{justify-content:flex-start}
+[dir='rtl'] .oid,[dir='rtl'] .pg-info,[dir='rtl'] .order-id{direction:ltr;unicode-bidi:isolate}
+[dir='rtl'] .topbar-right{direction:ltr}
+[dir='rtl'] .login-card{direction:rtl}
 </style>
 </head>
 <body>
@@ -357,6 +392,14 @@ tbody td{padding:12px 14px;vertical-align:middle}
     <div class="form-group">
       <label class="lbl" for="key-input">Admin Key</label>
       <input type="password" id="key-input" class="field" placeholder="Enter your admin key" autocomplete="current-password"/>
+    </div>
+    <div class="form-group">
+      <label class="lbl" for="login-language">Language</label>
+      <select id="login-language" class="field" data-language-select aria-label="Language">
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+        <option value="ar">العربية</option>
+      </select>
     </div>
     <button class="btn btn-primary" id="login-btn">
       <i class="fas fa-sign-in-alt"></i> Sign In
@@ -399,6 +442,11 @@ tbody td{padding:12px 14px;vertical-align:middle}
         <h1 id="page-title">Overview</h1>
       </div>
       <div class="topbar-right">
+        <select class="f-select" data-language-select aria-label="Language">
+          <option value="en">EN</option>
+          <option value="fr">FR</option>
+          <option value="ar">AR</option>
+        </select>
         <button class="refresh-btn" id="refresh-btn">
           <i class="fas fa-sync-alt"></i> Refresh
         </button>
@@ -778,6 +826,7 @@ tbody td{padding:12px 14px;vertical-align:middle}
   </div>
 </div>
 
+<script src="js/i18n.js?v=1.0"></script>
 <script>
 /* ═══════════════════════════════════════════
    DIMA DEALS — ADMIN DASHBOARD  v2.0
@@ -789,6 +838,8 @@ let allOrders  = [];
 let filtered   = [];
 let curPage    = 1;
 let curOrder   = null;
+let lastStats  = null;
+let pendingConfirm = null;
 const PER_PAGE = 15;
 let rChart = null, sChart = null;
 
@@ -860,13 +911,19 @@ function jsq(v) {
   return esc(JSON.stringify(String(v ?? '')));
 }
 
+// Shared i18n helpers (loaded from js/i18n.js before this script).
+const i18n = window.DimaI18n;
+const t = (message, vars) => (i18n ? i18n.t(message, vars) : message);
+
 function fmtDate(iso) {
   if (!iso) return '—';
   const d = new Date(iso);
-  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})
-       + ' ' + d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  return i18n
+    ? i18n.formatDate(d, { dateStyle: 'medium', timeStyle: 'short' })
+    : d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})
+      + ' ' + d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
 }
-function fmtNum(n){ return n == null ? '—' : Number(n).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtNum(n){ return n == null ? '—' : Number(n).toLocaleString(i18n ? i18n.getLanguage() === 'ar' ? 'ar-TN-u-nu-latn' : i18n.getLanguage() === 'fr' ? 'fr-FR' : 'en-GB' : 'en-GB',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 
 const STATUS_BADGE = {
   pending:    '<span class="badge b-pending"><i class="fas fa-clock"></i> Pending</span>',
@@ -882,7 +939,7 @@ function toast(msg, type='inf'){
   const el = document.createElement('div');
   el.className = `toast t-${type}`;
   const icons = {ok:'fa-check-circle', err:'fa-exclamation-circle', inf:'fa-info-circle'};
-  el.innerHTML = `<i class="fas ${icons[type]||'fa-info-circle'}"></i>${esc(msg)}`;
+  el.innerHTML = `<i class="fas ${icons[type]||'fa-info-circle'}"></i>${esc(t(msg))}`;
   document.getElementById('toasts').appendChild(el);
   setTimeout(()=>{ el.style.transition='opacity .3s'; el.style.opacity='0'; setTimeout(()=>el.remove(),300); }, 3200);
 }
@@ -890,8 +947,9 @@ function toast(msg, type='inf'){
 // ── Confirm dialog ──────────────────────────
 function confirmDialog(title, msg){
   return new Promise(resolve => {
-    document.getElementById('confirm-title').textContent = title;
-    document.getElementById('confirm-msg').textContent   = msg;
+    pendingConfirm = { title, msg };
+    document.getElementById('confirm-title').textContent = t(title);
+    document.getElementById('confirm-msg').textContent   = t(msg);
     const bg = document.getElementById('confirm-bg');
     bg.classList.add('open');
     document.getElementById('confirm-yes').onclick = ()=>{ bg.classList.remove('open'); resolve(true); };
@@ -1026,6 +1084,7 @@ async function refresh(){
 // ── KPIs ────────────────────────────────────
 function updateKPIs(s){
   if (!s) return;
+  lastStats = s;
   document.getElementById('k-total').textContent   = (s.total   ?? allOrders.length).toLocaleString();
   document.getElementById('k-revenue').textContent = fmtNum(s.revenue ?? 0);
   document.getElementById('k-pending').textContent = (s.pending ?? 0).toLocaleString();
@@ -1043,7 +1102,7 @@ function buildRevenueChart(){
   const labels = [], values = [];
   for (let i=6; i>=0; i--){
     const d = new Date(); d.setDate(d.getDate()-i);
-    labels.push(d.toLocaleDateString('en-GB',{month:'short',day:'numeric'}));
+    labels.push(i18n ? i18n.formatDate(d, { month: 'short', day: 'numeric' }) : d.toLocaleDateString('en-GB',{month:'short',day:'numeric'}));
     const ds = d.toDateString();
     values.push(allOrders.filter(o=>new Date(o.createdAt).toDateString()===ds).reduce((s,o)=>s+(o.total||0),0));
   }
@@ -1051,7 +1110,7 @@ function buildRevenueChart(){
   rChart = new Chart(ctx,{
     type:'line',
     data:{labels, datasets:[{
-      label:'Revenue (TND)', data:values, borderColor:'#ff006e',
+      label:t('Revenue (TND)'), data:values, borderColor:'#ff006e',
       backgroundColor:'rgba(255,0,110,.07)', borderWidth:2,
       pointBackgroundColor:'#ff006e', pointRadius:3, tension:.4, fill:true
     }]},
@@ -1076,7 +1135,7 @@ function buildStatusChart(stats){
   sChart = new Chart(ctx,{
     type:'doughnut',
     data:{
-      labels:['Completed','Pending','Cancelled','Other'],
+      labels:[t('Completed'),t('Pending'),t('Cancelled'),t('Other')],
       datasets:[{data:[c,p,x,other], backgroundColor:['#00e676','#ffd60a','#ff4444','#08d9d6'], borderWidth:0, borderRadius:3}]
     },
     options:{
@@ -1097,8 +1156,8 @@ function renderRecent(){
   }
   tbody.innerHTML = rows.map(o=>`
     <tr onclick="openModal(${jsq(o.orderId)})">
-      <td><span class="oid">${esc(o.orderId)}</span></td>
-      <td><div class="cname">${esc(o.fullname||'—')}</div><div class="cemail">${esc(o.email||'—')}</div></td>
+      <td><span class="oid" data-i18n-skip>${esc(o.orderId)}</span></td>
+      <td><div class="cname" data-i18n-skip>${esc(o.fullname||'—')}</div><div class="cemail" data-i18n-skip>${esc(o.email||'—')}</div></td>
       <td>${esc(String(o.items?.length??0))}</td>
       <td>${esc(fmtNum(o.total))} TND</td>
       <td>${badge(o.status)}</td>
@@ -1122,7 +1181,7 @@ function applyFilters(){
 function renderOrdersTable(){
   const tbody = document.getElementById('orders-tbody');
   const cnt   = document.getElementById('orders-count');
-  if (cnt) cnt.textContent = `${filtered.length} order(s)`;
+  if (cnt) cnt.textContent = t('{count} order(s)', { count: filtered.length });
   if (!filtered.length){
     tbody.innerHTML='<tr><td colspan="8"><div class="empty"><i class="fas fa-inbox"></i><p>No orders found</p></div></td></tr>';
     renderPagination(0); return;
@@ -1132,8 +1191,8 @@ function renderOrdersTable(){
   const page  = sortedFiltered.slice(start, start+PER_PAGE);
   tbody.innerHTML = page.map(o=>`
     <tr onclick="openModal(${jsq(o.orderId)})">
-      <td><span class="oid">${esc(o.orderId)}</span></td>
-      <td><div class="cname">${esc(o.fullname||'—')}</div><div class="cemail">${esc(o.email||'—')}</div></td>
+      <td><span class="oid" data-i18n-skip>${esc(o.orderId)}</span></td>
+      <td><div class="cname" data-i18n-skip>${esc(o.fullname||'—')}</div><div class="cemail" data-i18n-skip>${esc(o.email||'—')}</div></td>
       <td>${esc(String(o.items?.length??0))}</td>
       <td>${esc(fmtNum(o.total))} TND</td>
       <td>${badge(o.paymentStatus||'pending')}</td>
@@ -1153,7 +1212,7 @@ function renderPagination(total){
   if (!info||!btns) return;
   const s = Math.min((curPage-1)*PER_PAGE+1, total);
   const e = Math.min(curPage*PER_PAGE, total);
-  info.textContent = total>0 ? `Showing ${s}–${e} of ${total}` : '';
+  info.textContent = total>0 ? t('Showing {start}–{end} of {total}', { start: s, end: e, total }) : '';
   btns.innerHTML = '';
   if (pages<=1) return;
   const mk = (label, page, disabled, active)=>{
@@ -1230,7 +1289,14 @@ function switchSec(name){
   document.querySelectorAll('.s-nav a').forEach(a=>a.classList.remove('active'));
   document.getElementById(`sec-${name}`)?.classList.add('active');
   document.querySelector(`[data-sec="${name}"]`)?.classList.add('active');
-  document.getElementById('page-title').textContent = name.charAt(0).toUpperCase()+name.slice(1);
+  const sectionTitles = {
+    overview: t('Overview'),
+    orders: t('Orders'),
+    categories: t('Categories'),
+    products: t('Products'),
+    messages: t('Messages'),
+  };
+  document.getElementById('page-title').textContent = sectionTitles[name] || name;
 }
 
 // ── CATEGORIES MANAGEMENT ───────────────
@@ -1254,7 +1320,7 @@ function renderCategories(){
   const html = allCategories.map(mainCat => {
     const subcatsHTML = mainCat.subcategories.map(subcat => `
       <div class="subcat-item">
-        <span class="subcat-name">${esc(subcat)}</span>
+        <span class="subcat-name" data-i18n-skip>${esc(subcat)}</span>
         <div class="subcat-actions">
           <button class="btn btn-secondary btn-icon btn-sm" onclick="editSubcat(${jsq(mainCat.mainCategory)},${jsq(subcat)})">
             <i class="fas fa-pencil-alt"></i>
@@ -1269,7 +1335,7 @@ function renderCategories(){
     return `
       <div class="main-cat-card">
         <div class="main-cat-header">
-          <h4>${esc(mainCat.mainCategory)}</h4>
+          <h4 data-i18n-skip>${esc(mainCat.mainCategory)}</h4>
           <button class="btn btn-secondary btn-sm" onclick="openAddSubcatModal(${jsq(mainCat.mainCategory)})">
             <i class="fas fa-plus"></i> Add Subcategory
           </button>
@@ -1285,7 +1351,7 @@ function renderCategories(){
 }
 
 function openAddMainCatModal(){
-  document.getElementById('main-cat-modal-title').textContent = 'Add Main Category';
+  document.getElementById('main-cat-modal-title').textContent = t('Add Main Category');
   document.getElementById('main-cat-form').reset();
   currentEditingMainCat = null;
   document.getElementById('main-cat-modal').classList.add('open');
@@ -1300,7 +1366,7 @@ function openAddSubcatModal(mainCatName){
   currentEditingMainCat = mainCatName;
   isEditingSubcat = false;
   currentEditingSubcat = null;
-  document.getElementById('subcat-modal-title').textContent = `Add Subcategory to ${mainCatName}`;
+  document.getElementById('subcat-modal-title').textContent = t('Add Subcategory to {mainCategory}', { mainCategory: mainCatName });
   document.getElementById('main-cat-for-subcat').value = mainCatName;
   document.getElementById('subcat-name').value = '';
   document.getElementById('subcat-modal').classList.add('open');
@@ -1310,7 +1376,7 @@ function editSubcat(mainCatName, subcatName){
   currentEditingMainCat = mainCatName;
   currentEditingSubcat = subcatName;
   isEditingSubcat = true;
-  document.getElementById('subcat-modal-title').textContent = `Edit Subcategory`;
+  document.getElementById('subcat-modal-title').textContent = t('Edit Subcategory');
   document.getElementById('main-cat-for-subcat').value = mainCatName;
   document.getElementById('subcat-name').value = subcatName;
   document.getElementById('subcat-modal').classList.add('open');
@@ -1394,7 +1460,7 @@ async function saveSubcat(){
 async function delSubcat(mainCat, subcat) {
   const ok = await confirmDialog(
     'Delete Subcategory',
-    `Delete "${subcat}"? This cannot be undone. Products using this category must be moved or deleted first.`
+    t('Delete "{subcat}"? This cannot be undone. Products using this category must be moved or deleted first.', { subcat })
   );
   if (!ok) return;
   try {
@@ -1436,7 +1502,7 @@ function applyProductFilters(){
 function renderProductsTable(){
   const tbody = document.getElementById('products-tbody');
   const cnt = document.getElementById('products-count');
-  if (cnt) cnt.textContent = `${filteredProducts.length} product(s)`;
+  if (cnt) cnt.textContent = t('{count} product(s)', { count: filteredProducts.length });
   if (!filteredProducts.length){
     tbody.innerHTML='<tr><td colspan="6"><div class="empty"><i class="fas fa-inbox"></i><p>No products found</p></div></td></tr>';
     return;
@@ -1444,14 +1510,14 @@ function renderProductsTable(){
   const sorted = applySortToProducts(filteredProducts);
   tbody.innerHTML = sorted.map(p=>{
     const mainCatBadges = (p.mainCategories||[]).map(mc =>
-      `<span style="font-size:9px;background:var(--primary-dim);color:var(--primary);padding:1px 5px;border-radius:3px;margin-right:2px">${esc(mc)}</span>`
+      `<span data-i18n-skip style="font-size:9px;background:var(--primary-dim);color:var(--primary);padding:1px 5px;border-radius:3px;margin-right:2px">${esc(mc)}</span>`
     ).join('');
     return `
     <tr onclick="editProduct(${Number(p.id)})">
       <td><span class="oid">${esc(String(p.id))}</span></td>
-      <td>${esc(p.name||'—')}</td>
+      <td data-i18n-skip>${esc(p.name||'—')}</td>
       <td>
-        <span style="font-size:10px;background:#1e1e1e;padding:2px 6px;border-radius:4px">${esc(p.category||'—')}</span>
+        <span data-i18n-skip style="font-size:10px;background:#1e1e1e;padding:2px 6px;border-radius:4px">${esc(p.category||'—')}</span>
         <div style="margin-top:3px">${mainCatBadges}</div>
       </td>
       <td>${esc(fmtNum(p.price))} TND</td>
@@ -1480,7 +1546,7 @@ function renderMainCategoryCheckboxes(selected = []){
   container.innerHTML = names.map(name => `
     <label style="display:flex;align-items:center;gap:6px">
       <input type="checkbox" class="main-cat-cb" value="${esc(name)}" ${selectedSet.has(name) ? 'checked' : ''}/>
-      <span style="font-size:12px;color:var(--text)">${esc(name)}</span>
+      <span data-i18n-skip style="font-size:12px;color:var(--text)">${esc(name)}</span>
     </label>
   `).join('');
 }
@@ -1489,7 +1555,7 @@ function openProductModal(isNew=true, selectedMainCats=[]){
   isEditingProduct = !isNew;
   const title = document.getElementById('product-modal-title');
   const idField = document.getElementById('prod-id');
-  title.textContent = isNew ? 'Add Product' : 'Edit Product';
+  title.textContent = isNew ? t('Add Product') : t('Edit Product');
   idField.disabled = !isNew;
   if (isNew) {
     document.getElementById('product-form').reset();
@@ -1518,6 +1584,7 @@ function populateCategoryDropdown(){
       const option = document.createElement('option');
       option.value = subcat;
       option.textContent = subcat.charAt(0).toUpperCase() + subcat.slice(1).replace(/-/g, ' ');
+      option.setAttribute('data-i18n-skip', '');
       select.appendChild(option);
     });
   });
@@ -1546,6 +1613,7 @@ function populateCategoryFilter(){
       const option = document.createElement('option');
       option.value = subcat;
       option.textContent = subcat.charAt(0).toUpperCase() + subcat.slice(1).replace(/-/g, ' ');
+      option.setAttribute('data-i18n-skip', '');
       select.appendChild(option);
     });
   });
@@ -1699,7 +1767,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // Delete order
   document.getElementById('del-btn').addEventListener('click', async ()=>{
     if (!curOrder) return;
-    const ok = await confirmDialog('Delete Order', `Delete order ${curOrder.orderId}? This cannot be undone.`);
+    const ok = await confirmDialog('Delete Order', t('Delete order {orderId}? This cannot be undone.', { orderId: curOrder.orderId }));
     if (!ok) return;
     try {
       await apiFetch('/api/orders',{ method:'DELETE', body:JSON.stringify({ orderId:curOrder.orderId }) });
@@ -1754,23 +1822,23 @@ document.addEventListener('DOMContentLoaded', ()=>{
     if (!tbody) return;
     
     if (!allMessages.length) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text-muted)"><i class="fas fa-inbox"></i> <p>No messages yet</p></td></tr>';
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text-muted)"><i class="fas fa-inbox"></i> <p>${esc(t('No messages yet'))}</p></td></tr>`;
       return;
     }
     
     tbody.innerHTML = allMessages.map(msg => {
       const dateValue = new Date(msg.date);
-      const date = Number.isNaN(dateValue.getTime()) ? '—' : dateValue.toLocaleDateString();
+      const date = Number.isNaN(dateValue.getTime()) ? '—' : (i18n ? i18n.formatDate(dateValue) : dateValue.toLocaleDateString());
       const text = String(msg.message || '');
       const preview = text.substring(0, 50) + (text.length > 50 ? '...' : '');
       return `
         <tr onclick="showMessageDetail(${jsq(msg.id)})">
           <td>${date}</td>
-          <td style="font-weight:500">${esc(msg.name)}</td>
-          <td style="font-size:11px;color:var(--text-muted)">${esc(msg.email)}</td>
-          <td style="font-size:12px">${esc(preview)}</td>
+          <td style="font-weight:500" data-i18n-skip>${esc(msg.name)}</td>
+          <td style="font-size:11px;color:var(--text-muted)" data-i18n-skip>${esc(msg.email)}</td>
+          <td style="font-size:12px" data-i18n-skip>${esc(preview)}</td>
           <td style="text-align:right">
-            <button class="btn btn-danger btn-icon btn-sm" onclick="deleteMessage(${jsq(msg.id)},event)" title="Delete">
+            <button class="btn btn-danger btn-icon btn-sm" onclick="deleteMessage(${jsq(msg.id)},event)" title="${esc(t('Delete'))}">
               <i class="fas fa-trash"></i>
             </button>
           </td>
@@ -1782,8 +1850,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
   window.showMessageDetail = function(msgId) {
     const msg = allMessages.find(m => m.id === msgId);
     if (!msg) return;
-    alert(`From: ${msg.name}\nEmail: ${msg.email}\n\nMessage:\n${msg.message}`);
+    alert(`${t('From:')} ${msg.name}\n${t('Email:')} ${msg.email}\n\n${t('Message:')}\n${msg.message}`);
   };
+  window.renderMessagesTable = renderMessagesTable;
   
   window.deleteMessage = async function(msgId, e) {
     if (e) { e.stopPropagation(); e.preventDefault(); }
@@ -1835,6 +1904,56 @@ document.addEventListener('DOMContentLoaded', ()=>{
   loadCategories();
   if (document.querySelector('#sec-products')) {
     loadProducts();
+  }
+
+  // Re-render dynamic admin views when the language changes. Static labels are
+  // handled by DimaI18n; tables, dates, counts and charts need fresh strings.
+  if (window.DimaI18n) {
+    window.DimaI18n.onLanguageChange(() => {
+      if (!adminKey) return;
+      try {
+        const activeSec = document.querySelector('.s-nav a.active')?.dataset.sec || 'overview';
+        const sectionTitles = {
+          overview: t('Overview'),
+          orders: t('Orders'),
+          categories: t('Categories'),
+          products: t('Products'),
+          messages: t('Messages'),
+        };
+        const pageTitle = document.getElementById('page-title');
+        if (pageTitle) pageTitle.textContent = sectionTitles[activeSec] || activeSec;
+        const refreshBtn = document.getElementById('refresh-btn');
+        if (refreshBtn) refreshBtn.innerHTML = `<i class="fas fa-sync-alt"></i> ${t('Refresh')}`;
+        if (document.getElementById('product-modal')?.classList.contains('open')) {
+          const productTitle = document.getElementById('product-modal-title');
+          if (productTitle) productTitle.textContent = isEditingProduct ? t('Edit Product') : t('Add Product');
+        }
+        if (document.getElementById('main-cat-modal')?.classList.contains('open')) {
+          const mainCatTitle = document.getElementById('main-cat-modal-title');
+          if (mainCatTitle) mainCatTitle.textContent = currentEditingMainCat ? t('Edit Main Category') : t('Add Main Category');
+        }
+        if (document.getElementById('subcat-modal')?.classList.contains('open')) {
+          const subcatTitle = document.getElementById('subcat-modal-title');
+          if (subcatTitle) subcatTitle.textContent = isEditingSubcat
+            ? t('Edit Subcategory')
+            : t('Add Subcategory to {mainCategory}', { mainCategory: currentEditingMainCat || '' });
+        }
+        const refreshMessagesBtn = document.getElementById('refresh-messages-btn');
+        if (refreshMessagesBtn) refreshMessagesBtn.innerHTML = `<i class="fas fa-sync-alt"></i> ${t('Refresh')}`;
+        if (pendingConfirm && document.getElementById('confirm-bg')?.classList.contains('open')) {
+          document.getElementById('confirm-title').textContent = t(pendingConfirm.title);
+          document.getElementById('confirm-msg').textContent = t(pendingConfirm.msg);
+        }
+        renderRecent();
+        renderOrdersTable();
+        renderCategories();
+        if (allProducts.length) renderProductsTable();
+        if (typeof window.renderMessagesTable === 'function') window.renderMessagesTable();
+        if (lastStats) buildCharts(lastStats);
+      } catch (error) {
+        console.error('[admin i18n] refresh failed:', error);
+      }
+    });
   }
 });
 </script>

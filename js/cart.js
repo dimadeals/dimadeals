@@ -1,6 +1,15 @@
 import { showToast, escapeHTML } from './utils.js';
 import { getProductById } from './api.js';
 
+const i18n = window.DimaI18n;
+const t = (message, vars) => (i18n ? i18n.t(message, vars) : message);
+const localizeProduct = (product) => (i18n ? i18n.localizeProduct(product) : product);
+
+function localizedItemName(item) {
+  const product = getProductById(item.id);
+  return product ? localizeProduct(product).name : item.name;
+}
+
 // ============ CART MANAGEMENT SYSTEM ============
 
 const MAX_QUANTITY = 99;
@@ -53,7 +62,7 @@ export function saveCart(cart) {
     localStorage.setItem('cart', JSON.stringify(cart));
   } catch (error) {
     console.error('Could not save cart:', error);
-    showToast('Could not save your cart. Storage may be full.', 'error');
+    showToast(t('Could not save your cart. Storage may be full.'), 'error');
   }
   updateCartCount();
 }
@@ -61,10 +70,11 @@ export function saveCart(cart) {
 // Add product to cart
 export function addToCart(product, quantity = 1) {
   if (!product || product.id === undefined) {
-    showToast('Product not found. Please refresh and try again.', 'error');
+    showToast(t('Product not found. Please refresh and try again.'), 'error');
     return;
   }
 
+  const displayProduct = localizeProduct(product);
   const cart = getCart();
   const existingItem = cart.find(item => String(item.id) === String(product.id));
   const amount = Math.max(1, Math.trunc(Number(quantity) || 1));
@@ -74,7 +84,7 @@ export function addToCart(product, quantity = 1) {
   } else {
     cart.push({
       id: Number(product.id),
-      name: String(product.name || 'Product'),
+      name: String(displayProduct.name || 'Product'),
       price: Number(product.price) || 0,
       image: product.images?.[0] || product.image || '',
       quantity: Math.min(MAX_QUANTITY, amount),
@@ -82,7 +92,7 @@ export function addToCart(product, quantity = 1) {
   }
 
   saveCart(cart);
-  showToast(`${product.name} added to cart!`);
+  showToast(t('{name} added to cart!', { name: displayProduct.name }));
 }
 
 // Remove item from cart
@@ -130,7 +140,7 @@ export function updateCartCount() {
     el.textContent = totalItems;
   });
   document.querySelectorAll('.cart-icon-link').forEach(link => {
-    link.setAttribute('aria-label', `Shopping cart, ${totalItems} item${totalItems === 1 ? '' : 's'}`);
+    link.setAttribute('aria-label', t('Shopping cart, {count} item(s)', { count: totalItems }));
   });
 }
 
@@ -160,23 +170,24 @@ export function displayCart() {
     const itemElement = document.createElement('div');
     itemElement.className = 'cart-item';
     const image = item.image || 'images/brand.png';
+    const name = localizedItemName(item);
     itemElement.innerHTML = `
       <div class="item-image">
-        <img src="${escapeHTML(image)}" alt="${escapeHTML(item.name)}" onerror="this.src='images/brand.png'">
+        <img src="${escapeHTML(image)}" alt="${escapeHTML(name)}" onerror="this.src='images/brand.png'">
       </div>
       <div class="item-details">
-        <h3>${escapeHTML(item.name)}</h3>
-        <p class="item-price">${item.price.toFixed(2)} TND</p>
+        <h3 data-i18n-skip>${escapeHTML(name)}</h3>
+        <p class="item-price" dir="ltr">${item.price.toFixed(2)} TND</p>
       </div>
       <div class="item-quantity">
-        <button onclick="updateQuantity(${item.id}, ${item.quantity - 1})" aria-label="Decrease quantity">-</button>
+        <button onclick="updateQuantity(${item.id}, ${item.quantity - 1})" aria-label="${escapeHTML(t('Decrease quantity'))}">-</button>
         <span>${item.quantity}</span>
-        <button onclick="updateQuantity(${item.id}, ${item.quantity + 1})" aria-label="Increase quantity">+</button>
+        <button onclick="updateQuantity(${item.id}, ${item.quantity + 1})" aria-label="${escapeHTML(t('Increase quantity'))}">+</button>
       </div>
-      <div class="item-total">
+      <div class="item-total" dir="ltr">
         ${(item.price * item.quantity).toFixed(2)} TND
       </div>
-      <button class="remove-btn" onclick="removeFromCart(${item.id})" aria-label="Remove ${escapeHTML(item.name)}">
+      <button class="remove-btn" onclick="removeFromCart(${item.id})" aria-label="${escapeHTML(t('Remove {name}', { name }))}">
         <i class="fas fa-trash"></i>
       </button>
     `;
@@ -199,7 +210,7 @@ export function displayCart() {
 export function goToCheckout() {
   const cart = getCart();
   if (cart.length === 0) {
-    showToast('Your cart is empty!', 'error');
+    showToast(t('Your cart is empty!'), 'error');
     return;
   }
   window.location.href = '/checkout';
@@ -224,10 +235,10 @@ export function displayCheckoutSummary() {
     itemElement.className = 'order-item';
     itemElement.innerHTML = `
       <div class="order-item-info">
-        <span class="order-item-name">${escapeHTML(item.name)}</span>
+        <span class="order-item-name" data-i18n-skip>${escapeHTML(localizedItemName(item))}</span>
         <span class="order-item-qty">x${item.quantity}</span>
       </div>
-      <div class="order-item-price">
+      <div class="order-item-price" dir="ltr">
         ${(item.price * item.quantity).toFixed(2)} TND
       </div>
     `;
@@ -259,20 +270,20 @@ export function setupCheckoutForm() {
       const items = getCart();
 
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) throw new Error('Please enter a valid email address');
-      if (!/^[0-9]{8}$/.test(phone.replace(/\D/g, ''))) throw new Error('Phone must be 8 digits');
-      if (fullname.length < 3) throw new Error('Full name must be at least 3 characters');
-      if (!country) throw new Error('Please select your country');
-      if (!terms) throw new Error('Please accept the Terms of Service and Privacy Policy');
-      if (items.length === 0) throw new Error('Your cart is empty');
+      if (!emailRegex.test(email)) throw new Error(t('Please enter a valid email address'));
+      if (!/^[0-9]{8}$/.test(phone.replace(/\D/g, ''))) throw new Error(t('Phone must be 8 digits'));
+      if (fullname.length < 3) throw new Error(t('Full name must be at least 3 characters'));
+      if (!country) throw new Error(t('Please select your country'));
+      if (!terms) throw new Error(t('Please accept the Terms of Service and Privacy Policy'));
+      if (items.length === 0) throw new Error(t('Your cart is empty'));
 
       // Validate against the currently loaded catalog (server validates again).
       const unavailable = items.filter(item => !getProductById(item.id));
       if (unavailable.length > 0) {
-        throw new Error('Some items in your cart are no longer available. Please clear your cart and re-add them.');
+        throw new Error(t('Some items in your cart are no longer available. Please clear your cart and re-add them.'));
       }
 
-      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Placing Order...';
+      submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${escapeHTML(t('Placing Order...'))}`;
       submitBtn.disabled = true;
 
       const formData = { email, phone, fullname, country, items, total: getCartTotal() };
@@ -286,11 +297,11 @@ export function setupCheckoutForm() {
       const text = await response.text();
       let result;
       try { result = JSON.parse(text); } catch {
-        throw new Error('The server returned an unexpected response. Please try again.');
+        throw new Error(t('The server returned an unexpected response. Please try again.'));
       }
 
       if (!response.ok || !result.success) {
-        throw new Error(result.error || 'Checkout failed');
+        throw new Error(t(result.error || 'Checkout failed'));
       }
 
       // Persist a display snapshot for the confirmation page; the page also
@@ -312,7 +323,7 @@ export function setupCheckoutForm() {
       window.location.href = `/confirmation?orderId=${encodeURIComponent(result.orderId)}`;
     } catch (error) {
       console.error('❌ Checkout error:', error);
-      showToast(`Error: ${error.message}`, 'error');
+      showToast(t('Error: {message}', { message: error.message }), 'error');
       submitBtn.innerHTML = originalButton;
       submitBtn.disabled = false;
     }
@@ -364,61 +375,64 @@ export async function displayConfirmation() {
     confirmationInfo.innerHTML = `
       <div class="empty-state">
         <i class="fas fa-exclamation-triangle"></i>
-        <h3>Order not found</h3>
-        <p>We could not find this order. If you just placed it, please contact support.</p>
-        <a href="/" class="cta-button">Back to Home</a>
+        <h3>${escapeHTML(t('Order not found'))}</h3>
+        <p>${escapeHTML(t('We could not find this order. If you just placed it, please contact support.'))}</p>
+        <a href="/" class="cta-button">${escapeHTML(t('Back to Home'))}</a>
       </div>`;
     confirmationItemsList.innerHTML = '';
     return;
   }
 
   const dateValue = orderData.createdAt ? new Date(orderData.createdAt) : new Date();
-  const dateText = Number.isNaN(dateValue.getTime()) ? new Date().toLocaleString() : dateValue.toLocaleString();
+  const dateText = i18n
+    ? i18n.formatDate(dateValue, { dateStyle: 'medium', timeStyle: 'short' })
+    : (Number.isNaN(dateValue.getTime()) ? new Date().toLocaleString() : dateValue.toLocaleString());
   const phone = String(orderData.phone || '').replace(/\D/g, '');
   const items = Array.isArray(orderData.items) ? orderData.items : [];
 
   confirmationInfo.innerHTML = `
     <div class="info-row">
-      <span class="label">Order ID:</span>
-      <span class="value"><strong>${escapeHTML(orderData.orderId || finalOrderId)}</strong></span>
+      <span class="label">${escapeHTML(t('Order ID:'))}</span>
+      <span class="value" dir="ltr"><strong>${escapeHTML(orderData.orderId || finalOrderId)}</strong></span>
     </div>
     <div class="info-row">
-      <span class="label">Email:</span>
-      <span class="value">${escapeHTML(orderData.email || '')}</span>
+      <span class="label">${escapeHTML(t('Email:'))}</span>
+      <span class="value" dir="ltr">${escapeHTML(orderData.email || '')}</span>
     </div>
     <div class="info-row">
-      <span class="label">Name:</span>
-      <span class="value">${escapeHTML(orderData.fullname || '')}</span>
+      <span class="label">${escapeHTML(t('Name:'))}</span>
+      <span class="value" data-i18n-skip>${escapeHTML(orderData.fullname || '')}</span>
     </div>
     <div class="info-row">
-      <span class="label">Phone:</span>
-      <span class="value">${phone ? `+216 ${escapeHTML(phone)}` : '—'}</span>
+      <span class="label">${escapeHTML(t('Phone:'))}</span>
+      <span class="value" dir="ltr">${phone ? `+216 ${escapeHTML(phone)}` : '—'}</span>
     </div>
     <div class="info-row">
-      <span class="label">Date:</span>
+      <span class="label">${escapeHTML(t('Date:'))}</span>
       <span class="value">${escapeHTML(dateText)}</span>
     </div>
     <div class="info-row">
-      <span class="label">Total:</span>
-      <span class="value"><strong>${Number(orderData.total || 0).toFixed(2)} TND</strong></span>
+      <span class="label">${escapeHTML(t('Total:'))}</span>
+      <span class="value" dir="ltr"><strong>${Number(orderData.total || 0).toFixed(2)} TND</strong></span>
     </div>
   `;
 
   confirmationItemsList.innerHTML = '';
   if (items.length === 0) {
-    confirmationItemsList.innerHTML = '<p class="muted">No items in this order.</p>';
+    confirmationItemsList.innerHTML = `<p class="muted">${escapeHTML(t('No items in this order.'))}</p>`;
     return;
   }
 
   items.forEach(item => {
-    const name = String(item.name || 'Product');
+    const product = getProductById(item.id);
+    const name = product ? localizeProduct(product).name : String(item.name || 'Product');
     const quantity = Math.max(1, Math.trunc(Number(item.quantity) || 1));
     const price = Number(item.price) || 0;
     const itemElement = document.createElement('div');
     itemElement.className = 'confirmation-item-row';
     itemElement.innerHTML = `
-      <span>${escapeHTML(name)} x${quantity}</span>
-      <span>${(price * quantity).toFixed(2)} TND</span>
+      <span data-i18n-skip>${escapeHTML(name)} x${quantity}</span>
+      <span dir="ltr">${(price * quantity).toFixed(2)} TND</span>
     `;
     confirmationItemsList.appendChild(itemElement);
   });

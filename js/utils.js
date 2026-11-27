@@ -25,7 +25,7 @@ export function showToast(message, type = 'success') {
   }
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
-  toast.textContent = message;
+  toast.textContent = window.DimaI18n ? window.DimaI18n.t(message) : message;
   container.appendChild(toast);
   // trigger enter animation
   requestAnimationFrame(() => toast.classList.add('toast-visible'));

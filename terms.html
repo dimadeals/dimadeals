@@ -4,9 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script>
-    try { document.documentElement.dataset.theme = localStorage.getItem('theme') || 'dark'; }
-    catch (error) { document.documentElement.dataset.theme = 'dark'; }
-  </script>
+  try {
+    var _lang = localStorage.getItem('language') || 'en';
+    if (!['en', 'fr', 'ar'].includes(_lang)) _lang = 'en';
+    document.documentElement.lang = _lang;
+    document.documentElement.dir = _lang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.dataset.language = _lang;
+    document.documentElement.dataset.theme = localStorage.getItem('theme') || 'dark';
+  } catch (error) {
+    document.documentElement.lang = 'en';
+    document.documentElement.dir = 'ltr';
+    document.documentElement.dataset.language = 'en';
+    document.documentElement.dataset.theme = 'dark';
+  }
+</script>
     <meta name="description" content="Terms of Service for DIMA Deals.">
     <title>Terms of Service - DIMA Deals</title>
     <link rel="stylesheet" href="style.css?v=5.0">
@@ -78,6 +89,14 @@
           <a href="/browse" class="nav-link">All products</a>
         </li>
       </ul>
+    <div class="mobile-language">
+        <span><i class="fas fa-globe"></i> Language</span>
+        <select class="language-select mobile-language-select" data-language-select aria-label="Language">
+          <option value="en">EN</option>
+          <option value="fr">FR</option>
+          <option value="ar">AR</option>
+        </select>
+      </div>
     </nav>
 
     <div class="nav-right">
@@ -294,6 +313,7 @@
 
     <script>
     </script>
-    <script type="module" src="js/main.js?v=5.0"></script>
+    <script src="js/i18n.js?v=1.0"></script>
+<script type="module" src="js/main.js?v=5.0"></script>
 </body>
 </html>
