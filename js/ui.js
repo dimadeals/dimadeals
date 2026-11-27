@@ -1,4 +1,4 @@
-import { escapeHTML, showToast } from './utils.js';
+import { escapeHTML, showToast, PRODUCT_IMAGE_SKELETON, PRODUCT_IMAGE_FALLBACK, PRODUCT_IMAGE_LOAD_ATTR, PRODUCT_IMAGE_ERROR_ATTR } from './utils.js';
 import { getProductById, getAllProducts, PRODUCTS_DATABASE } from './api.js';
 import { CATALOG_METADATA, getMainCategories } from './products.js';
 import { addToCart } from './cart.js';
@@ -84,9 +84,8 @@ export function createProductCard(product) {
 
   const imageSrc = localized.images && localized.images.length > 0 ? localized.images[0] : localized.image;
   const imageHTML = imageSrc
-    ? `<img src="${escapeHTML(imageSrc)}" alt="${escapeHTML(name)}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.onerror=null;this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='flex';">`
+    ? `<img src="${escapeHTML(imageSrc)}" alt="${escapeHTML(name)}" class="product-image" loading="lazy" decoding="async" ${PRODUCT_IMAGE_LOAD_ATTR} ${PRODUCT_IMAGE_ERROR_ATTR}>`
     : '';
-  const noImageHTML = `<div class="no-image-card-message"${imageSrc ? ' style="display:none"' : ''}>${escapeHTML(t('No image available'))}</div>`;
 
   const discount = getDiscountPercent(localized);
   const badges = [];
@@ -117,9 +116,10 @@ export function createProductCard(product) {
              aria-label="${escapeHTML(t('View {name}', { name }))}"
              onclick="viewProductDetails(${inlineArg(localized.id)})"
              onkeydown="if(event.target!==event.currentTarget)return; if(event.key==='Enter'||event.key===' '){event.preventDefault();viewProductDetails(${inlineArg(localized.id)});}">
-      <div class="product-card-media">
+      <div class="product-card-media product-image-shell${imageSrc ? '' : ' is-failed'}">
+        ${PRODUCT_IMAGE_SKELETON}
         ${imageHTML}
-        ${noImageHTML}
+        ${PRODUCT_IMAGE_FALLBACK}
         ${overlay}
         ${badges.length ? `<div class="product-card-badges">${badges.join('')}</div>` : ''}
       </div>
@@ -356,7 +356,8 @@ export function loadProductDetails() {
 
 function showProductNotFound() {
   const productInfo = document.querySelector('.product-info');
-  const mainImageContainer = document.querySelector('.product-images');
+  const galleryMain = document.querySelector('.gallery-main');
+  const mainImage = document.getElementById('main-image');
 
   if (productInfo) {
     productInfo.innerHTML = `
@@ -368,14 +369,10 @@ function showProductNotFound() {
       </div>`;
   }
 
-  if (mainImageContainer) {
-    const mainImage = document.getElementById('main-image');
-    if (mainImage) mainImage.style.display = 'none';
-
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'no-image-message main-image-message';
-    messageDiv.textContent = t('Product not found');
-    mainImageContainer.appendChild(messageDiv);
+  if (mainImage) mainImage.style.display = 'none';
+  if (galleryMain) {
+    galleryMain.classList.remove('is-loaded');
+    galleryMain.classList.add('is-failed');
   }
 }
 
@@ -395,45 +392,37 @@ function displayProductDetails(product) {
   const mainImage = product.images && product.images.length > 0 ? product.images[0] : product.image;
   const mainImageElement = document.getElementById('main-image');
   const mainImageContainer = document.querySelector('.product-images');
+  const galleryMain = document.querySelector('.gallery-main');
 
   if (mainImageElement && mainImageContainer) {
     mainImageContainer.classList.toggle('is-logo', usesLogoArtwork(product));
-    const existingMessage = mainImageContainer.querySelector('.main-image-message');
-    if (existingMessage) existingMessage.remove();
+    if (galleryMain) galleryMain.classList.remove('is-loaded', 'is-failed');
 
     if (mainImage) {
+      mainImageElement.classList.remove('loaded');
       mainImageElement.onerror = function () {
         this.style.display = 'none';
-        showNoImageMessage();
+        this.classList.remove('loaded');
+        galleryMain?.classList.remove('is-loaded');
+        galleryMain?.classList.add('is-failed');
       };
       mainImageElement.onload = function () {
         this.style.display = 'block';
         this.classList.add('loaded');
+        galleryMain?.classList.remove('is-failed');
+        galleryMain?.classList.add('is-loaded');
       };
       mainImageElement.src = mainImage;
       mainImageElement.style.display = 'block';
       mainImageElement.alt = displayName;
       if (mainImageElement.complete && mainImageElement.naturalWidth > 0) {
         mainImageElement.classList.add('loaded');
+        galleryMain?.classList.add('is-loaded');
       }
     } else {
       mainImageElement.style.display = 'none';
-      showNoImageMessage();
+      galleryMain?.classList.add('is-failed');
     }
-  }
-
-  function showNoImageMessage() {
-    if (!mainImageContainer) return;
-    const existingMessage = mainImageContainer.querySelector('.main-image-message');
-    if (existingMessage) existingMessage.remove();
-
-    const thumbnails = document.querySelector('.thumbnails');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'no-image-message main-image-message';
-    messageDiv.textContent = t('No product image available');
-
-    if (thumbnails) mainImageContainer.insertBefore(messageDiv, thumbnails);
-    else mainImageContainer.appendChild(messageDiv);
   }
 
   // Breadcrumb
@@ -503,17 +492,30 @@ function displayProductDetails(product) {
     thumbnails.innerHTML = '';
     if (Array.isArray(product.images) && product.images.length > 0) {
       product.images.forEach((imgSrc, index) => {
-        const thumbImg = document.createElement('img');
-        thumbImg.alt = `${displayName} — ${index + 1}`;
-        thumbImg.loading = 'lazy';
-        thumbImg.className = 'thumbnail';
-        thumbImg.onload = function () { this.classList.add('loaded'); };
-        thumbImg.onerror = function () { this.style.display = 'none'; };
+        const shell = document.createElement('span');
+        shell.className = 'thumbnail-shell product-image-shell';
+        shell.innerHTML = `${PRODUCT_IMAGE_SKELETON}<img class="thumbnail product-image" loading="lazy" decoding="async" alt="${escapeHTML(displayName)} — ${index + 1}">${PRODUCT_IMAGE_FALLBACK}`;
+        const thumbImg = shell.querySelector('img');
+
+        thumbImg.onload = function () {
+          this.classList.add('loaded');
+          shell.classList.add('is-loaded');
+          shell.classList.remove('is-failed');
+        };
+        thumbImg.onerror = function () {
+          this.classList.remove('loaded');
+          this.classList.add('is-failed');
+          shell.classList.remove('is-loaded');
+          shell.classList.add('is-failed');
+        };
         thumbImg.src = imgSrc;
-        if (thumbImg.complete && thumbImg.naturalWidth > 0) thumbImg.classList.add('loaded');
-        thumbnails.appendChild(thumbImg);
+        if (thumbImg.complete && thumbImg.naturalWidth > 0) {
+          thumbImg.classList.add('loaded');
+          shell.classList.add('is-loaded');
+        }
+        thumbnails.appendChild(shell);
       });
-      if (thumbnails.firstElementChild) thumbnails.firstElementChild.classList.add('active');
+      thumbnails.querySelector('img')?.classList.add('active');
     }
   }
 }

@@ -1,4 +1,4 @@
-import { showToast, escapeHTML } from './utils.js';
+import { showToast, escapeHTML, PRODUCT_IMAGE_SKELETON, PRODUCT_IMAGE_FALLBACK, PRODUCT_IMAGE_LOAD_ATTR, PRODUCT_IMAGE_ERROR_ATTR } from './utils.js';
 import { getProductById } from './api.js';
 
 const i18n = window.DimaI18n;
@@ -169,11 +169,17 @@ export function displayCart() {
   cartItems.forEach(item => {
     const itemElement = document.createElement('div');
     itemElement.className = 'cart-item';
-    const image = item.image || 'images/brand.png';
+    const product = getProductById(item.id);
+    const image = item.image || product?.images?.[0] || product?.image || '';
     const name = localizedItemName(item);
+    const imageHTML = image
+      ? `<img src="${escapeHTML(image)}" alt="${escapeHTML(name)}" class="product-image" ${PRODUCT_IMAGE_LOAD_ATTR} ${PRODUCT_IMAGE_ERROR_ATTR}>`
+      : '';
     itemElement.innerHTML = `
-      <div class="item-image">
-        <img src="${escapeHTML(image)}" alt="${escapeHTML(name)}" onerror="this.src='images/brand.png'">
+      <div class="item-image product-image-shell${image ? '' : ' is-failed'}">
+        ${PRODUCT_IMAGE_SKELETON}
+        ${imageHTML}
+        ${PRODUCT_IMAGE_FALLBACK}
       </div>
       <div class="item-details">
         <h3 data-i18n-skip>${escapeHTML(name)}</h3>

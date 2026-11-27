@@ -289,7 +289,17 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (!thumb) return;
     const main = document.getElementById('main-image');
     if (!main) return;
-    main.src = thumb.dataset.full ? thumb.dataset.full : thumb.src;
+    const nextSrc = thumb.dataset.full ? thumb.dataset.full : thumb.src;
+    if (main.src !== nextSrc) {
+      const shell = main.closest('.product-image-shell');
+      shell?.classList.remove('is-loaded', 'is-failed');
+      main.classList.remove('loaded');
+      main.src = nextSrc;
+      if (main.complete && main.naturalWidth > 0) {
+        main.classList.add('loaded');
+        shell?.classList.add('is-loaded');
+      }
+    }
     document.querySelectorAll('.thumbnails img').forEach(t => t.classList.remove('active'));
     thumb.classList.add('active');
   });

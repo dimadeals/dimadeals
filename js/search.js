@@ -1,4 +1,4 @@
-import { escapeHTML, debounce } from './utils.js';
+import { escapeHTML, debounce, PRODUCT_IMAGE_SKELETON, PRODUCT_IMAGE_FALLBACK, PRODUCT_IMAGE_LOAD_ATTR, PRODUCT_IMAGE_ERROR_ATTR } from './utils.js';
 import { getAllProducts } from './api.js';
 import { getProductBroadCategory, getMainCategories, sortProducts } from './products.js';
 import { initSearchPagination } from './ui.js';
@@ -48,10 +48,17 @@ function createSuggestionItem(product) {
   const stars = '★'.repeat(Math.floor(rating)) + (rating % 1 ? '✦' : '');
   const ratingHTML = rating ? `<div class="suggestion-rating">${stars} ${rating.toFixed(1)}</div>` : '';
   const description = String(product.description || '');
+  const imageHTML = imageSrc
+    ? `<img src="${escapeHTML(imageSrc)}" alt="${escapeHTML(product.name)}" class="suggestion-image product-image" ${PRODUCT_IMAGE_LOAD_ATTR} ${PRODUCT_IMAGE_ERROR_ATTR}>`
+    : '';
 
   return `
     <div class="suggestion-item" onclick="selectSuggestion(${jsArg(product.id)})">
-      <img src="${escapeHTML(imageSrc) || 'images/brand.png'}" alt="${escapeHTML(product.name)}" class="suggestion-image" onerror="this.onerror=null;this.src='images/brand.png'">
+      <span class="suggestion-image-shell product-image-shell${imageSrc ? '' : ' is-failed'}">
+        ${PRODUCT_IMAGE_SKELETON}
+        ${imageHTML}
+        ${PRODUCT_IMAGE_FALLBACK}
+      </span>
       <div class="suggestion-content">
         <div class="suggestion-name" data-i18n-skip>${escapeHTML(product.name)}</div>
         <div class="suggestion-price" dir="ltr">${product.price} TND</div>
